@@ -36,7 +36,7 @@ class TrustedLogin_Support_Side
          **/
         $this->debug_mode = true;
 
-        define('TL_DB_VERSION', '0.1.1');
+        define('TL_DB_VERSION', '0.1.2');
 
         // Setup the Audit Log DB
         $this->audit_db_table = $wpdb->prefix . 'tl_audit_log';
@@ -208,7 +208,7 @@ class TrustedLogin_Support_Side
 				  time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
 				  site_id char(32) NOT NULL,
 				  action varchar(55) NOT NULL,
-				  notes text DEFAULT '' NULL,
+				  notes text NULL,
 				  PRIMARY KEY  (id)
 				) $charset_collate;";
 
