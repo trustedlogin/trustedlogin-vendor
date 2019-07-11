@@ -3,7 +3,7 @@
  * Plugin Name: TrustedLogin Support Plugin
  * Plugin URI: https://trustedlogin.com
  * Description: Authenticate support team members to securely log them in to client sites via TrustedLogin
- * Version: 0.1.0
+ * Version: 0.2.0
  * Author: trustedlogin.com
  * Author URI: https://trustedlogin.com
  * Text Domain: tl-support-side
@@ -43,6 +43,66 @@ class TrustedLogin_Support_Side
         register_activation_hook(__FILE__, array($this, 'audit_db_init'));
         add_action('plugins_loaded', array($this, 'audit_db_maybe_update'));
 
+    }
+
+    /**
+     * API Wrapper: Get the envelope for a specified site ID
+     *
+     * @since 0.2.0
+     * @param String $site_id - unique identifier of a site
+     * @return Array|false
+     **/
+    public function api_get_envelope($site_id)
+    {
+        if (empty($site_id)) {
+            $this->dlog('Error: site_id cannot be empty.', __METHOD__);
+            return false;
+        }
+
+        /**
+         * @todo ping TL using the API key provided, to return $store_token
+         * @todo use $store_token to get envelope from Vault
+         **/
+
+        $token = $this->api_get_token();
+
+        $envelope = $this->api_send(TF_VAULT_URL, null, 'GET', $token);
+
+        $success = ($envelope) ? 'Succcessful' : 'Failed';
+
+        $this->audit_db_save($site_id, 'requested', $success);
+    }
+
+    /**
+     * API Helper: Get Token for encrypted storage from the TrustedLogin API
+     *
+     * @todo complete this
+     **/
+    public function api_get_token()
+    {
+        // Get Auth token from settings
+        $auth = '';
+
+        $response = $this->api_send(TF_API_URL, $data, 'POST', $auth);
+
+        return false;
+
+    }
+
+    /**
+     * API Helper: Send $data to $url, using $method and $auth.
+     *
+     * @todo complete this
+     * @param String $url
+     * @param Array $data
+     * @param String $method ('POST','GET','DELETE')
+     * @param String $auth - API key
+     * @return response
+     **/
+    public function api_send($url, $data, $method, $auth)
+    {
+        $this->dlog("url: $url | data: " . print_r($data, true) . " method: $method ");
+        return false;
     }
 
     /**
