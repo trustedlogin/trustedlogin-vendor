@@ -3,7 +3,7 @@
  * Plugin Name: TrustedLogin Support Plugin
  * Plugin URI: https://trustedlogin.com
  * Description: Authenticate support team members to securely log them in to client sites via TrustedLogin
- * Version: 0.2.0
+ * Version: 0.4.0
  * Author: trustedlogin.com
  * Author URI: https://trustedlogin.com
  * Text Domain: tl-support-side
@@ -19,13 +19,17 @@ if (!defined('ABSPATH')) {
 // Exit if accessed directly
 
 require_once plugin_dir_path(__FILE__) . 'includes/trait-debug-logging.php';
+require_once plugin_dir_path(__FILE__) . 'includes/trait-options.php';
 
 class TrustedLogin_Support_Side
 {
 
     use TL_Debug_Logging;
+    use TL_Options;
 
-    private $debug_mode;
+    private $debug_mode, $default_options, $menu_location;
+
+    private $plugin_version;
 
     public function __construct()
     {
@@ -36,12 +40,37 @@ class TrustedLogin_Support_Side
          **/
         $this->debug_mode = true;
 
+        $this->plugin_version = '0.4.0';
+
         define('TL_DB_VERSION', '0.1.2');
+
+        // Setup the Plugin Settings
+
+        /**
+         * Filter: Where in the menu the TrustedLogin Options should go.
+         * Added to allow devs to move options item under 'Settings' menu item in wp-admin to keep things neat.
+         *
+         * @since 0.4.0
+         * @param String either 'main' or 'submenu'
+         **/
+        $this->menu_location = apply_filters('trustedlogin_menu_location', 'main');
+
+        $this->tls_settings_set_defaults();
+        add_action('admin_menu', array($this, 'tls_settings_add_admin_menu'));
+        add_action('admin_init', array($this, 'tls_settings_init'));
+        add_action('admin_enqueue_scripts', array($this, 'tls_settings_scripts'));
 
         // Setup the Audit Log DB
         $this->audit_db_table = $wpdb->prefix . 'tl_audit_log';
         register_activation_hook(__FILE__, array($this, 'audit_db_init'));
         add_action('plugins_loaded', array($this, 'audit_db_maybe_update'));
+
+        add_action('trustedlogin_after_settings_form', array($this, 'audit_maybe_output'), 10);
+
+        // Endpoint Hooks
+        add_action('init', array($this, 'endpoint_add'), 10);
+        add_action('template_redirect', array($this, 'endpoint_maybe_redirect'), 99);
+        add_filter('query_vars', array($this, 'endpoint_add_var'));
 
     }
 
@@ -146,9 +175,67 @@ class TrustedLogin_Support_Side
         $query = "
             SELECT *
             FROM " . $this->audit_db_table . "
+            ORDER BY id DESC
             LIMIT " . $limit;
 
         return $wpdb->get_results($query);
+    }
+
+    public function audit_db_build_output($log_array)
+    {
+
+        $ret = '<div class="wrap">';
+
+        $ret .= '<table class="wp-list-table widefat fixed striped posts">';
+        $ret .= '<thead><tr>
+        <th scope="col" id="audit-id" class="manage-column column-audit-id column-primary sortable desc"><a href="#"><span>ID</span><span class="sorting-indicator"></span></a></th>
+        <th scope="col" id="user-id" class="manage-column column-user-id column-primary sortable desc"><a href="#"><span>User</span><span class="sorting-indicator"></span></a></th>
+        <th scope="col" id="site-id" class="manage-column column-site-id column-primary sortable desc"><a href="#"><span>Site ID</span><span class="sorting-indicator"></span></a></th>
+        <th scope="col" id="time" class="manage-column column-time column-primary sortable desc"><a href="#"><span>Time</span><span class="sorting-indicator"></span></a></th>
+        <th scope="col" id="action" class="manage-column column-action column-primary sortable desc"><a href="#"><span>Action</span><span class="sorting-indicator"></span></a></th>
+        <th scope="col" id="notes" class="manage-column column-notes column-primary sortable desc"><a href="#"><span>Notes</span><span class="sorting-indicator"></span></a></th>
+        </tr></thead><tbody id="the-list">';
+
+        foreach ($log_array as $log_item) {
+            $ret .= '<tr>';
+            $ret .= '<td>' . $log_item->id . '</td>';
+            $ret .= '<td>' . get_user_by('id', $log_item->user_id)->display_name . '</td>';
+            $ret .= '<td>' . $log_item->site_id . '</td>';
+            $ret .= '<td>' . $log_item->time . '</td>';
+            $ret .= '<td>' . $log_item->action . '</td>';
+            $ret .= '<td>' . $log_item->notes . '</td>';
+            $ret .= '</tr>';
+        }
+
+        $ret .= '</tbody>';
+
+        // $ret .= '<tfoot>';
+        // $ret .= '<tr class="subtotal"><td>Monthly Total</td><td id="scr-total">' . $sales_rows['total'] . '</td></tr>';
+        // $ret .= '</tfoot>';
+
+        $ret .= '</table>';
+
+        $ret .= '</div>';
+
+        return $ret;
+
+    }
+
+    public function audit_maybe_output()
+    {
+
+        if ($this->tls_settings_is_toggled('tls_output_audit_log')) {
+            $log = $this->audit_db_fetch();
+
+            echo '<h1 class="wp-heading-inline">Last Audit Log Entries</span></h1>';
+
+            if (0 < count($log)) {
+                echo $this->audit_db_build_output($log);
+            } else {
+
+                echo __("No Audit Log items to show yet.", 'tl-support-side');
+            }
+        }
     }
 
     /**
@@ -229,6 +316,129 @@ class TrustedLogin_Support_Side
         if (get_site_option('tl_db_version') != TL_DB_VERSION) {
             $this->audit_db_init();
         }
+    }
+
+    /**
+     * Hooked Action: Add a specified endpoint to WP when plugin is active
+     *
+     * @since 0.3.0
+     **/
+    public function endpoint_add()
+    {
+        /**
+         * @todo - get this from the plugin options
+         **/
+        $endpoint = 'false';
+
+        if ($endpoint && !get_option('fl_permalinks_flushed')) {
+            $endpoint_regex = '^' . $endpoint . '/([^/]+)/?$';
+            $this->dlog("Endpoint Regex: $endpoint_regex", __METHOD__);
+            add_rewrite_rule(
+                // ^p/(d+)/?$
+                $endpoint_regex,
+                'index.php?' . $endpoint . '=$matches[1]',
+                'top');
+            $this->dlog("Endpoint $endpoint added.", __METHOD__);
+            flush_rewrite_rules(false);
+            $this->dlog("Rewrite rules flushed.", __METHOD__);
+            update_option('fl_permalinks_flushed', 1);
+        }
+        return;
+    }
+
+    /**
+     * Filter: Add our custom variable to endpoint queries to hold the identifier
+     *
+     * @since 0.3.0
+     * @param Array $vars
+     * @return Array
+     **/
+    public function endpoint_add_var($vars)
+    {
+
+        /**
+         * @todo - get this from plugin options
+         **/
+        $endpoint = false;
+
+        if ($endpoint) {
+            $vars[] = $endpoint;
+
+            $this->dlog("Endpoint var $endpoint added", __METHOD__);
+        }
+
+        return $vars;
+
+    }
+
+    /**
+     * Hooked Action: Check if the endpoint is hit and has a valid identifier before automatically logging in support agent
+     *
+     * @since 0.3.0
+     **/
+    public function endpoint_maybe_redirect()
+    {
+
+        $endpoint = false;
+
+        if ($endpoint) {
+            $identifier = get_query_var($endpoint, false);
+
+            if (!empty($identifier)) {
+                $this->maybe_redirect_support($identifier);
+            }
+        }
+
+    }
+
+    public function maybe_redirect_support($identifier)
+    {
+
+        $this->dlog("Got here", __METHOD__);
+
+        // first check if user can be redirected.
+        if (!$this->auth_verify_user()) {
+            return;
+        }
+
+        // then get the envelope
+        // $envelope = $this->api_get_envelope($identifier);
+
+        // then get the url
+        // $url = $this->envelope_to_url($envelope);
+
+        if ($url) {
+            // then redirect
+            wp_redirect($url, 302);
+            exit;
+        }
+    }
+
+    public function auth_verify_user()
+    {
+
+        if (!is_user_logged_in()) {
+            return false;
+        }
+
+        $_usr = get_userdata(get_current_user_id());
+        $user_roles = $_usr->roles;
+
+        if (!is_array($user_roles)) {
+            return false;
+        }
+
+        $required_roles = $this->tls_settings_get_approved_roles();
+
+        $intersect = array_intersect($required_roles, $user_roles);
+
+        $this->dlog("intersect: " . print_r($intersect, true), __METHOD__);
+
+        if (0 < count($intersect)) {
+            return true;
+        }
+
+        return false;
     }
 
 }
