@@ -6,7 +6,8 @@ trait TL_Options
     {
         if (property_exists($this, 'default_options')) {
             $this->default_options = array(
-                'tls_public_key' => "",
+                'tls_account_id' => "",
+                'tls_account_key' => "",
                 'tls_helpdesk' => array(),
                 'tls_approved_roles' => array('administrator'),
                 'tls_debug_enabled' => 'on',
@@ -16,6 +17,8 @@ trait TL_Options
         if (property_exists($this, 'menu_location')) {
             $this->menu_location = 'main'; // change to 'submenu' to add under Setting tab
         }
+
+        $this->options = get_option('tls_settings', $this->default_options);
     }
 
     public function tls_settings_add_admin_menu()
@@ -51,9 +54,17 @@ trait TL_Options
         );
 
         add_settings_field(
-            'tls_public_key',
+            'tls_account_id',
+            __('TrustedLogin Account ID ', 'tl-support-side'),
+            array($this, 'tls_settings_account_id_field_render'),
+            'TLS_plugin_options',
+            'tls_options_section'
+        );
+
+        add_settings_field(
+            'tls_account_key',
             __('TrustedLogin API Key ', 'tl-support-side'),
-            array($this, 'tls_settings_render_key_field'),
+            array($this, 'tls_settings_account_key_field_render'),
             'TLS_plugin_options',
             'tls_options_section'
         );
@@ -92,15 +103,31 @@ trait TL_Options
 
     }
 
-    public function tls_settings_render_key_field()
+    public function tls_settings_account_key_field_render()
     {
 
-        $options = get_option('tls_settings', $this->default_options);
-        $output = '<input id="tls_public_key" name="tls_settings[tls_public_key]" type="password" value="' . $options['tls_public_key'] . '" class="regular-text ltr">';
-        // $textarea = '<textarea name="tls_settings[tls_public_key]" id="tls_public_key" rows="2" cols="80" style="width: 80%;">' . $options['tls_public_key'] . '</textarea>';
+        $this->tls_settings_render_input_field('tls_account_key', 'password', true);
+
+    }
+
+    public function tls_settings_account_id_field_render()
+    {
+        $this->tls_settings_render_input_field('tls_account_id', 'text', true);
+    }
+
+    public function tls_settings_render_input_field($setting, $type = 'text', $required = false)
+    {
+        if (!in_array($type, array('password', 'text'))) {
+            $type = 'text';
+        }
+
+        $value = (array_key_exists($setting, $this->options)) ? $this->options[$setting] : '';
+
+        $set_required = ($required) ? 'required' : '';
+
+        $output = '<input id="' . $setting . '" name="tls_settings[' . $setting . ']" type="' . $type . '" value="' . $value . '" class="regular-text ltr" ' . $set_required . '>';
 
         echo $output;
-
     }
 
     public function tls_settings_approved_roles_field_render()
@@ -138,12 +165,12 @@ trait TL_Options
          * @param Array ('slug'=>'Title')
          **/
         $helpdesks = apply_filters('trustedlogin_supported_helpdesks', array(
-            '' => 'Select Your Helpdesk Software',
-            'intercom' => 'Intercom',
-            'helpspot' => 'HelpSpot',
-            'helpscout' => 'HelpScout',
-            'drift' => 'Drift',
-            'gosquared' => 'GoSquared',
+            '' => __('Select Your Helpdesk Software', 'tl-support-side'),
+            'intercom' => __('Intercom', 'tl-support-side'),
+            'helpspot' => __('HelpSpot', 'tl-support-side'),
+            'helpscout' => __('HelpScout', 'tl-support-side'),
+            'drift' => __('Drift', 'tl-support-side'),
+            'gosquared' => __('GoSquared', 'tl-support-side'),
         ));
 
         $selected_helpdesk = $this->tls_settings_get_selected_helpdesk();
@@ -183,14 +210,11 @@ trait TL_Options
 
     public function tls_settings_output_toggle($setting)
     {
-        $options = get_option('tls_settings', $this->default_options);
 
-        if (!array_key_exists($setting, $options)) {
-            $options[$setting] = 'off';
-        }
+        $value = (array_key_exists($setting, $this->options)) ? $this->options[$setting] : 'off';
 
         $select = '<label class="switch">
-                    <input class="switch-input" name="tls_settings[' . $setting . ']" id="' . $setting . '" type="checkbox" ' . checked($options[$setting], 'on', false) . '/>
+                    <input class="switch-input" name="tls_settings[' . $setting . ']" id="' . $setting . '" type="checkbox" ' . checked($value, 'on', false) . '/>
                     <span class="switch-label" data-on="On" data-off="Off"></span>
                     <span class="switch-handle"></span>
                 </label>';
@@ -199,8 +223,6 @@ trait TL_Options
 
     public function tls_settings_section_callback()
     {
-
-        // echo __('Use %CAT_NAME% to output the name of the Category being limited.', 'tl-support-side');
         do_action('trustedlogin_section_callback');
     }
 
@@ -247,37 +269,32 @@ trait TL_Options
             $this->plugin_version,
             true
         );
-
-        // wp_localize_script('sis-circle-reports', 'ajax_object', array('ajax_url' => admin_url('admin-ajax.php'), 'ajax_or_refresh' => 'ajax'));
     }
 
     public function tls_settings_get_approved_roles()
     {
-        $options = get_option('tls_settings', $this->default_options);
-        $selected = maybe_unserialize($options['tls_approved_roles']);
-        return $selected;
+        return $this->tls_settings_get_selected_values('tls_approved_roles');
     }
 
     public function tls_settings_get_selected_helpdesk()
     {
-        $options = get_option('tls_settings', $this->default_options);
-        $selected = maybe_unserialize($options['tls_helpdesk']);
-        return $selected;
+        return $this->tls_settings_get_selected_values('tls_helpdesk');
+    }
+
+    public function tls_settings_get_selected_values($setting)
+    {
+        $value = (array_key_exists($setting, $this->options)) ? $this->options[$setting] : array();
+        return maybe_unserialize($value);
     }
 
     public function tls_settings_is_toggled($setting)
     {
-        $options = get_option('tls_settings', $this->default_options);
+        return (array_key_exists($setting, $this->options)) ? true : false;
+    }
 
-        if (!array_key_exists($setting, $options)) {
-            return false;
-        }
-
-        if ('on' == $options[$setting]) {
-            return true;
-        }
-
-        return false;
+    public function tls_settings_get_value($setting)
+    {
+        return $value = (array_key_exists($setting, $this->options)) ? $this->options[$setting] : false;
     }
 
 }

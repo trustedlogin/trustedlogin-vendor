@@ -31,18 +31,19 @@ class TrustedLogin_Support_Side
 
     private $plugin_version;
 
+    private $endpoint;
+
+    private $options;
+
     public function __construct()
     {
         global $wpdb;
 
-        /**
-         * @todo move debug_mode to plugin options
-         **/
-        $this->debug_mode = true;
-
         $this->plugin_version = '0.4.0';
 
         define('TL_DB_VERSION', '0.1.2');
+
+        $this->endpoint = apply_filters('trustedlogin_redirect_endpoint', 'trustedlogin');
 
         // Setup the Plugin Settings
 
@@ -64,13 +65,14 @@ class TrustedLogin_Support_Side
         $this->audit_db_table = $wpdb->prefix . 'tl_audit_log';
         register_activation_hook(__FILE__, array($this, 'audit_db_init'));
         add_action('plugins_loaded', array($this, 'audit_db_maybe_update'));
-
         add_action('trustedlogin_after_settings_form', array($this, 'audit_maybe_output'), 10);
 
         // Endpoint Hooks
         add_action('init', array($this, 'endpoint_add'), 10);
         add_action('template_redirect', array($this, 'endpoint_maybe_redirect'), 99);
         add_filter('query_vars', array($this, 'endpoint_add_var'));
+
+        $this->debug_mode = $this->tls_settings_is_toggled('tls_debug_enabled');
 
     }
 
@@ -110,9 +112,12 @@ class TrustedLogin_Support_Side
     public function api_get_token()
     {
         // Get Auth token from settings
-        $auth = '';
+        $auth = $this->tls_settings_get_value('tls_account_key');
+        $account_id = $this->tls_settings_get_value('tls_account_id');
 
-        $response = $this->api_send(TF_API_URL, $data, 'POST', $auth);
+        $url = 'https://app.trustedlogin.com/api/x/' . $account_id;
+
+        $response = $this->api_send($url, null, 'GET', $auth);
 
         return false;
 
@@ -227,6 +232,9 @@ class TrustedLogin_Support_Side
         if ($this->tls_settings_is_toggled('tls_output_audit_log')) {
             $log = $this->audit_db_fetch();
 
+            /**
+             * @todo - fix this
+             **/
             echo '<h1 class="wp-heading-inline">Last Audit Log Entries</span></h1>';
 
             if (0 < count($log)) {
@@ -325,20 +333,16 @@ class TrustedLogin_Support_Side
      **/
     public function endpoint_add()
     {
-        /**
-         * @todo - get this from the plugin options
-         **/
-        $endpoint = 'false';
 
-        if ($endpoint && !get_option('fl_permalinks_flushed')) {
-            $endpoint_regex = '^' . $endpoint . '/([^/]+)/?$';
+        if ($this->endpoint && !get_option('fl_permalinks_flushed')) {
+            $endpoint_regex = '^' . $this->endpoint . '/([^/]+)/?$';
             $this->dlog("Endpoint Regex: $endpoint_regex", __METHOD__);
             add_rewrite_rule(
                 // ^p/(d+)/?$
                 $endpoint_regex,
-                'index.php?' . $endpoint . '=$matches[1]',
+                'index.php?' . $this->endpoint . '=$matches[1]',
                 'top');
-            $this->dlog("Endpoint $endpoint added.", __METHOD__);
+            $this->dlog("Endpoint " . $this->endpoint . " added.", __METHOD__);
             flush_rewrite_rules(false);
             $this->dlog("Rewrite rules flushed.", __METHOD__);
             update_option('fl_permalinks_flushed', 1);
@@ -356,15 +360,10 @@ class TrustedLogin_Support_Side
     public function endpoint_add_var($vars)
     {
 
-        /**
-         * @todo - get this from plugin options
-         **/
-        $endpoint = false;
+        if ($this->endpoint) {
+            $vars[] = $this->endpoint;
 
-        if ($endpoint) {
-            $vars[] = $endpoint;
-
-            $this->dlog("Endpoint var $endpoint added", __METHOD__);
+            $this->dlog("Endpoint var " . $this->endpoint . " added", __METHOD__);
         }
 
         return $vars;
@@ -379,10 +378,8 @@ class TrustedLogin_Support_Side
     public function endpoint_maybe_redirect()
     {
 
-        $endpoint = false;
-
-        if ($endpoint) {
-            $identifier = get_query_var($endpoint, false);
+        if ($this->endpoint) {
+            $identifier = get_query_var($this->endpoint, false);
 
             if (!empty($identifier)) {
                 $this->maybe_redirect_support($identifier);
@@ -394,7 +391,7 @@ class TrustedLogin_Support_Side
     public function maybe_redirect_support($identifier)
     {
 
-        $this->dlog("Got here", __METHOD__);
+        $this->dlog("Got here. ID: $identifier", __METHOD__);
 
         // first check if user can be redirected.
         if (!$this->auth_verify_user()) {
@@ -402,10 +399,10 @@ class TrustedLogin_Support_Side
         }
 
         // then get the envelope
-        // $envelope = $this->api_get_envelope($identifier);
+        $envelope = $this->api_get_envelope($identifier);
 
         // then get the url
-        // $url = $this->envelope_to_url($envelope);
+        $url = $this->envelope_to_url($envelope);
 
         if ($url) {
             // then redirect
