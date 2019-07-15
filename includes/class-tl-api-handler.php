@@ -3,6 +3,7 @@
 /**
  * Class: TrustedLogin API Handler
  *
+ * @package tl-support-side
  * @version 0.1.0
  **/
 class TL_API_Handler

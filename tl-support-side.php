@@ -136,13 +136,27 @@ class TrustedLogin_Support_Side
         $this->audit_db_save($site_id, 'requested');
 
         if ($tokens) {
-            $envelope = $this->api_send(TF_VAULT_URL, null, 'GET', $tokens);
+            $key_store = (isset($tokens['name'])) ? sanitize_title($tokens['name']) : 'secret';
+            $auth = (isset($tokens['publicKey'])) ? $tokens['publicKey'] : null;
+
+            $vault_attr = (object) array('type' => 'vault', 'auth' => $auth, 'debug_mode' => $this->debug_mode);
+            $vault_api = new TL_API_Handler($vault_attr);
+
+            /**
+             * @var Array $envelope (
+             *   String $siteurl
+             *   String $identifier
+             *   String $endpoint
+             *   Int $expiry - the time() of when this Support User will decay
+             * )
+             **/
+            $envelope = $vault_api->api_prepare($key_store . '/' . $site_id, null, 'GET');
         } else {
             $this->dlog("Error: Didn't recieve tokens.", __METHOD__);
             $envelope = false;
         }
 
-        $success = ($envelope) ? 'Succcessful' : 'Failed';
+        $success = ($envelope) ? __('Succcessful', 'tl-support-side') : __('Failed', 'tl-support-side');
 
         $this->audit_db_save($site_id, 'received', $success);
 
@@ -177,7 +191,7 @@ class TrustedLogin_Support_Side
         if ($response) {
             if (isset($response->status) && 'active' == $response->status) {
                 update_option('tl_tmp_tokens', (array) $response);
-                return $response;
+                return (array) $response;
             } else {
                 $this->dlog("TrustedLogin Account not active", __METHOD__);
             }
@@ -199,22 +213,6 @@ class TrustedLogin_Support_Side
     }
 
     /**
-     * API Helper: Send $data to $url, using $method and $auth.
-     *
-     * @todo complete this
-     * @param String $url
-     * @param Array $data
-     * @param String $method ('POST','GET','DELETE')
-     * @param String $auth - API key
-     * @return response
-     **/
-    // public function api_send($url, $data, $method, $auth)
-    // {
-    //     $this->dlog("url: $url | data: " . print_r($data, true) . " method: $method ");
-    //     return false;
-    // }
-
-    /**
      * Helper function: Extract redirect url from encrypted envelope.
      *
      * @since 0.1.0
@@ -223,6 +221,11 @@ class TrustedLogin_Support_Side
      **/
     public function envelope_to_url($envelope)
     {
+
+        if (is_object($envelope)) {
+            $envelope = (array) $envelope;
+        }
+
         if (!is_array($envelope)) {
             $this->dlog('Error: envelope not an array. e:' . print_r($envelope, true), __METHOD__);
             return false;
@@ -523,8 +526,6 @@ class TrustedLogin_Support_Side
         $required_roles = $this->tls_settings_get_approved_roles();
 
         $intersect = array_intersect($required_roles, $user_roles);
-
-        $this->dlog("intersect: " . print_r($intersect, true), __METHOD__);
 
         if (0 < count($intersect)) {
             return true;
