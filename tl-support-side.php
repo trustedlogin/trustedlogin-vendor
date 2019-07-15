@@ -3,7 +3,7 @@
  * Plugin Name: TrustedLogin Support Plugin
  * Plugin URI: https://trustedlogin.com
  * Description: Authenticate support team members to securely log them in to client sites via TrustedLogin
- * Version: 0.4.0
+ * Version: 0.5.0
  * Author: trustedlogin.com
  * Author URI: https://trustedlogin.com
  * Text Domain: tl-support-side
@@ -21,25 +21,59 @@ if (!defined('ABSPATH')) {
 require_once plugin_dir_path(__FILE__) . 'includes/trait-debug-logging.php';
 require_once plugin_dir_path(__FILE__) . 'includes/trait-options.php';
 
+require_once plugin_dir_path(__FILE__) . 'includes/class-tl-api-handler.php';
+
 class TrustedLogin_Support_Side
 {
 
     use TL_Debug_Logging;
     use TL_Options;
 
-    private $debug_mode, $default_options, $menu_location;
-
+    /**
+     * @var String - the x.x.x value of the current plugin version.
+     * @since 0.1.0
+     **/
     private $plugin_version;
 
+    /**
+     * @var Boolean - whether or not to save a local text log
+     * @see TL_Debug_logging trait
+     * @since 0.1.0
+     **/
+    private $debug_mode;
+
+    /**
+     * @var String - the endpoint used to redirect Support Agents to Client WP admin panels
+     * @since 0.3.0
+     **/
     private $endpoint;
 
+    /**
+     * @var Array - the default settings for our plugin
+     * @see TL_Options trait
+     * @since 0.4.0
+     **/
+    private $default_options;
+
+    /**
+     * @var String - where the TrustedLogin settings should sit in menu.
+     * @see TL_Options trait
+     * @see Filter: trustedlogin_menu_location
+     * @since 0.4.0
+     **/
+    private $menu_location;
+
+    /**
+     * @var Array - current site's TrustedLoging settings
+     * @since 0.4.0
+     **/
     private $options;
 
     public function __construct()
     {
         global $wpdb;
 
-        $this->plugin_version = '0.4.0';
+        $this->plugin_version = '0.5.0';
 
         define('TL_DB_VERSION', '0.1.2');
 
@@ -95,13 +129,25 @@ class TrustedLogin_Support_Side
          * @todo use $store_token to get envelope from Vault
          **/
 
-        $token = $this->api_get_token();
+        if (false == ($tokens = get_option('tl_tmp_tokens', false))) {
+            $tokens = $this->api_get_tokens();
+        }
 
-        $envelope = $this->api_send(TF_VAULT_URL, null, 'GET', $token);
+        $this->audit_db_save($site_id, 'requested');
+
+        if ($tokens) {
+            $envelope = $this->api_send(TF_VAULT_URL, null, 'GET', $tokens);
+        } else {
+            $this->dlog("Error: Didn't recieve tokens.", __METHOD__);
+            $envelope = false;
+        }
 
         $success = ($envelope) ? 'Succcessful' : 'Failed';
 
-        $this->audit_db_save($site_id, 'requested', $success);
+        $this->audit_db_save($site_id, 'received', $success);
+
+        return $envelope;
+
     }
 
     /**
@@ -109,15 +155,44 @@ class TrustedLogin_Support_Side
      *
      * @todo complete this
      **/
-    public function api_get_token()
+    public function api_get_tokens()
     {
         // Get Auth token from settings
         $auth = $this->tls_settings_get_value('tls_account_key');
         $account_id = $this->tls_settings_get_value('tls_account_id');
 
-        $url = 'https://app.trustedlogin.com/api/x/' . $account_id;
+        if (empty($auth) || empty($account_id)) {
+            $this->dlog("no auth or account_id provided", __METHOD__);
+            return false;
+        }
 
-        $response = $this->api_send($url, null, 'GET', $auth);
+        $endpoint = 'accounts/' . $account_id;
+
+        $saas_attr = (object) array('type' => 'saas', 'auth' => $auth, 'debug_mode' => $this->debug_mode);
+        $saas_api = new TL_API_Handler($saas_attr);
+        $data = null;
+
+        $response = $saas_api->api_prepare($endpoint, $data, 'GET');
+
+        if ($response) {
+            if (isset($response->status) && 'active' == $response->status) {
+                update_option('tl_tmp_tokens', (array) $response);
+                return $response;
+            } else {
+                $this->dlog("TrustedLogin Account not active", __METHOD__);
+            }
+        }
+
+        /**
+         * Expected Response from /v1/accounts/<account_id>:
+         * "name":"Team Thunder",
+         * "status": "active",
+         *  "publicKey": "1234-56789", //used in client plugin
+         *  "deleteToken: "12345-1111",//vault token for delete site policy
+         *  "writeToken: "12345-1111",//vault token for write policy
+         **/
+
+        $this->dlog("Response: " . print_r($response, true), __METHOD__);
 
         return false;
 
@@ -133,11 +208,11 @@ class TrustedLogin_Support_Side
      * @param String $auth - API key
      * @return response
      **/
-    public function api_send($url, $data, $method, $auth)
-    {
-        $this->dlog("url: $url | data: " . print_r($data, true) . " method: $method ");
-        return false;
-    }
+    // public function api_send($url, $data, $method, $auth)
+    // {
+    //     $this->dlog("url: $url | data: " . print_r($data, true) . " method: $method ");
+    //     return false;
+    // }
 
     /**
      * Helper function: Extract redirect url from encrypted envelope.
@@ -388,6 +463,14 @@ class TrustedLogin_Support_Side
 
     }
 
+    /**
+     * Helper: If all checks pass, redirect support agent to client site's admin panel
+     *
+     * @since 0.4.0
+     * @param String $identifier collected via endpoint
+     *   @see endpoint_maybe_redirect()
+     * @return null
+     **/
     public function maybe_redirect_support($identifier)
     {
 
@@ -395,14 +478,14 @@ class TrustedLogin_Support_Side
 
         // first check if user can be redirected.
         if (!$this->auth_verify_user()) {
+            $this->dlog("User cannot be redirected.", __METHOD__);
             return;
         }
 
         // then get the envelope
         $envelope = $this->api_get_envelope($identifier);
 
-        // then get the url
-        $url = $this->envelope_to_url($envelope);
+        $url = ($envelope) ? $this->envelope_to_url($envelope) : false;
 
         if ($url) {
             // then redirect
@@ -411,6 +494,12 @@ class TrustedLogin_Support_Side
         }
     }
 
+    /**
+     * Helper: Check if the current user can be redirected to the client site
+     *
+     * @since 0.4.0
+     * @return Boolean
+     **/
     public function auth_verify_user()
     {
 
