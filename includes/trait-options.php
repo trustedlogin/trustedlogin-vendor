@@ -5,14 +5,14 @@ trait TL_Options
     public function tls_settings_set_defaults()
     {
         if (property_exists($this, 'default_options')) {
-            $this->default_options = array(
+            $this->default_options = apply_filters('trustedlogin_default_settings', array(
                 'tls_account_id' => "",
                 'tls_account_key' => "",
                 'tls_helpdesk' => array(),
                 'tls_approved_roles' => array('administrator'),
                 'tls_debug_enabled' => 'on',
                 'tls_output_audit_log' => 'off',
-            );
+            ));
         }
         if (property_exists($this, 'menu_location')) {
             $this->menu_location = 'main'; // change to 'submenu' to add under Setting tab
