@@ -135,6 +135,17 @@ class TrustedLogin_Support_Side
 
         $this->audit_db_save($site_id, 'requested');
 
+        /**
+         * @todo - remove dummy testing data
+         **/
+        $tokens = array(
+            'name' => 'Team Thunder',
+            'status' => 'active',
+            'publicKey' => '1234-56789', //used in client plugin
+            'deleteToken' => '12345-1111', //vault token for delete site policy
+            'writeToken' => '12345-1111', //vault token for write policy
+        );
+
         if ($tokens) {
             $key_store = (isset($tokens['name'])) ? sanitize_title($tokens['name']) : 'secret';
             $auth = (isset($tokens['publicKey'])) ? $tokens['publicKey'] : null;
@@ -155,6 +166,17 @@ class TrustedLogin_Support_Side
             $this->dlog("Error: Didn't recieve tokens.", __METHOD__);
             $envelope = false;
         }
+
+        /**
+         * @todo - remove dummy testing data
+         **/
+
+        $envelope = array(
+            'siteurl' => 'http://localhost/tl-dev/',
+            'identifier' => 'BWxhqNTdgxEpyNyYymOqQLitHRPXyE190DWPFibA6OwfiO85KUmjJOIOdOhvFfO4',
+            'endpoint' => 'e5357dbb06bd0a1847da8ff0d926a6f8',
+            'expiry' => time() + (7 * DAY_IN_SECONDS),
+        );
 
         $success = ($envelope) ? __('Succcessful', 'tl-support-side') : __('Failed', 'tl-support-side');
 
