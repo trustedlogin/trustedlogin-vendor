@@ -75,7 +75,7 @@ class TrustedLogin_Support_Side
 
         $this->plugin_version = '0.5.0';
 
-        define('TL_DB_VERSION', '0.1.2');
+        define('TL_DB_VERSION', '0.1.3');
 
         $this->endpoint = apply_filters('trustedlogin_redirect_endpoint', 'trustedlogin');
 
@@ -280,7 +280,7 @@ class TrustedLogin_Support_Side
             $ret .= '<tr>';
             $ret .= '<td>' . $log_item->id . '</td>';
             $ret .= '<td>' . get_user_by('id', $log_item->user_id)->display_name . '</td>';
-            $ret .= '<td>' . $log_item->site_id . '</td>';
+            $ret .= '<td>' . $log_item->tl_site_id . '</td>';
             $ret .= '<td>' . $log_item->time . '</td>';
             $ret .= '<td>' . $log_item->action . '</td>';
             $ret .= '<td>' . $log_item->notes . '</td>';
@@ -334,6 +334,8 @@ class TrustedLogin_Support_Side
     {
         global $wpdb;
 
+        $this->dlog("sid: $site_id, action: $action, note: $note", __METHOD__);
+
         $user_id = get_current_user_id();
 
         if (0 == $user_id) {
@@ -341,15 +343,19 @@ class TrustedLogin_Support_Side
             return;
         }
 
+        $values = array(
+            'time' => current_time('mysql'),
+            'user_id' => $user_id,
+            'tl_site_id' => sanitize_text_field($site_id),
+            'notes' => sanitize_text_field($note),
+            'action' => sanitize_text_field($action),
+        );
+
+        $this->dlog("Values: " . print_r($values, true), __METHOD__);
+
         $inserted = $wpdb->insert(
             $this->audit_db_table,
-            array(
-                'time' => current_time('mysql'),
-                'user_id' => $user_id,
-                'site_id' => sanitize_text_field($site_id),
-                'notes' => sanitize_text_field($note),
-                'action' => sanitize_text_field($action),
-            )
+            $values
         );
 
         if (!$inserted) {
@@ -376,7 +382,7 @@ class TrustedLogin_Support_Side
 				  id mediumint(9) NOT NULL AUTO_INCREMENT,
 				  user_id bigint(20) NOT NULL,
 				  time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-				  site_id char(32) NOT NULL,
+				  tl_site_id char(32) NOT NULL,
 				  action varchar(55) NOT NULL,
 				  notes text NULL,
 				  PRIMARY KEY  (id)
