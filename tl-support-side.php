@@ -498,6 +498,7 @@ class TrustedLogin_Support_Side
 
         if ($url) {
             // then redirect
+            $this->audit_db_save($identifier, 'redirected', __('Succcessful', 'tl-support-side'));
             wp_redirect($url, 302);
             exit;
         }
