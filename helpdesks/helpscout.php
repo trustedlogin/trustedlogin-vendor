@@ -155,6 +155,18 @@ class TL_HelpScout
         $no_items_template = '<li class="c-sb-list-item">%1$s</li>';
         $url_endpoint = apply_filters('trustedlogin_redirect_endpoint', 'trustedlogin');
 
+        /**
+         * Filter: allow for other addons to generate the licenses array
+         *
+         * @since 0.6.0
+         * @param Array $licenses (
+         *   @see $response from saas_api to /Sites/?accessKey=<accessKey>
+         * )
+         * @param String $email
+         * @return Array
+         **/
+        $licenses = apply_filters('trusted_login_get_licenses', $licenses, $email);
+
         foreach ($licenses as $license) {
 
             // check licenses for TrustedLogin Sites via SaaS app.
