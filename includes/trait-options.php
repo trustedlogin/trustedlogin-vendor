@@ -165,26 +165,36 @@ trait TL_Options
          * @param Array ('slug'=>'Title')
          **/
         $helpdesks = apply_filters('trustedlogin_supported_helpdesks', array(
-            '' => __('Select Your Helpdesk Software', 'tl-support-side'),
-            'intercom' => __('Intercom', 'tl-support-side'),
-            'helpspot' => __('HelpSpot', 'tl-support-side'),
-            'helpscout' => __('HelpScout', 'tl-support-side'),
-            'drift' => __('Drift', 'tl-support-side'),
-            'gosquared' => __('GoSquared', 'tl-support-side'),
+            '' => array('title' => __('Select Your Helpdesk Software', 'tl-support-side'), 'active' => false),
+            'helpscout' => array('title' => __('HelpScout', 'tl-support-side'), 'active' => true),
+            'intercom' => array('title' => __('Intercom', 'tl-support-side'), 'active' => false),
+            'helpspot' => array('title' => __('HelpSpot', 'tl-support-side'), 'active' => false),
+            'drift' => array('title' => __('Drift', 'tl-support-side'), 'active' => false),
+            'gosquared' => array('title' => __('GoSquared', 'tl-support-side'), 'active' => false),
         ));
 
         $selected_helpdesk = $this->tls_settings_get_selected_helpdesk();
 
         $select = "<select name='tls_settings[tls_helpdesk][]' id='tls_helpdesk' class='postform regular-text ltr'>";
 
-        foreach ($helpdesks as $key => $title) {
+        foreach ($helpdesks as $key => $helpdesk) {
 
             if (in_array($key, $selected_helpdesk)) {
                 $selected = "selected='selected'";
             } else {
                 $selected = "";
             }
-            $select .= "<option value='" . $key . "' " . $selected . ">" . $title . "</option>";
+
+            $title = $helpdesk['title'];
+
+            if (!$helpdesk['active'] && !empty($key)) {
+                $title .= ' (' . __('Coming Soon', 'tl-support-side') . ')';
+                $disabled = 'disabled="disabled"';
+            } else {
+                $disabled = '';
+            }
+
+            $select .= "<option value='" . $key . "' " . $selected . " " . $disabled . ">" . $title . "</option>";
 
         }
 

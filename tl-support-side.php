@@ -108,6 +108,8 @@ class TrustedLogin_Support_Side
 
         $this->debug_mode = $this->tls_settings_is_toggled('tls_debug_enabled');
 
+        add_action('plugins_loaded', array($this, 'init_helpdesk_integration'));
+
     }
 
     /**
@@ -148,7 +150,7 @@ class TrustedLogin_Support_Side
 
         if ($tokens) {
             $key_store = (isset($tokens['name'])) ? sanitize_title($tokens['name']) : 'secret';
-            $auth = (isset($tokens['publicKey'])) ? $tokens['publicKey'] : null;
+            $auth = (isset($tokens['readKey'])) ? $tokens['readKey'] : null;
 
             $vault_attr = (object) array('type' => 'vault', 'auth' => $auth, 'debug_mode' => $this->debug_mode);
             $vault_api = new TL_API_Handler($vault_attr);
@@ -555,6 +557,34 @@ class TrustedLogin_Support_Side
         }
 
         return false;
+    }
+
+    public function init_helpdesk_integration()
+    {
+
+        $helpdesks = $this->tls_settings_get_selected_helpdesk();
+
+        foreach ($helpdesks as $helpdesk) {
+
+            if (!empty($helpdesk)) {
+
+                /**
+                 * Filter: Allow future helpdesk addons to define their own helpdesk include file url
+                 *
+                 * @since 0.6.0
+                 * @param String local file url
+                 * @param String the helpdesk slug
+                 * @return String file location
+                 **/
+                $helpdesk_include_file = apply_filters(
+                    'trustedlogin_' . $helpdesk . '_include_url',
+                    plugin_dir_path(__FILE__) . 'helpdesks/' . $helpdesk . '.php',
+                    $helpdesk
+                );
+                require_once $helpdesk_include_file;
+            }
+
+        }
     }
 
 }
