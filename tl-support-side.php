@@ -339,8 +339,6 @@ class TrustedLogin_Support_Side
     {
         global $wpdb;
 
-        $this->dlog("sid: $site_id, action: $action, note: $note", __METHOD__);
-
         $user_id = get_current_user_id();
 
         if (0 == $user_id) {
@@ -355,8 +353,6 @@ class TrustedLogin_Support_Side
             'notes' => sanitize_text_field($note),
             'action' => sanitize_text_field($action),
         );
-
-        $this->dlog("Values: " . print_r($values, true), __METHOD__);
 
         $inserted = $wpdb->insert(
             $this->audit_db_table,
