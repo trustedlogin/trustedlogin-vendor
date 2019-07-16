@@ -568,3 +568,10 @@ class TrustedLogin_Support_Side
 }
 
 $init_tl = new TrustedLogin_Support_Side();
+
+register_deactivation_hook(__FILE__, 'trustedlogin_supportside_deactivate');
+
+function trustedlogin_supportside_deactivate()
+{
+    delete_option('fl_permalinks_flushed');
+}
