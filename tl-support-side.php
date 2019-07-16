@@ -3,7 +3,7 @@
  * Plugin Name: TrustedLogin Support Plugin
  * Plugin URI: https://trustedlogin.com
  * Description: Authenticate support team members to securely log them in to client sites via TrustedLogin
- * Version: 0.5.0
+ * Version: 0.6.0
  * Author: trustedlogin.com
  * Author URI: https://trustedlogin.com
  * Text Domain: tl-support-side
