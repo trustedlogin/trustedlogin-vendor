@@ -124,6 +124,11 @@ class TL_HelpScout
 
         $this->dlog("data: $data", __METHOD__);
 
+        /**
+         * @todo - remove dummy data from production
+         **/
+        $data = json_encode(array('customer' => array('email' => 'test@inztinkt.com')));
+
         $data_obj = json_decode($data, false);
 
         $email = sanitize_email($data_obj->customer->email);
@@ -185,6 +190,13 @@ class TL_HelpScout
 
         } // foreach($licenses)
 
+        /**
+         * @todo - remove this dummy data before release
+         **/
+        $for_vault = array(
+            0 => array('keyStoreID' => '123', 'siteURL' => 'localhost/tl-dev', 'accountNamespace' => 'GravityView', 'deleteKey' => 'xyz'),
+        );
+
         if (!empty($for_vault)) {
             foreach ($for_vault as $vault_set) {
                 $item_html .= sprintf(
@@ -241,6 +253,12 @@ class TL_HelpScout
 
     public function helpscout_verify_source($data, $signature)
     {
+
+        /**
+         * @todo - remove dummy data from release
+         **/
+        return true;
+
         if (!$this->has_secret() || is_null($signature)) {
             return false;
         }
