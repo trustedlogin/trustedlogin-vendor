@@ -623,7 +623,7 @@ class TrustedLogin_Support_Side
      **/
     public function tl_api_validate_type($param, $request, $key){
 
-        $types = apply_filters('trustedlogin_api_ecom_types',array('edd','woocommerce'));
+        $types = apply_filters('trustedlogin_api_ecom_types',array('EDD','WooCommerce'));
 
         return in_array($param, $types);
     }
