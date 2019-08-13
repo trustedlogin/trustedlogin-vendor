@@ -603,7 +603,7 @@ class TrustedLogin_Support_Side
 
         $response = new WP_REST_Response();
         if (!$check){
-            $response->set_status(400);
+            $response->set_status(404);
         } else {
             $response->set_status(200);
         }
