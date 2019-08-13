@@ -35,9 +35,10 @@ trait TL_Licensing
     public function edd_verify_license($key){
     	
     	$key = sanitize_text_field($key);
-    	// $license_id = edd_software_licensing()->licenses_db->get_column_by('id','license_key', $key );
 
     	$license = new EDD_SL_License($key);
+
+    	$this->dlog('license: '.print_r($license,true),__METHOD__);
 
     	return $license->exists;
     }
@@ -50,7 +51,7 @@ trait TL_Licensing
      **/
     public function is_edd_store()
     {
-        return class_exists('Easy Digital Downloads');
+        return class_exists('Easy_Digital_Downloads');
     }
 
     /**
@@ -71,10 +72,10 @@ trait TL_Licensing
     		return false;
     	}
 
-    	if ($this->is_edd_store() && $this->has_edd_licensing()){
+    	if ( $this->is_edd_store() && $this->edd_has_licensing() ){
     		if ('email' == $type){
     			return $this->edd_get_licenses($value);
-    		} else {
+    		} else if ('key' == $type) {
     			return $this->edd_verify_license($value);
     		}
     	} else if ($this->is_woo_store()){
