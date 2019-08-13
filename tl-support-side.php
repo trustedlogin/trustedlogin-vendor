@@ -20,6 +20,7 @@ if (!defined('ABSPATH')) {
 
 require_once plugin_dir_path(__FILE__) . 'includes/trait-debug-logging.php';
 require_once plugin_dir_path(__FILE__) . 'includes/trait-options.php';
+require_once plugin_dir_path(__FILE__) . 'includes/trait-licensing.php';
 
 require_once plugin_dir_path(__FILE__) . 'includes/class-tl-api-handler.php';
 
@@ -28,6 +29,7 @@ class TrustedLogin_Support_Side
 
     use TL_Debug_Logging;
     use TL_Options;
+    use TL_Licensing;
 
     /**
      * @var String - the x.x.x value of the current plugin version.
