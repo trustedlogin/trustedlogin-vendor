@@ -112,6 +112,8 @@ class TrustedLogin_Support_Side
 
         add_action('plugins_loaded', array($this, 'init_helpdesk_integration'));
 
+        add_action('rest_api_init', array($this, 'tlapi_register_endpoints'));
+
     }
 
     /**
@@ -561,6 +563,69 @@ class TrustedLogin_Support_Side
             }
 
         }
+    }
+
+    public function tlapi_register_endpoints()
+    {
+
+        $tl_api_endpoint = apply_filters('trustedlogin_api_endpoint','trustedlogin/v1');
+        register_rest_route($tl_api_endpoint, '/verify', array(
+            'methods' => WP_REST_Server::READABLE,
+            'callback' => array($this, 'tlapi_verify_callback'),
+            'args' => array(
+                'key' => array(
+                    'required' => true,
+                    'sanitize_callback' => 'sanitize_text_field',
+                ),
+                'type' => array(
+                    'required' => true,
+                    'sanitize_callback' => 'sanitize_title',
+                    'validate_callback' => array($this,'tl_api_validate_type'),
+                ),
+                'siteurl' => array(
+                    'required' => true,
+                    'sanitize_callback' => 'esc_url_raw',
+                ),
+            ),
+        ));
+
+    }
+
+    public function tlapi_verify_callback(WP_REST_Request $request){
+
+        $key = $request->get_param('key');
+        $type = $request->get_param('type');
+        $siteurl = $request->get_param('siteurl');
+
+        $check = $this->get_licenses_by('key',$key);
+
+        $this->dlog("Check: ".print_r($check,true),__METHOD__);
+
+        $response = new WP_REST_Response();
+        if (!$check){
+            $response->set_status(400);
+        } else {
+            $response->set_status(200);
+        }
+
+        return $response;
+
+    }
+
+    /**
+     * Helper: Determines if eCommerce platform is acceptable
+     *
+     * @since 0.8.0
+     * @param string $param - The parameter value being validated
+     * @param WP_REST_Request $request
+     * @param int $key
+     * @return bool
+     **/
+    public function tl_api_validate_type($param, $request, $key){
+
+        $types = apply_filters('trustedlogin_api_ecom_types',array('edd','woocommerce'));
+
+        return in_array($param, $types);
     }
 
 }
