@@ -540,29 +540,11 @@ class TrustedLogin_Support_Side
     public function init_helpdesk_integration()
     {
 
-        $helpdesks = $this->tls_settings_get_selected_helpdesk();
 
-        foreach ($helpdesks as $helpdesk) {
-
-            if (!empty($helpdesk)) {
-
-                /**
-                 * Filter: Allow future helpdesk addons to define their own helpdesk include file url
-                 *
-                 * @since 0.6.0
-                 * @param String local file url
-                 * @param String the helpdesk slug
-                 * @return String file location
-                 **/
-                $helpdesk_include_file = apply_filters(
-                    'trustedlogin_' . $helpdesk . '_include_url',
-                    plugin_dir_path(__FILE__) . 'helpdesks/' . $helpdesk . '.php',
-                    $helpdesk
-                );
-                require_once $helpdesk_include_file;
-            }
-
-        }
+	    // Load all field files automatically
+	    foreach ( glob( plugin_dir_path( __FILE__ ) . 'helpdesks/class-*.php' ) as $helpdesk ) {
+		    include_once $helpdesk;
+	    }
     }
 
     public function tlapi_register_endpoints()
