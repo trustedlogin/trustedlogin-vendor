@@ -184,7 +184,7 @@ trait TL_Options
 			    $disabled = '';
 		    }
 
-		    $select .= "<option value='" . $key . "' " . selected( true, in_array( $key, $selected_helpdesk ), false ) . " " . $disabled . ">" . esc_html( $title ) . "</option>";
+		    $select .= "<option value='" . esc_attr( $key ) . "' " . selected( true, in_array( $key, $selected_helpdesk ), false ) . " " . $disabled . ">" . esc_html( $title ) . "</option>";
 
 	    }
 
