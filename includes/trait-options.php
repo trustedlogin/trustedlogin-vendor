@@ -165,12 +165,7 @@ trait TL_Options
 	     *
 	     * @param Array ('slug'=>'Title')
 	     **/
-	    $helpdesks = apply_filters( 'trustedlogin_supported_helpdesks', array(
-		    'intercom'  => array( 'title' => __( 'Intercom', 'tl-support-side' ), 'active' => false ),
-		    'helpspot'  => array( 'title' => __( 'HelpSpot', 'tl-support-side' ), 'active' => false ),
-		    'drift'     => array( 'title' => __( 'Drift', 'tl-support-side' ), 'active' => false ),
-		    'gosquared' => array( 'title' => __( 'GoSquared', 'tl-support-side' ), 'active' => false ),
-	    ) );
+	    $helpdesks = apply_filters( 'trustedlogin_supported_helpdesks', array() );
 
 	    $selected_helpdesk = $this->tls_settings_get_selected_helpdesk();
 

@@ -15,6 +15,8 @@ class HelpScout extends HelpDesk {
 
 	const version = '0.1.0';
 
+	const is_active = true;
+
 	private $debug_mode = true;
 
 	private $secret = '';

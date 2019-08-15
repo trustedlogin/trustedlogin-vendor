@@ -54,7 +54,10 @@ abstract class HelpDesk {
 
 	public function add_supported_helpdesk( $helpdesks = array() ) {
 
-		$helpdesks[ static::slug ] = static::name;
+		$helpdesks[ static::slug ] = array(
+			'title' => static::name,
+			'active' => static::is_active,
+		);
 
 		return $helpdesks;
 	}
