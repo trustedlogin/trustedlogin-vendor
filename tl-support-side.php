@@ -110,7 +110,7 @@ class TrustedLogin_Support_Side
 
         $this->debug_mode = $this->tls_settings_is_toggled('tls_debug_enabled');
 
-        add_action('plugins_loaded', array($this, 'init_helpdesk_integration'));
+        add_action('plugins_loaded', array($this, 'load_helpdesks'));
 
         add_action('rest_api_init', array($this, 'tlapi_register_endpoints'));
 
@@ -537,9 +537,9 @@ class TrustedLogin_Support_Side
         return false;
     }
 
-    public function init_helpdesk_integration()
-    {
+    public function load_helpdesks() {
 
+    	include_once plugin_dir_path( __FILE__ ) . 'helpdesks/abstract-tl-helpdesk.php';
 
 	    // Load all field files automatically
 	    foreach ( glob( plugin_dir_path( __FILE__ ) . 'helpdesks/class-*.php' ) as $helpdesk ) {

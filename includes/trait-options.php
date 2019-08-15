@@ -158,49 +158,44 @@ trait TL_Options
     public function tls_settings_helpdesks_field_render()
     {
 
-        /**
-         * Filter: The array of TrustLogin supported HelpDesks
-         *
-         * @since 0.4.0
-         * @param Array ('slug'=>'Title')
-         **/
-        $helpdesks = apply_filters('trustedlogin_supported_helpdesks', array(
-            '' => array('title' => __('Select Your Helpdesk Software', 'tl-support-side'), 'active' => false),
-            'helpscout' => array('title' => __('HelpScout', 'tl-support-side'), 'active' => true),
-            'intercom' => array('title' => __('Intercom', 'tl-support-side'), 'active' => false),
-            'helpspot' => array('title' => __('HelpSpot', 'tl-support-side'), 'active' => false),
-            'drift' => array('title' => __('Drift', 'tl-support-side'), 'active' => false),
-            'gosquared' => array('title' => __('GoSquared', 'tl-support-side'), 'active' => false),
-        ));
+	    /**
+	     * Filter: The array of TrustLogin supported HelpDesks
+	     *
+	     * @since 0.4.0
+	     *
+	     * @param Array ('slug'=>'Title')
+	     **/
+	    $helpdesks = apply_filters( 'trustedlogin_supported_helpdesks', array(
+		    'intercom'  => array( 'title' => __( 'Intercom', 'tl-support-side' ), 'active' => false ),
+		    'helpspot'  => array( 'title' => __( 'HelpSpot', 'tl-support-side' ), 'active' => false ),
+		    'drift'     => array( 'title' => __( 'Drift', 'tl-support-side' ), 'active' => false ),
+		    'gosquared' => array( 'title' => __( 'GoSquared', 'tl-support-side' ), 'active' => false ),
+	    ) );
 
-        $selected_helpdesk = $this->tls_settings_get_selected_helpdesk();
+	    $selected_helpdesk = $this->tls_settings_get_selected_helpdesk();
 
-        $select = "<select name='tls_settings[tls_helpdesk][]' id='tls_helpdesk' class='postform regular-text ltr'>";
+	    $select = "<select name='tls_settings[tls_helpdesk][]' id='tls_helpdesk' class='postform regular-text ltr'>";
 
-        foreach ($helpdesks as $key => $helpdesk) {
+	    $select .= '<option value="">' . esc_html__( 'Select Your Help Desk', 'tl-support-side' ) . '</option>';
 
-            if (in_array($key, $selected_helpdesk)) {
-                $selected = "selected='selected'";
-            } else {
-                $selected = "";
-            }
+	    foreach ( $helpdesks as $key => $helpdesk ) {
 
-            $title = $helpdesk['title'];
+		    $title = is_array( $helpdesk ) ? $helpdesk['title'] : $helpdesk;
 
-            if (!$helpdesk['active'] && !empty($key)) {
-                $title .= ' (' . __('Coming Soon', 'tl-support-side') . ')';
-                $disabled = 'disabled="disabled"';
-            } else {
-                $disabled = '';
-            }
+		    if ( isset( $helpdesk['active'] ) && empty( $helpdesk['active'] ) && ! empty( $key ) ) {
+			    $title    .= ' (' . __( 'Coming Soon', 'tl-support-side' ) . ')';
+			    $disabled = 'disabled="disabled"';
+		    } else {
+			    $disabled = '';
+		    }
 
-            $select .= "<option value='" . $key . "' " . $selected . " " . $disabled . ">" . $title . "</option>";
+		    $select .= "<option value='" . $key . "' " . selected( true, in_array( $key, $selected_helpdesk ), false ) . " " . $disabled . ">" . esc_html( $title ) . "</option>";
 
-        }
+	    }
 
-        $select .= "</select>";
+	    $select .= "</select>";
 
-        echo $select;
+	    echo $select;
 
     }
 

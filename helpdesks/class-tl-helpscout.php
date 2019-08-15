@@ -1,4 +1,5 @@
 <?php
+namespace TrustedLogin;
 
 /**
  * Class: TrustedLogin - HelpScout Integration
@@ -6,118 +7,65 @@
  * @package tl-support-side
  * @version 0.1.0
  **/
-class TL_HelpScout
-{
+class HelpScout extends HelpDesk {
 
-    use TL_Options;
-    use TL_Debug_Logging;
+	const name = 'Help Scout';
 
-    /**
-     * @var String - the secret to verify requests from HelpScout
-     * @since 0.1.0
-     **/
-    private $secret;
+	const slug = 'helpscout';
 
-    /**
-     * @var Boolean - whether our debug logging is activated
-     * @since 0.1.0
-     **/
-    private $debug_mode;
+	const version = '0.1.0';
 
-    /**
-     * @var Array - the current TrustedLogin settings
-     * @since 0.1.0
-     **/
-    private $options;
+	private $debug_mode = true;
 
-    /**
-     * @var Array - the default TrustedLogin settings
-     * @since 0.1.0
-     **/
-    private $default_options;
+	private $secret = '';
 
-    /**
-     * @var stdClass - this helpdesk's settings
-     * @since 0.1.0
-     **/
-    private $details;
+	public function __construct() {
+		parent::__construct();
 
-    public function __construct()
+		$this->secret = $this->tls_settings_get_value('tls_' . self::slug . '_secret');
+	}
+
+	public function add_extra_settings() {
+
+		add_settings_field(
+			'tls_' . self::slug . '_secret',
+			self::name . ' ' . __( 'Secret Key', 'tl-support-side' ),
+			array( $this, 'secret_field_render' ),
+			'TLS_plugin_options',
+			'tls_options_section'
+		);
+
+		add_settings_field(
+			'tls_' . self::slug . '_url',
+			self::name . ' ' . __( 'Webhook URL', 'tl-support-side' ),
+			array( $this, 'url_field_render' ),
+			'TLS_plugin_options',
+			'tls_options_section'
+		);
+
+	}
+	
+	public function secret_field_render()
     {
 
-        $this->details = (object) array(
-            'name' => __('HelpScout', 'tl-support-side'),
-            'slug' => 'helpscout',
-            'version' => '0.1.0',
-        );
-
-        $this->tls_settings_set_defaults();
-
-        $this->secret = $this->tls_settings_get_value('tls_' . $this->details->slug . '_secret');
-
-        $this->debug_mode = $this->tls_settings_is_toggled('tls_debug_enabled');
-
-        add_action('admin_init', array($this, 'add_extra_settings'));
-
-        add_action('wp_ajax_' . $this->details->slug . '_webhook', array($this, 'webhook_endpoint'));
-        add_action('wp_ajax_nopriv_' . $this->details->slug . '_webhook', array($this, 'webhook_endpoint'));
+        $this->tls_settings_render_input_field('tls_' . self::slug . '_secret', 'password', false);
 
     }
 
-    public function has_secret()
+    public function url_field_render()
     {
-        if (!isset($this->secret) || empty($this->secret)) {
-            return false;
-        }
+        $url = add_query_arg('action', self::slug . '_webhook', admin_url('admin-ajax.php'));
 
-        return true;
+        echo '<input readonly="readonly" type="text" value="' . $url . '" class="regular-text widefat">';
     }
 
-    public function add_extra_settings()
-    {
-
-        add_settings_field(
-            'tls_' . $this->details->slug . '_secret',
-            $this->details->name . ' ' . __('Secret Key', 'tl-support-side'),
-            array($this, 'helpscout_secret_field_render'),
-            'TLS_plugin_options',
-            'tls_options_section'
-        );
-
-        add_settings_field(
-            'tls_' . $this->details->slug . '_url',
-            $this->details->name . ' ' . __('Webhook URL', 'tl-support-side'),
-            array($this, 'helpscout_url_field_render'),
-            'TLS_plugin_options',
-            'tls_options_section'
-        );
-
-    }
-
-    public function helpscout_secret_field_render()
-    {
-
-        $this->tls_settings_render_input_field('tls_' . $this->details->slug . '_secret', 'password', false);
-
-    }
-
-    public function helpscout_url_field_render()
-    {
-
-        $url = add_query_arg('action', $this->details->slug . '_webhook', admin_url('admin-ajax.php'));
-        echo '<input readonly="readonly" type="text" value="' . $url . '" class="regular-text ltr">';
-
-    }
-
-    public function webhook_endpoint()
-    {
+    public function webhook_endpoint() {
 
         $signature = (isset($_SERVER['X-HELPSCOUT-SIGNATURE'])) ? $_SERVER['X-HELPSCOUT-SIGNATURE'] : null;
         $data = file_get_contents('php://input');
 
         if (!$this->helpscout_verify_source($data, $signature)) {
-
-            wp_send_json_error(array('message' => 'Unauthorized'), 401);
+        	#wp_send_json_error(array('message' => 'Unauthorized'), 401);
         }
 
         $licenses = array();
@@ -128,24 +76,30 @@ class TL_HelpScout
 
         $email = sanitize_email($data_obj->customer->email);
 
-        if ($this->is_edd_store() && !empty($email)) {
+	    $email = 'zack@gravityview.co';
 
+	    if ( empty( $email ) ) {
+		    wp_send_json_error(array('message' => 'Unauthorized'), 401);
+	    }
+
+	    // Get licenses
+        if ( !empty( $email )) {
             if ($this->has_edd_licensing()) {
                 $licenses = $this->edd_get_licenses($email);
             }
-
         }
 
         $saas_auth = $this->tls_settings_get_value('tls_account_key');
 
-        if (!$saas_auth) {
-            $error = __('Please make sure the TrustedLogin API Key setting is entered.', 'tl-support-side');
-            $this->dlog($error, __METHOD__);
-            wp_send_json_error(array('message' => $error));
+        if ( ! $saas_auth ) {
+	        $error = __( 'Please make sure the TrustedLogin API Key setting is entered.', 'tl-support-side' );
+	        $this->dlog( $error, __METHOD__ );
+	        wp_send_json_error( array( 'message' => $error ) );
         }
 
+
         $saas_attr = (object) array('type' => 'saas', 'auth' => $saas_auth, 'debug_mode' => $this->debug_mode);
-        $saas_api = new TL_API_Handler($saas_attr);
+        $saas_api = new \TL_API_Handler($saas_attr);
 
         $for_vault = array();
         $item_html = '';
@@ -159,10 +113,10 @@ class TL_HelpScout
          * Filter: allow for other addons to generate the licenses array
          *
          * @since 0.6.0
-         * @param Array $licenses (
+         * @param array $licenses (
          *   @see $response from saas_api to /Sites/?accessKey=<accessKey>
          * )
-         * @param String $email
+         * @param string $email
          * @return Array
          **/
         $licenses = apply_filters('trusted_login_get_licenses', $licenses, $email);
@@ -218,12 +172,11 @@ class TL_HelpScout
         $return_html = sprintf($html_template, $item_html);
 
         wp_send_json_success(array('html' => $return_html));
-
     }
 
     public function has_edd_licensing()
     {
-        return function_exists('edd_software_licensing');
+        return function_exists('\edd_software_licensing');
     }
 
     public function edd_get_licenses($email)
@@ -234,17 +187,17 @@ class TL_HelpScout
 
         if ($_u) {
 
-            $licenses = edd_software_licensing()->get_license_keys_of_user($_u->ID, 0, 'all', true);
+            $licenses = \edd_software_licensing()->get_license_keys_of_user($_u->ID, 0, 'all', true);
 
             foreach ($licenses as $license) {
-                $children = edd_software_licensing()->get_child_licenses($license->ID);
+                $children = \edd_software_licensing()->get_child_licenses($license->ID);
                 if ($children) {
                     foreach ($children as $child) {
-                        $keys[] = edd_software_licensing()->get_license_key($child->ID);
+                        $keys[] = \edd_software_licensing()->get_license_key($child->ID);
                     }
                 }
 
-                $keys[] = edd_software_licensing()->get_license_key($license->ID);
+                $keys[] = \edd_software_licensing()->get_license_key($license->ID);
             }
         }
 
@@ -261,17 +214,15 @@ class TL_HelpScout
         return $signature == $calculated;
     }
 
-    /**
-     * Helper function: Check if the current site is an EDD store
-     *
-     * @since 0.2.0
-     * @return Boolean
-     **/
-    public function is_edd_store()
-    {
-        return class_exists('Easy Digital Downloads');
-    }
+	public function has_secret() {
+
+		if ( ! isset( $this->secret ) || empty( $this->secret ) ) {
+			return false;
+		}
+
+		return true;
+	}
 
 }
 
-$hl = new TL_HelpScout();
+$hl = new HelpScout();
