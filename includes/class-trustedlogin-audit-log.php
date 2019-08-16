@@ -94,6 +94,13 @@ class TrustedLogin_Audit_Log {
 		}
 	}
 
+	/**
+	 * @param $log_array
+	 *
+	 * @todo Convert to WP_Table_List
+	 *
+	 * @return string
+	 */
 	public function audit_db_build_output( $log_array ) {
 		$ret = '<div class="wrap">';
 
@@ -108,13 +115,16 @@ class TrustedLogin_Audit_Log {
         </tr></thead><tbody id="the-list">';
 
 		foreach ( $log_array as $log_item ) {
+
+			$log_user = get_user_by( 'id', $log_item->user_id );
+
 			$ret .= '<tr>';
-			$ret .= '<td>' . $log_item->id . '</td>';
-			$ret .= '<td>' . get_user_by( 'id', $log_item->user_id )->display_name . '</td>';
-			$ret .= '<td>' . $log_item->tl_site_id . '</td>';
-			$ret .= '<td>' . $log_item->time . '</td>';
-			$ret .= '<td>' . $log_item->action . '</td>';
-			$ret .= '<td>' . $log_item->notes . '</td>';
+			$ret .= '<td>' . esc_html( $log_item->id ) . '</td>';
+			$ret .= '<td>' . esc_html( $log_user->display_name ) . '</td>';
+			$ret .= '<td>' . esc_html( $log_item->tl_site_id ) . '</td>';
+			$ret .= '<td>' . esc_html( $log_item->time ) . '</td>';
+			$ret .= '<td>' . esc_html( $log_item->action ) . '</td>';
+			$ret .= '<td>' . esc_html( $log_item->notes ) . '</td>';
 			$ret .= '</tr>';
 		}
 
@@ -148,15 +158,14 @@ class TrustedLogin_Audit_Log {
 
 		$user_id = get_current_user_id();
 
-		if ( 0 == $user_id ) {
+		if ( empty( $user_id ) ) {
 			$this->dlog( 'Error: user_id = 0', __METHOD__ );
-
 			return;
 		}
 
 		$values = array(
 			'time'       => current_time( 'mysql' ),
-			'user_id'    => $user_id,
+			'user_id'    => (int) $user_id,
 			'tl_site_id' => sanitize_text_field( $site_id ),
 			'notes'      => sanitize_text_field( $note ),
 			'action'     => sanitize_text_field( $action ),
@@ -169,12 +178,10 @@ class TrustedLogin_Audit_Log {
 
 		if ( ! $inserted ) {
 			$this->dlog( 'Error: Could not save this to audit log. u:' . $user_id . ' | s:' . $site_id . ' | a:' . $action, __METHOD__ );
-
 			return false;
-		} else {
-			return true;
 		}
 
+		return true;
 	}
 
 	/**
@@ -191,8 +198,8 @@ class TrustedLogin_Audit_Log {
 
 		$query = "
             SELECT *
-            FROM " . $this->get_db_table_name() . "
-            ORDER BY id DESC
+            FROM `" . $this->get_db_table_name() . "`
+            ORDER BY `id` DESC
             LIMIT " . (int) $limit;
 
 		return $wpdb->get_results( $query );
