@@ -141,7 +141,7 @@ class TrustedLogin_Support_Side
             $tokens = $this->api_get_tokens();
         }
 
-        $this->audit_db_save($site_id, 'requested');
+        $this->audit_log->insert($site_id, 'requested');
 
         if ($tokens) {
             $key_store = (isset($tokens['name'])) ? sanitize_title($tokens['name']) : 'secret';
@@ -166,7 +166,7 @@ class TrustedLogin_Support_Side
 
         $success = ($envelope) ? __('Succcessful', 'tl-support-side') : __('Failed', 'tl-support-side');
 
-        $this->audit_db_save($site_id, 'received', $success);
+        $this->audit_log->insert($site_id, 'received', $success);
 
         return $envelope;
 
@@ -340,7 +340,7 @@ class TrustedLogin_Support_Side
 
         if ($url) {
             // then redirect
-            $this->audit_db_save($identifier, 'redirected', __('Succcessful', 'tl-support-side'));
+            $this->audit_log->insert($identifier, 'redirected', __('Succcessful', 'tl-support-side'));
             wp_redirect($url, 302);
             exit;
         }

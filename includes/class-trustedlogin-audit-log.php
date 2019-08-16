@@ -17,16 +17,19 @@ class TrustedLogin_Audit_Log {
 
 	const db_table_name = 'tl_audit_log';
 
+	/** @todo remove */
+	private $debug_mode = false;
+
 	public function __construct() {
 
 		register_activation_hook( __FILE__, array( $this, 'init' ) );
 
-		add_action( 'plugins_loaded', array( $this, 'audit_db_maybe_update' ) );
+		add_action( 'plugins_loaded', array( $this, 'maybe_update_schema' ) );
 
-		add_action( 'trustedlogin_after_settings_form', array( $this, 'audit_maybe_output' ), 10 );
+		add_action( 'trustedlogin_after_settings_form', array( $this, 'maybe_output_log' ), 10 );
 	}
 
-	function get_db_table_name() {
+	protected function get_db_table_name() {
 		global $wpdb;
 
 		return $wpdb->prefix . self::db_table_name;
@@ -37,7 +40,7 @@ class TrustedLogin_Audit_Log {
 	 *
 	 * @since 0.1.0
 	 **/
-	public function audit_db_maybe_update() {
+	public function maybe_update_schema() {
 
 		if ( version_compare( get_site_option( 'tl_db_version' ), self::db_version, '<' ) ) {
 			$this->init();
@@ -70,7 +73,7 @@ class TrustedLogin_Audit_Log {
 		add_option( 'tl_db_version', self::db_version );
 	}
 
-	public function audit_maybe_output() {
+	public function maybe_output_log() {
 
 		if ( ! $this->tls_settings_is_toggled( 'tls_output_audit_log' ) ) {
 			return;
@@ -140,7 +143,7 @@ class TrustedLogin_Audit_Log {
 	 *
 	 * @return Boolean - if this was saved to audit_db_table
 	 **/
-	public function audit_db_save( $site_id, $action, $note = null ) {
+	public function insert( $site_id, $action, $note = null ) {
 		global $wpdb;
 
 		$user_id = get_current_user_id();
