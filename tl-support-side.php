@@ -3,12 +3,12 @@
  * Plugin Name: TrustedLogin Support Plugin
  * Plugin URI: https://trustedlogin.com
  * Description: Authenticate support team members to securely log them in to client sites via TrustedLogin
- * Version: 0.6.0
+ * Version: 0.7.0
  * Author: trustedlogin.com
  * Author URI: https://trustedlogin.com
  * Text Domain: tl-support-side
  *
- * Copyright: © 2019 trustedlogin
+ * Copyright: © 2019 TrustedLogin
  * License: GNU General Public License v3.0
  * License URI: http://www.gnu.org/licenses/gpl-3.0.html
  */
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 }
 // Exit if accessed directly
 
-define( 'TRUSTEDLOGIN_PLUGIN_VERSION', '0.6.0' );
+define( 'TRUSTEDLOGIN_PLUGIN_VERSION', '0.7.0' );
 
 require_once plugin_dir_path(__FILE__) . 'includes/trait-debug-logging.php';
 require_once plugin_dir_path(__FILE__) . 'includes/trait-options.php';
