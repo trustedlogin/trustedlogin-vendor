@@ -75,9 +75,10 @@ class TrustedLogin_Support_Side
     private $options;
 
 	/**
-	 * @var 
+	 * @var TrustedLogin_Audit_Log
+	 * @since 0.7.0
 	 */
-    private $audit_log;
+    public $audit_log;
 
     public function __construct() {}
 
