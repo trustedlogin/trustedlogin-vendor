@@ -18,6 +18,8 @@ if (!defined('ABSPATH')) {
 }
 // Exit if accessed directly
 
+define( 'TRUSTEDLOGIN_PLUGIN_VERSION', '0.6.0' );
+
 require_once plugin_dir_path(__FILE__) . 'includes/trait-debug-logging.php';
 require_once plugin_dir_path(__FILE__) . 'includes/trait-options.php';
 require_once plugin_dir_path(__FILE__) . 'includes/trait-licensing.php';
@@ -72,48 +74,48 @@ class TrustedLogin_Support_Side
      **/
     private $options;
 
-    public function __construct()
-    {
-        global $wpdb;
 	/**
 	 * @var 
 	 */
     private $audit_log;
 
-        $this->plugin_version = '0.5.0';
+    public function __construct() {}
 
+    public function setup() {
+	    global $wpdb;
 
-        $this->endpoint = apply_filters('trustedlogin_redirect_endpoint', 'trustedlogin');
+	    $this->plugin_version = TRUSTEDLOGIN_PLUGIN_VERSION;
 
-        // Setup the Plugin Settings
+	    $this->endpoint = apply_filters('trustedlogin_redirect_endpoint', 'trustedlogin' );
 
-        /**
-         * Filter: Where in the menu the TrustedLogin Options should go.
-         * Added to allow devs to move options item under 'Settings' menu item in wp-admin to keep things neat.
-         *
-         * @since 0.4.0
-         * @param String either 'main' or 'submenu'
-         **/
-        $this->menu_location = apply_filters('trustedlogin_menu_location', 'main');
 	    $this->audit_log = new TrustedLogin_Audit_Log();
 
-        $this->tls_settings_set_defaults();
-        add_action('admin_menu', array($this, 'tls_settings_add_admin_menu'));
-        add_action('admin_init', array($this, 'tls_settings_init'));
-        add_action('admin_enqueue_scripts', array($this, 'tls_settings_scripts'));
+	    // Setup the Plugin Settings
 
+	    /**
+	     * Filter: Where in the menu the TrustedLogin Options should go.
+	     * Added to allow devs to move options item under 'Settings' menu item in wp-admin to keep things neat.
+	     *
+	     * @since 0.4.0
+	     * @param String either 'main' or 'submenu'
+	     **/
+	    $this->menu_location = apply_filters('trustedlogin_menu_location', 'main');
 
-        // Endpoint Hooks
-        add_action('init', array($this, 'endpoint_add'), 10);
-        add_action('template_redirect', array($this, 'endpoint_maybe_redirect'), 99);
-        add_filter('query_vars', array($this, 'endpoint_add_var'));
+	    $this->tls_settings_set_defaults();
+	    add_action('admin_menu', array($this, 'tls_settings_add_admin_menu'));
+	    add_action('admin_init', array($this, 'tls_settings_init'));
+	    add_action('admin_enqueue_scripts', array($this, 'tls_settings_scripts'));
 
-        $this->debug_mode = $this->tls_settings_is_toggled('tls_debug_enabled');
+	    // Endpoint Hooks
+	    add_action('init', array($this, 'endpoint_add'), 10);
+	    add_action('template_redirect', array($this, 'endpoint_maybe_redirect'), 99);
+	    add_filter('query_vars', array($this, 'endpoint_add_var'));
 
-        add_action('plugins_loaded', array($this, 'init_helpdesk_integration'));
+	    $this->debug_mode = $this->tls_settings_is_toggled('tls_debug_enabled');
 
-        add_action('rest_api_init', array($this, 'tlapi_register_endpoints'));
+	    add_action('plugins_loaded', array($this, 'init_helpdesk_integration'));
 
+	    add_action('rest_api_init', array($this, 'tlapi_register_endpoints'));
     }
 
     /**
@@ -451,8 +453,9 @@ class TrustedLogin_Support_Side
 }
 
 $init_tl = new TrustedLogin_Support_Side();
+$init_tl->setup();
 
-register_deactivation_hook(__FILE__, 'trustedlogin_supportside_deactivate');
+register_deactivation_hook(__FILE__, 'trustedlogin_supportside_deactivate' );
 
 function trustedlogin_supportside_deactivate()
 {
