@@ -196,6 +196,11 @@ class TrustedLogin_Audit_Log {
 	public function get_log_entries( $limit = 10 ) {
 		global $wpdb;
 
+		// TODO: Add custom capabilities
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return new WP_Error( 'unauthorized', 'You must have manage_options capability to view audit log entries' );
+		}
+
 		$query = "
             SELECT *
             FROM `" . $this->get_db_table_name() . "`
