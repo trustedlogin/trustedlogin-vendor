@@ -215,7 +215,7 @@ class HelpScout extends HelpDesk {
         $calculated = base64_encode(hash_hmac('sha1', $data, $this->secret, true));
         return $signature == $calculated;
     }
-    
+
 	public function has_secret() {
 
 		if ( ! isset( $this->secret ) || empty( $this->secret ) ) {
