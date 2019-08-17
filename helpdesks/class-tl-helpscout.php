@@ -119,7 +119,6 @@ class HelpScout extends HelpDesk {
         $html_template = '<ul class="c-sb-list c-sb-list--two-line">%1$s</ul>';
         $item_template = '<li class="c-sb-list-item"><a href="%1$s">%2$s %3$s</a></li>';
         $no_items_template = '<li class="c-sb-list-item">%1$s</li>';
-        $url_endpoint = apply_filters('trustedlogin_redirect_endpoint', 'trustedlogin');
 
         foreach ( $licenses as $license ) {
 
@@ -155,7 +154,7 @@ class HelpScout extends HelpDesk {
             foreach ($for_vault as $vault_set) {
                 $item_html .= sprintf(
                     $item_template,
-                    esc_url(site_url('/' . $url_endpoint . '/' . $vault_set['keyStoreID'])),
+                    esc_url(site_url('/' . Endpoint::redirect_endpoint . '/' . $vault_set['keyStoreID'])),
                     __('TrustedLogin to', 'tl-support-side'),
                     esc_url($vault_set['siteURL'])
                 );
