@@ -93,7 +93,7 @@ class HelpScout extends HelpDesk {
         }
 
 
-        $saas_attr = (object) array('type' => 'saas', 'auth' => $saas_auth, 'debug_mode' => $this->debug_mode);
+        $saas_attr = array('type' => 'saas', 'auth' => $saas_auth, 'debug_mode' => $this->debug_mode);
         $saas_api = new \TL_API_Handler($saas_attr);
         
 	    // Get licenses
