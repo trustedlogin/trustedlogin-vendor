@@ -9,6 +9,18 @@
 class TL_API_Handler
 {
 
+	/**
+	 * @since 0.1.0
+	 * @var String - API version
+	 **/
+	const saas_api_version = 'v1';
+
+	/**
+	 * @since 0.1.0
+	 * @var String - API version
+	 **/
+	const vault_api_version = 'v1';
+
     /**
      * @since 0.1.0
      * @var String - the type of API Handler we're working with. Possible options: 'saas', 'vault'
@@ -23,12 +35,6 @@ class TL_API_Handler
 
     /**
      * @since 0.1.0
-     * @var String - API version
-     **/
-    private $api_version;
-
-    /**
-     * @since 0.1.0
      * @var String - The API/Auth Key for authenticating API calls
      **/
     private $auth_key;
@@ -37,7 +43,7 @@ class TL_API_Handler
      * @since 0.1.0
      * @var Boolean - whether an Auth token is required.
      **/
-    private $auth_required;
+    private $auth_required = true;
 
     /**
      * @since 0.1.0
@@ -49,31 +55,35 @@ class TL_API_Handler
      * @since 0.1.0
      * @var Boolean - whether or not debug logging is enabled.
      **/
-    private $debug_mode;
+    private $debug_mode = false;
 
     use TL_Debug_Logging;
 
-    public function __construct($data)
+    public function __construct( $data )
     {
 
-        $this->type = (isset($data->type)) ? $data->type : null;
+	    $defaults = array(
+	    	'type' => null,
+		    'auth' => null,
+		    'debug_mode' => false,
+	    );
+    	
+    	$atts = wp_parse_args( $data, $defaults );
 
-        $this->auth = (isset($data->auth)) ? $data->auth : null;
+        $this->type = $atts['type'];
 
-        $this->debug_mode = (isset($data->debug_mode)) ? $data->debug_mode : false;
+        $this->auth_key = $atts['auth'];
+
+        $this->debug_mode = (bool) $atts['debug_mode'];
 
         switch ($this->type) {
             case 'saas':
-                $this->api_version = 'v1';
-                $this->api_url = 'https://app.trustedlogin.com/api/' . $this->api_version . '/';
+                $this->api_url = 'https://app.trustedlogin.com/api/' . self::saas_api_version . '/';
                 $this->auth_header_type = 'Authorization';
-                $this->auth_required = true;
                 break;
             case 'vault':
-                $this->api_version = 'v1';
-                $this->api_url = 'https://vault.trustedlogin.com/' . $this->api_version . '/';
+                $this->api_url = 'https://vault.trustedlogin.com/' . self::vault_api_version . '/';
                 $this->auth_header_type = 'X-Vault-Token';
-                $this->auth_required = true;
                 break;
         }
 
