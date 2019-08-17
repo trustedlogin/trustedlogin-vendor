@@ -89,10 +89,6 @@ class TL_API_Handler
 
     }
 
-    public function set_auth($auth)
-    {
-        $this->auth_key = $auth;
-    }
 	/**
 	 * @return string
 	 */
