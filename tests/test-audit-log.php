@@ -104,6 +104,8 @@ class AuditLogTest extends WP_UnitTestCase {
 
 		wp_set_current_user( $this->users['admin']->ID );
 
+		$this->assertTrue( $this->users['admin']->has_cap( 'manage_options' ) );
+
 		$this->assertTrue( $this->TL->audit_log->insert( '12', 'added', 'This is a note' ) );
 	}
 }
