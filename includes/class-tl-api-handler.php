@@ -93,6 +93,20 @@ class TL_API_Handler
     {
         $this->auth_key = $auth;
     }
+	/**
+	 * @return string
+	 */
+    public function get_api_url() {
+        return $this->api_url;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function get_auth_header_type() {
+		return $this->auth_header_type;
+	}
+
 
     /**
      * Prepare API call and return result
