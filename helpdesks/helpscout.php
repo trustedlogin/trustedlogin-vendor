@@ -269,7 +269,7 @@ class TL_HelpScout
      **/
     public function is_edd_store()
     {
-        return class_exists('Easy Digital Downloads');
+	    return function_exists( 'edd' );
     }
 
 }
