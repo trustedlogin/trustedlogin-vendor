@@ -87,7 +87,7 @@ class TrustedLogin_Audit_Log {
 		echo '<h1 class="wp-heading-inline">Last Audit Log Entries</h1>';
 
 		if ( 0 < count( $entries ) ) {
-			echo $this->audit_db_build_output( $entries );
+			echo $this->build_output( $entries );
 		} else {
 
 			echo __( "No Audit Log items to show yet.", 'tl-support-side' );
@@ -101,7 +101,7 @@ class TrustedLogin_Audit_Log {
 	 *
 	 * @return string
 	 */
-	public function audit_db_build_output( $log_array ) {
+	public function build_output( $log_array ) {
 		$ret = '<div class="wrap">';
 
 		$ret .= '<table class="wp-list-table widefat fixed striped posts">';
@@ -151,7 +151,7 @@ class TrustedLogin_Audit_Log {
 	 * @param String $action - what action is being logged (eg 'requested','redirected')
 	 * @param String $note - an optional string for adding context or extra info to the log
 	 *
-	 * @return Boolean - if this was saved to audit_db_table
+	 * @return boolean|null - True: saved; false: not saved, error; null: logged-out user (ID 0)
 	 **/
 	public function insert( $site_id, $action, $note = null ) {
 		global $wpdb;
@@ -160,7 +160,7 @@ class TrustedLogin_Audit_Log {
 
 		if ( empty( $user_id ) ) {
 			$this->dlog( 'Error: user_id = 0', __METHOD__ );
-			return;
+			return null;
 		}
 
 		$values = array(
