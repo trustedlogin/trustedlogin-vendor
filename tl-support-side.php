@@ -104,6 +104,8 @@ class TrustedLogin_Support_Side
 	    $this->debug_mode = $this->tls_settings_is_toggled('tls_debug_enabled');
 
 	    add_action('plugins_loaded', array($this, 'load_helpdesks'));
+	    add_action('plugins_loaded', array($this, 'load_license_generators'), 20 );
+
     }
 
     public function load_helpdesks() {
@@ -116,8 +118,16 @@ class TrustedLogin_Support_Side
 	    }
     }
 
+	public function load_license_generators() {
 
+		include_once plugin_dir_path( __FILE__ ) . 'license-generators/abstract-tl-license-generator.php';
+		include_once plugin_dir_path( __FILE__ ) . 'license-generators/class-tl-license-generators.php';
 
+		// Load all field files automatically
+		foreach ( glob( plugin_dir_path( __FILE__ ) . 'license-generators/class-tl-license-generator-*.php' ) as $license_generator ) {
+			include_once $license_generator;
+		}
+	}
 
 }
 

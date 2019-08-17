@@ -1,13 +1,21 @@
 <?php
 namespace TrustedLogin;
 
-class License_Generator_EDD implements License_Generator {
+class EDD extends License_Generator {
 
-	const name = 'Easy Digital Downloads';
+	protected $name = 'Easy Digital Downloads';
 
-	const slug = 'edd';
+	protected $slug = 'edd';
+
+	public function is_enabled() {
+		return function_exists( '\edd' );
+	}
 
 	public function get_license_keys_by_email( $email = '' ) {
+
+		if ( ! $this->is_enabled() ) {
+			return;
+		}
 
 		$keys = array();
 		$_u   = get_user_by( 'email', $email );
@@ -31,8 +39,6 @@ class License_Generator_EDD implements License_Generator {
 
 		return $keys;
 	}
-
-	public function is_enabled() {
-		return function_exists( 'edd' );
-	}
 }
+
+new EDD();
