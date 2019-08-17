@@ -13,6 +13,11 @@ class WooCommerce extends License_Generator {
 
 	/**
 	 * @todo Not yet implemented
+	 */
+	public function has_licensing() {}
+
+	/**
+	 * @todo Not yet implemented
 	 * @param string $email
 	 */
 	public function get_license_keys_by_email( $email = '' ) {}

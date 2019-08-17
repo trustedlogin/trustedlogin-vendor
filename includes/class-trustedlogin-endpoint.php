@@ -65,6 +65,8 @@ class Endpoint {
 		$type    = $request->get_param( 'type' );
 		$siteurl = $request->get_param( 'siteurl' );
 
+		$license_generator = License_Generators::get_active();
+
 		$check = $this->get_licenses_by( 'key', $key );
 
 		$this->dlog( "Check: " . print_r( $check, true ), __METHOD__ );
@@ -233,7 +235,7 @@ class Endpoint {
 			$auth      = ( isset( $tokens['readKey'] ) ) ? $tokens['readKey'] : null;
 
 			$vault_attr = array( 'type' => 'vault', 'auth' => $auth, 'debug_mode' => $this->debug_mode );
-			$vault_api  = new TL_API_Handler( $vault_attr );
+			$vault_api  = new \TL_API_Handler( $vault_attr );
 
 			/**
 			 * @var Array $envelope (
@@ -276,7 +278,7 @@ class Endpoint {
 		$endpoint = 'accounts/' . $account_id;
 
 		$saas_attr = array( 'type' => 'saas', 'auth' => $auth, 'debug_mode' => $this->debug_mode );
-		$saas_api  = new TL_API_Handler( $saas_attr );
+		$saas_api  = new \TL_API_Handler( $saas_attr );
 		$data      = null;
 
 		$response = $saas_api->call( $endpoint, $data, 'GET' );

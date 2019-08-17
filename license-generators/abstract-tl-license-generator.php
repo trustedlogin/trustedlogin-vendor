@@ -28,7 +28,7 @@ abstract class License_Generator {
 	 */
 	public function register( $generators = array() ) {
 
-		$generators[ $this->slug ] = $this->name;
+		$generators[ get_called_class() ] = $this->name;
 
 		return $generators;
 	}
@@ -37,6 +37,11 @@ abstract class License_Generator {
 	 * @return bool
 	 */
 	abstract public function is_enabled();
+
+	/**
+	 * @return bool
+	 */
+	abstract public function has_licensing();
 
 	/**
 	 * Get an array of license keys

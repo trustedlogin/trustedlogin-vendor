@@ -11,6 +11,10 @@ class EDD extends License_Generator {
 		return function_exists( '\edd' );
 	}
 
+	public function has_licensing() {
+		return function_exists('\edd_software_licensing');
+	}
+
 	public function get_license_keys_by_email( $email = '' ) {
 
 		if ( ! $this->is_enabled() ) {

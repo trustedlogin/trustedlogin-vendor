@@ -84,13 +84,6 @@ class HelpScout extends HelpDesk {
 		    wp_send_json_error(array('message' => 'Unauthorized'), 401);
 	    }
 
-	    // Get licenses
-        if ( !empty( $email )) {
-            if ($this->has_edd_licensing()) {
-                $licenses = $this->edd_get_licenses($email);
-            }
-        }
-
         $saas_auth = $this->tls_settings_get_value('tls_account_key');
 
         if ( ! $saas_auth ) {
@@ -102,6 +95,23 @@ class HelpScout extends HelpDesk {
 
         $saas_attr = (object) array('type' => 'saas', 'auth' => $saas_auth, 'debug_mode' => $this->debug_mode);
         $saas_api = new \TL_API_Handler($saas_attr);
+        
+	    // Get licenses
+	    $license_generator = License_Generators::get_active();
+
+	    $licenses = $license_generator->get_license_keys_by_email( $email );
+
+	    /**
+	     * Filter: allow for other addons to generate the licenses array
+	     *
+	     * @since 0.6.0
+	     * @param array $licenses (
+	     *   @see $response from saas_api to /Sites/?accessKey=<accessKey>
+	     * )
+	     * @param string $email
+	     * @return Array
+	     **/
+	    $licenses = apply_filters('trusted_login_get_licenses', $licenses, $email);
 
         $for_vault = array();
         $item_html = '';
@@ -111,19 +121,7 @@ class HelpScout extends HelpDesk {
         $no_items_template = '<li class="c-sb-list-item">%1$s</li>';
         $url_endpoint = apply_filters('trustedlogin_redirect_endpoint', 'trustedlogin');
 
-        /**
-         * Filter: allow for other addons to generate the licenses array
-         *
-         * @since 0.6.0
-         * @param array $licenses (
-         *   @see $response from saas_api to /Sites/?accessKey=<accessKey>
-         * )
-         * @param string $email
-         * @return Array
-         **/
-        $licenses = apply_filters('trusted_login_get_licenses', $licenses, $email);
-
-        foreach ($licenses as $license) {
+        foreach ( $licenses as $license ) {
 
             // check licenses for TrustedLogin Sites via SaaS app.
 
@@ -176,35 +174,6 @@ class HelpScout extends HelpDesk {
         wp_send_json_success(array('html' => $return_html));
     }
 
-    public function has_edd_licensing()
-    {
-        return function_exists('\edd_software_licensing');
-    }
-
-    public function edd_get_licenses($email)
-    {
-
-        $keys = array();
-        $_u = get_user_by('email', $email);
-
-        if ($_u) {
-
-            $licenses = \edd_software_licensing()->get_license_keys_of_user($_u->ID, 0, 'all', true);
-
-            foreach ($licenses as $license) {
-                $children = \edd_software_licensing()->get_child_licenses($license->ID);
-                if ($children) {
-                    foreach ($children as $child) {
-                        $keys[] = \edd_software_licensing()->get_license_key($child->ID);
-                    }
-                }
-
-                $keys[] = \edd_software_licensing()->get_license_key($license->ID);
-            }
-        }
-
-        return (!empty($keys)) ? $keys : false;
-    }
 
     public function helpscout_verify_source($data, $signature)
     {

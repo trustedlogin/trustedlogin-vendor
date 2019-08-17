@@ -43,27 +43,14 @@ trait TL_Licensing
     	return $license->exists;
     }
 
-    /**
-     * Helper function: Check if the current site is an EDD store
-     *
-     * @since 0.2.0
-     * @return Boolean
-     **/
-    public function is_edd_store()
-    {
-        return class_exists('Easy_Digital_Downloads');
-    }
-
-    /**
-    * Helper function: Check if the current site is Woocommerce store
-    * 
-    * @since 0.8.0
-    * @return Boolean
-    **/
-    public function is_woo_store(){
-    	return class_exists('woocommerce');
-    }
-
+	/**
+	 * @param $type
+	 * @param $value
+	 *
+	 * @see Endpoint::verify_callback
+	 *
+	 * @return array|bool
+	 */
     public function get_licenses_by($type, $value){
 
     	$this->dlog("type: $type | value: $value",__METHOD__);
