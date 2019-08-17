@@ -1,4 +1,5 @@
 <?php
+namespace TrustedLogin;
 
 /**
  * Class: TrustedLogin API Handler
@@ -6,11 +7,11 @@
  * @package tl-support-side
  * @version 0.1.0
  **/
-class TrustedLogin_Endpoint {
+class Endpoint {
 
-	use TL_Debug_Logging;
-	use TL_Options;
-	use TL_Licensing;
+	use \TL_Debug_Logging;
+	use \TL_Options;
+	use \TL_Licensing;
 
 	// TODO: Remove
 	private $debug_mode = true;
@@ -27,9 +28,6 @@ class TrustedLogin_Endpoint {
 	 */
 	const rest_endpoint = 'trustedlogin/v1';
 
-	/**
-	 * TrustedLogin_Endpoint constructor.
-	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'maybe_add_rewrite_rule' ) );
 		add_action( 'template_redirect', array( $this, 'maybe_endpoint_redirect' ), 99 );
@@ -374,3 +372,5 @@ class TrustedLogin_Endpoint {
 	}
 
 }
+
+new Endpoint();

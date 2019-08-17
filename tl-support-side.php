@@ -75,10 +75,6 @@ class TrustedLogin_Support_Side
 	 */
     public $audit_log;
 
-	/**
-	 * @var TrustedLogin_Endpoint
-	 */
-    private $endpoint;
 
     public function __construct() {}
 
