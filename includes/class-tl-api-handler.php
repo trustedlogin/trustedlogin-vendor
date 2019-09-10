@@ -78,11 +78,11 @@ class TL_API_Handler
 
         switch ($this->type) {
             case 'saas':
-                $this->api_url = apply_filters('trustedlogin/saas_api_url', 'https://app.trustedlogin.com/api/' . self::saas_api_version . '/');
+                $this->api_url = apply_filters('trustedlogin/api-url/saas', 'https://app.trustedlogin.com/api/' . self::saas_api_version . '/');
                 $this->auth_header_type = 'Authorization';
                 break;
             case 'vault':
-                $this->api_url = apply_filters('trustedlogin/vault_api_url', 'https://vault.trustedlogin.com/' . self::vault_api_version . '/');
+                $this->api_url = apply_filters('trustedlogin/api-url/vault', 'https://vault.trustedlogin.com/' . self::vault_api_version . '/');
                 $this->auth_header_type = 'X-Vault-Token';
                 break;
         }
