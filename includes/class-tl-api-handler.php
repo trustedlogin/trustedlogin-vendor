@@ -103,6 +103,13 @@ class TL_API_Handler
 		return $this->auth_header_type;
 	}
 
+	/**
+	 * @alias of TL_API_Handler::api_prepare
+	 */
+	public function call() {
+		return call_user_func_array( array( $this, 'api_prepare' ), func_get_args() );
+	}
+
 
     /**
      * Prepare API call and return result
