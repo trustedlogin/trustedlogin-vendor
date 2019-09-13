@@ -1,10 +1,9 @@
 <?php
 trait TL_Options
 {
-
     public function tls_settings_set_defaults()
     {
-        if (property_exists($this, 'default_options')) {
+        if (!property_exists($this, 'default_options')) {
             $this->default_options = apply_filters('trustedlogin_default_settings', array(
                 'tls_account_id' => "",
                 'tls_account_key' => "",
@@ -14,7 +13,7 @@ trait TL_Options
                 'tls_output_audit_log' => 'off',
             ));
         }
-        if (property_exists($this, 'menu_location')) {
+        if (!property_exists($this, 'menu_location')) {
             $this->menu_location = 'main'; // change to 'submenu' to add under Setting tab
         }
 
@@ -117,6 +116,10 @@ trait TL_Options
 
     public function tls_settings_render_input_field($setting, $type = 'text', $required = false)
     {
+		if ( empty( $this->options ) ) {
+			$this->tls_settings_set_defaults();
+		}
+
         if (!in_array($type, array('password', 'text'))) {
             $type = 'text';
         }
@@ -210,6 +213,9 @@ trait TL_Options
 
     public function tls_settings_output_toggle($setting)
     {
+		if ( empty( $this->options ) ) {
+			$this->tls_settings_set_defaults();
+		}
 
         $value = (array_key_exists($setting, $this->options)) ? $this->options[$setting] : 'off';
 
@@ -283,17 +289,29 @@ trait TL_Options
 
     public function tls_settings_get_selected_values($setting)
     {
+		if ( empty( $this->options ) ) {
+			$this->tls_settings_set_defaults();
+		}
+
         $value = (array_key_exists($setting, $this->options)) ? $this->options[$setting] : array();
         return maybe_unserialize($value);
     }
 
     public function tls_settings_is_toggled($setting)
     {
+		if ( empty( $this->options ) ) {
+			$this->tls_settings_set_defaults();
+		}
+
         return (array_key_exists($setting, $this->options)) ? true : false;
     }
 
     public function tls_settings_get_value($setting)
     {
+		if ( empty( $this->options ) ) {
+			$this->tls_settings_set_defaults();
+		}
+
         return $value = (array_key_exists($setting, $this->options)) ? $this->options[$setting] : false;
     }
 
