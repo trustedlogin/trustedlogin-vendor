@@ -127,8 +127,8 @@ class TL_API_Handler
         $additional_headers = array();
         $url = $this->api_url . $endpoint;
 
-        if (!empty($this->auth)) {
-            $additional_headers[$this->auth_header_type] = $this->auth;
+        if (!empty($this->auth_key)) {
+            $additional_headers[$this->auth_header_type] = $this->auth_key;
         }
 
         if ($this->auth_required && empty($additional_headers)) {
