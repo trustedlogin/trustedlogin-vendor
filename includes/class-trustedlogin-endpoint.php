@@ -195,9 +195,11 @@ class Endpoint {
 
 		$url = ( $envelope ) ? $this->envelope_to_url( $envelope ) : false;
 
+		global $init_tl;
+
 		if ( $url ) {
 			// then redirect
-			$this->audit_log->insert( $identifier, 'redirected', __( 'Succcessful', 'tl-support-side' ) );
+			$init_tl->audit_log->insert( $identifier, 'redirected', __( 'Succcessful', 'tl-support-side' ) );
 			wp_redirect( $url, 302 );
 			exit;
 		}
@@ -228,7 +230,8 @@ class Endpoint {
 			$tokens = $this->api_get_tokens();
 		}
 
-		$this->audit_log->insert( $site_id, 'requested' );
+		global $init_tl;
+		$init_tl->audit_log->insert( $site_id, 'requested' );
 
 		if ( $tokens ) {
 			$key_store = ( isset( $tokens['name'] ) ) ? sanitize_title( $tokens['name'] ) : 'secret';
@@ -253,7 +256,7 @@ class Endpoint {
 
 		$success = ( $envelope ) ? __( 'Succcessful', 'tl-support-side' ) : __( 'Failed', 'tl-support-side' );
 
-		$this->audit_log->insert( $site_id, 'received', $success );
+		$init_tl->audit_log->insert( $site_id, 'received', $success );
 
 		return $envelope;
 
