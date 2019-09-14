@@ -235,7 +235,7 @@ class Endpoint {
 
 		if ( $tokens ) {
 			$key_store = ( isset( $tokens['name'] ) ) ? sanitize_title( $tokens['name'] ) : 'secret';
-			$auth      = ( isset( $tokens['readKey'] ) ) ? $tokens['readKey'] : null;
+			$auth      = ( isset( $tokens['readToken'] ) ) ? $tokens['readToken'] : null;
 
 			$vault_attr = array( 'type' => 'vault', 'auth' => $auth, 'debug_mode' => $this->debug_mode );
 			$vault_api  = new \TL_API_Handler( $vault_attr );
