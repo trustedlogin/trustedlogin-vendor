@@ -269,7 +269,8 @@ class Endpoint {
 	 **/
 	public function api_get_tokens() {
 		// Get Auth token from settings
-		$auth       = $this->tls_settings_get_value( 'tls_account_key' );
+		$auth       = $this->tls_settings_get_value( 'tls_public_key' );
+		$auth       = \hash( 'sha256', $auth . $this->tls_settings_get_value( 'tls_account_key' ) );
 		$account_id = $this->tls_settings_get_value( 'tls_account_id' );
 
 		if ( empty( $auth ) || empty( $account_id ) ) {

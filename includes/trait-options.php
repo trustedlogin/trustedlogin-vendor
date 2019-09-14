@@ -6,6 +6,7 @@ trait TL_Options
         if (!property_exists($this, 'default_options')) {
             $this->default_options = apply_filters('trustedlogin_default_settings', array(
                 'tls_account_id' => "",
+				'tls_public_key' => '',
                 'tls_account_key' => "",
                 'tls_helpdesk' => array(),
                 'tls_approved_roles' => array('administrator'),
@@ -61,6 +62,14 @@ trait TL_Options
         );
 
         add_settings_field(
+            'tls_public_key',
+            __('TrustedLogin Public Key ', 'tl-support-side'),
+            array($this, 'tls_settings_public_key_field_render'),
+            'TLS_plugin_options',
+            'tls_options_section'
+        );
+
+        add_settings_field(
             'tls_account_key',
             __('TrustedLogin API Key ', 'tl-support-side'),
             array($this, 'tls_settings_account_key_field_render'),
@@ -106,6 +115,13 @@ trait TL_Options
     {
 
         $this->tls_settings_render_input_field('tls_account_key', 'password', true);
+
+    }
+
+    public function tls_settings_public_key_field_render()
+    {
+
+        $this->tls_settings_render_input_field('tls_public_key', 'text', true);
 
     }
 
