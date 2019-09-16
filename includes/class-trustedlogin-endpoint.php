@@ -38,7 +38,7 @@ class Endpoint {
 	public function register_endpoints() {
 
 		register_rest_route( self::rest_endpoint, '/verify', array(
-			'methods'  => WP_REST_Server::READABLE,
+			'methods'  => \WP_REST_Server::READABLE,
 			'callback' => array( $this, 'verify_callback' ),
 			'args'     => array(
 				'key'     => array(
@@ -59,7 +59,7 @@ class Endpoint {
 
 	}
 
-	public function verify_callback( WP_REST_Request $request ) {
+	public function verify_callback( \WP_REST_Request $request ) {
 
 		$key     = $request->get_param( 'key' );
 		$type    = $request->get_param( 'type' );
@@ -71,7 +71,7 @@ class Endpoint {
 
 		$this->dlog( "Check: " . print_r( $check, true ), __METHOD__ );
 
-		$response = new WP_REST_Response();
+		$response = new \WP_REST_Response();
 		if ( ! $check ) {
 			$response->set_status( 404 );
 		} else {
