@@ -65,7 +65,7 @@ class TrustedLogin_Endpoint {
 	* Verifies that the site has a license and can indeed request support.
 	*
 	* @since 0.3.0 - initial build
-	* @since 0.8.0 - added `TrustedLogin_Encryption::return_public_key()` check and response
+	* @since 0.8.0 - added `TrustedLogin_Encryption->return_public_key()` data to response.
 	*
 	* @param  WP_REST_Request  $request
 	* @return WP_REST_Response 
@@ -193,6 +193,7 @@ class TrustedLogin_Endpoint {
 	 * Helper: If all checks pass, redirect support agent to client site's admin panel
 	 *
 	 * @since 0.4.0
+	 * @since 0.8.0 - added `TrustedLogin_Encryption->decrypt()` to decrypt envelope from Vault.
 	 *
 	 * @param String $identifier collected via endpoint
 	 *
@@ -213,7 +214,19 @@ class TrustedLogin_Endpoint {
 		// then get the envelope
 		$envelope = $this->api_get_envelope( $identifier );
 
-		$url = ( $envelope ) ? $this->envelope_to_url( $envelope ) : false;
+		if ( $envelope ){
+
+			$tl_encr = new TrustedLogin_Encryption();
+	        $decrypted_envelope = $tl_encr->decrypt( $envelope );
+
+	        if ( is_wp_error( $decrypted_envelope ) ){
+	        	$this->dlog( "Error decrypting envelope: " . $decrypted_envelope->get_error_message(), __METHOD__ );
+	        	$decrypted_envelope = '';
+	        }
+
+		}
+
+		$url = ( $decrypted_envelope ) ? $this->envelope_to_url( $decrypted_envelope ) : false;
 
 		if ( $url ) {
 			// then redirect
