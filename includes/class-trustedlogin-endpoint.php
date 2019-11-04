@@ -61,6 +61,15 @@ class TrustedLogin_Endpoint {
 
 	}
 
+	/**
+	* Verifies that the site has a license and can indeed request support.
+	*
+	* @since 0.3.0 - initial build
+	* @since 0.8.0 - added `TrustedLogin_Encryption::return_public_key()` check and response
+	*
+	* @param  WP_REST_Request  $request
+	* @return WP_REST_Response 
+	**/
 	public function verify_callback( WP_REST_Request $request ) {
 
 		$key     = $request->get_param( 'key' );
@@ -75,6 +84,17 @@ class TrustedLogin_Endpoint {
 		if ( ! $check ) {
 			$response->set_status( 404 );
 		} else {
+
+			$data = array();
+
+			$tl_encr = new TrustedLogin_Encryption();
+	        $public_key = $tl_encr->return_public_key();
+
+			if ( !is_wp_error( $public_key ) ) {
+				$data['publicKey'] = $public_key;
+				$response->set_body( $data );
+			}
+
 			$response->set_status( 200 );
 		}
 

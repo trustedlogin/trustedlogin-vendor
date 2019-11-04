@@ -27,6 +27,7 @@ require_once plugin_dir_path(__FILE__) . 'includes/trait-licensing.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-trustedlogin-endpoint.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-tl-api-handler.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-trustedlogin-audit-log.php';
+require_once plugin_dir_path(__FILE__) . 'includes/class-trustedlogin-encryption.php';
 
 class TrustedLogin_Support_Side
 {
