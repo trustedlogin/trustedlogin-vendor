@@ -92,7 +92,7 @@ class TrustedLogin_Endpoint {
 
 			if ( !is_wp_error( $public_key ) ) {
 				$data['publicKey'] = $public_key;
-				$response->set_body( $data );
+				$response->set_data( $data );
 			}
 
 			$response->set_status( 200 );
