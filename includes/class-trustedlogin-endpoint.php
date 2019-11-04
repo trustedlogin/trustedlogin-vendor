@@ -59,6 +59,38 @@ class TrustedLogin_Endpoint {
 			),
 		) );
 
+		register_rest_route( self::rest_endpoint, '/public_key', array(
+			'methods'  => WP_REST_Server::READABLE,
+			'callback' => array( $this, 'get_public_key'),
+		) );
+
+	}
+
+	/**
+	* Returns the Public Key for this specific vendor/plugin.
+	*
+	* @since 0.8.0
+	*
+	* @param  WP_REST_Request  $request 
+	* @return WP_REST_Response
+	**/
+	public function get_public_key( WP_REST_Request $request ) {
+
+		$tl_encr = new TrustedLogin_Encryption();
+        $public_key = $tl_encr->return_public_key();
+
+        $response = new WP_REST_Response();
+
+		if ( !is_wp_error( $public_key ) ) {
+			$data = array( 'publicKey' => $public_key );
+			$response->set_data( $data );
+			$response->set_status( 200 );
+		} else {
+			$response->set_status( 204 );
+		}
+
+		return $response;
+
 	}
 
 	/**
