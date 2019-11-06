@@ -246,19 +246,13 @@ class TrustedLogin_Endpoint {
 		// then get the envelope
 		$envelope = $this->api_get_envelope( $identifier );
 
-		if ( $envelope ){
+		$url = ( $envelope ) ? $this->envelope_to_url( $envelope ) : false;
 
-			$tl_encr = new TrustedLogin_Encryption();
-	        $decrypted_envelope = $tl_encr->decrypt( $envelope );
-
-	        if ( is_wp_error( $decrypted_envelope ) ){
-	        	$this->dlog( "Error decrypting envelope: " . $decrypted_envelope->get_error_message(), __METHOD__ );
-	        	$decrypted_envelope = '';
-	        }
-
+		if ( is_wp_error( $url ) ){
+			$this->audit_log->insert( $identifier, 'failed', $url->get_error_message() );
+			wp_redirect( get_site_url(), 302 );
+			exit;
 		}
-
-		$url = ( $decrypted_envelope ) ? $this->envelope_to_url( $decrypted_envelope ) : false;
 
 		if ( $url ) {
 			// then redirect
@@ -402,6 +396,20 @@ class TrustedLogin_Endpoint {
 
 			return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly' );
 		}
+
+
+		$tl_encr = new TrustedLogin_Encryption();
+
+        $envelope['siteurl'] 	= $tl_encr->decrypt( $envelope['siteurl'] );
+        $envelope['identifier'] = $tl_encr->decrypt( $envelope['identifier'] );
+
+        $envelope['endpoint']	= md5 ( $envelope['siteurl'] . $envelope['identifier'] );
+
+        if ( is_wp_error( $envelope['siteurl'] ) || is_wp_error( $envelope['identifier'] ) ){
+        	$this->dlog( "Error decrypting siteurl: " . $envelope['siteurl']->get_error_message(), __METHOD__ );
+        	$this->dlog( "Error decrypting identifier: " . $envelope['identifier']->get_error_message(), __METHOD__ );
+        	return new WP_Error( 'decryption_failed', 'Could not decrypt siteurl or identifier' );
+        }
 
 		$url = $envelope['siteurl'] . '/' . $envelope['endpoint'] . '/' . $envelope['identifier'];
 
