@@ -391,15 +391,16 @@ class TrustedLogin_Endpoint {
 		if ( ! is_array( $envelope ) ) {
 			$this->dlog( 'Error: envelope not an array. e:' . print_r( $envelope, true ), __METHOD__ );
 
-			return false;
+			return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly' );
 		}
 
 		if ( ! array_key_exists( 'identifier', $envelope )
 		     || ! array_key_exists( 'siteurl', $envelope )
-		     || ! array_key_exists( 'endpoint', $envelope ) ) {
+		     // || ! array_key_exists( 'endpoint', $envelope ) 
+		 ) {
 			$this->dlog( 'Error: malformed envelope. e:' . print_r( $envelope, true ), __METHOD__ );
 
-			return false;
+			return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly' );
 		}
 
 		$url = $envelope['siteurl'] . '/' . $envelope['endpoint'] . '/' . $envelope['identifier'];

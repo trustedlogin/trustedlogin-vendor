@@ -9,7 +9,22 @@
  **/
 class TrustedLogin_Encryption
 {
-	public function __construct(){}
+
+	private $key_option_name;
+
+	public function __construct(){
+
+		/**
+		* Filter allows site_admins to change the site option key for storing the keys data.
+		*
+		* @since 0.8.0
+		* 
+		* @param string
+		* @param TrustedLogin_Encryption $this
+		**/
+		$this->key_option_name = apply_filters( 'trustedlogin/encryption/keys-option', 'trustedlogin_keys', $this );
+
+	}
 	
 	/**
 	* Returns the existing/saved key set.
@@ -20,18 +35,13 @@ class TrustedLogin_Encryption
 	**/
 	private function get_existing_keys(){
 
-		/**
-		* Filter allows site_admins to change the site option key for storing the keys data.
-		**/
-		$key_option_name = apply_filters( 'trustedlogin_keys_option', 'trustedlogin_keys' );
-
-		$keys = get_site_option( $key_option_name );
+		$keys = get_site_option( $this->key_option_name );
 
 		if ( false !== $keys ){
 			$keys = json_decode( $keys );
 		}
 		
-		return apply_filters( 'trustedlogin_get_keys', $keys );
+		return apply_filters( 'trustedlogin/encryption/get-keys', $keys );
 	}
 
 	/**
@@ -60,7 +70,7 @@ class TrustedLogin_Encryption
 		*
 		* @return boolean If keys exist.
 		**/
-		return apply_filters( "trustedlogin_are_keys_set", $is_set );
+		return apply_filters( "trustedlogin/encryption/are-keys-set", $is_set );
 	}
 
 	/**
@@ -114,17 +124,12 @@ class TrustedLogin_Encryption
 			return new WP_Error( 'empty_keys', 'Keys cannot be empty' );
 		}
 
-		/**
-		* Filter defined in TrustedLogin_Encryption::get_existing_keys()
-		**/
-		$key_option_name = apply_filters( 'trustedlogin_keys_option', 'trustedlogin_keys' );
-
 		$keys_db_ready = json_encode( $keys );
 
 		if ($this->are_keys_set()){
-			$saved = update_site_option( $key_option_name, $keys_db_ready );
+			$saved = update_site_option( $this->key_option_name, $keys_db_ready );
 		} else {
-			$saved = add_site_option( $key_option_name, $keys_db_ready );
+			$saved = add_site_option( $this->key_option_name, $keys_db_ready );
 		}
 
 		if ( !$saved ){
