@@ -87,7 +87,7 @@ class TrustedLogin_Encryption {
 	* 	The keys to save.
 	* 	
 	* 	@type string $private_key The private key used for decrypting.
-	* 	@type string $public_key The public key used for encrypting.
+	* 	@type string $public_key  The public key used for encrypting.
 	* }
 	**/
 	private function create_new_keys() {
@@ -108,7 +108,7 @@ class TrustedLogin_Encryption {
 		$public_key = openssl_pkey_get_details($res);
 		$public_key = $public_key['key'];
 
-		$keys = (object) array( 'private_key'=> $private_key, 'public_key' => $pubKey );
+		$keys = (object) array( 'private_key'=> $private_key, 'public_key' => $public_key );
 
 		return $keys;
 	}
@@ -130,14 +130,10 @@ class TrustedLogin_Encryption {
 		}
 
 		$keys_db_ready = json_encode( $keys );
-
-		if ( $this->are_keys_set() ){
-			$saved = update_site_option( $this->key_option_name, $keys_db_ready );
-		} else {
-			$saved = add_site_option( $this->key_option_name, $keys_db_ready );
-		}
-
-		if ( !$saved ){
+	
+		$saved = update_site_option( $this->key_option_name, $keys_db_ready );
+		
+		if ( ! $saved ){
 			return new WP_Error( 'db_error','Could not save keys to database' );
 		}
 
