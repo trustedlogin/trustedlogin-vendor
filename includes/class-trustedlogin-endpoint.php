@@ -81,7 +81,7 @@ class TrustedLogin_Endpoint {
 
         $response = new WP_REST_Response();
 
-		if ( !is_wp_error( $public_key ) ) {
+		if ( ! is_wp_error( $public_key ) ) {
 			$data = array( 'publicKey' => $public_key );
 			$response->set_data( $data );
 			$response->set_status( 200 );
@@ -388,6 +388,9 @@ class TrustedLogin_Endpoint {
 			return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly' );
 		}
 
+		/**
+		* @todo check if we still have endpoint variable coming through via API
+		**/
 		if ( ! array_key_exists( 'identifier', $envelope )
 		     || ! array_key_exists( 'siteurl', $envelope )
 		     // || ! array_key_exists( 'endpoint', $envelope ) 

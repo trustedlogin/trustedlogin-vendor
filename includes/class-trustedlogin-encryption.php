@@ -7,15 +7,14 @@
  * @package trustedlogin-vendor
  * @version 0.1.0
  **/
-class TrustedLogin_Encryption
-{
+class TrustedLogin_Encryption {
 
 	private $key_option_name;
 
-	public function __construct(){
+	public function __construct() {
 
 		/**
-		* Filter allows site_admins to change the site option key for storing the keys data.
+		* Filter allows site admins to change the site option key for storing the keys data.
 		*
 		* @since 0.8.0
 		* 
@@ -81,29 +80,29 @@ class TrustedLogin_Encryption
 	* @return stdClass 	$keys {
 	* 	The keys to save.
 	* 	
-	* 	@type string $priKey The private key used for decrypting.
-	* 	@type string $pubKey The public key used for encrypting.
+	* 	@type string $private_key The private key used for decrypting.
+	* 	@type string $public_key The public key used for encrypting.
 	* }
 	**/
-	private function create_new_keys(){
+	private function create_new_keys() {
 
 		$config = array(
-		    "digest_alg" => "sha512",
-		    "private_key_bits" => 4096,
-		    "private_key_type" => OPENSSL_KEYTYPE_RSA,
+		    'digest_alg' => 'sha512',
+		    'private_key_bits' => 4096,
+		    'private_key_type' => OPENSSL_KEYTYPE_RSA,
 		);
 		   
 		// Create the private and public key
 		$res = openssl_pkey_new($config);
 
-		// Extract the private key from $res to $priKey
-		openssl_pkey_export($res, $priKey);
+		// Extract the private key from $res to $private_key
+		openssl_pkey_export($res, $private_key);
 
-		// Extract the public key from $res to $pubKey
-		$pubKey = openssl_pkey_get_details($res);
-		$pubKey = $pubKey["key"];
+		// Extract the public key from $res to $public_key
+		$public_key = openssl_pkey_get_details($res);
+		$public_key = $public_key['key'];
 
-		$keys = (object) array( 'priKey'=> $priKey, 'pubKey' => $pubKey );
+		$keys = (object) array( 'private_key'=> $private_key, 'public_key' => $pubKey );
 
 		return $keys;
 	}
@@ -126,7 +125,7 @@ class TrustedLogin_Encryption
 
 		$keys_db_ready = json_encode( $keys );
 
-		if ($this->are_keys_set()){
+		if ( $this->are_keys_set() ){
 			$saved = update_site_option( $this->key_option_name, $keys_db_ready );
 		} else {
 			$saved = add_site_option( $this->key_option_name, $keys_db_ready );
