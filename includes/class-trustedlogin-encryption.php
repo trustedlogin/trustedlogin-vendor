@@ -40,7 +40,13 @@ class TrustedLogin_Encryption {
 			$keys = json_decode( $keys );
 		}
 		
-		return apply_filters( 'trustedlogin/encryption/get-keys', $keys );
+		/**
+		* Filter allows site admins to change where the key is fetched from.
+		*
+		* @param stdClass 	$keys
+		* @param TrustedLogin_Encryption $this
+		**/
+		return apply_filters( 'trustedlogin/encryption/get-keys', $keys, $this );
 	}
 
 	/**
