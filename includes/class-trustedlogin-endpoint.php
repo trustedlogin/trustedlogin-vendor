@@ -388,12 +388,8 @@ class TrustedLogin_Endpoint {
 			return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly' );
 		}
 
-		/**
-		* @todo check if we still have endpoint variable coming through via API
-		**/
 		if ( ! array_key_exists( 'identifier', $envelope )
 		     || ! array_key_exists( 'siteurl', $envelope )
-		     // || ! array_key_exists( 'endpoint', $envelope ) 
 		 ) {
 			$this->dlog( 'Error: malformed envelope. e:' . print_r( $envelope, true ), __METHOD__ );
 
