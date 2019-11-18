@@ -61,7 +61,7 @@ class TrustedLogin_Endpoint {
 
 		register_rest_route( self::rest_endpoint, '/public_key', array(
 			'methods'  => WP_REST_Server::READABLE,
-			'callback' => array( $this, 'get_public_key'),
+			'callback' => array( $this, 'public_key_callback'),
 		) );
 
 	}
@@ -74,10 +74,10 @@ class TrustedLogin_Endpoint {
 	* @param  WP_REST_Request  $request 
 	* @return WP_REST_Response
 	**/
-	public function get_public_key( WP_REST_Request $request ) {
+	public function public_key_callback( WP_REST_Request $request ) {
 
 		$tl_encr = new TrustedLogin_Encryption();
-        $public_key = $tl_encr->return_public_key();
+        $public_key = $tl_encr->keys_get_public_key();
 
         $response = new WP_REST_Response();
 
@@ -97,7 +97,7 @@ class TrustedLogin_Endpoint {
 	* Verifies that the site has a license and can indeed request support.
 	*
 	* @since 0.3.0 - initial build
-	* @since 0.8.0 - added `TrustedLogin_Encryption->return_public_key()` data to response.
+	* @since 0.8.0 - added `TrustedLogin_Encryption->keys_get_public_key()` data to response.
 	*
 	* @param  WP_REST_Request  $request
 	* @return WP_REST_Response 
@@ -120,7 +120,7 @@ class TrustedLogin_Endpoint {
 			$data = array();
 
 			$tl_encr = new TrustedLogin_Encryption();
-	        $public_key = $tl_encr->return_public_key();
+	        $public_key = $tl_encr->keys_get_public_key();
 
 			if ( !is_wp_error( $public_key ) ) {
 				$data['publicKey'] = $public_key;

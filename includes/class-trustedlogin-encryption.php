@@ -32,7 +32,7 @@ class TrustedLogin_Encryption {
 	* 
 	* @return stdClass|false If keys exist, returns the stdClass of keys. If not, returns false. 
 	**/
-	private function get_existing_keys(){
+	private function keys_get(){
 
 		$keys = get_site_option( $this->key_option_name );
 
@@ -50,35 +50,6 @@ class TrustedLogin_Encryption {
 	}
 
 	/**
-	* Checks if keys have been already been generated and saved.
-	*
-	* @since 0.8.0 
-	* 
-	* @return boolean
-	**/
-	private function are_keys_set(){
-
-		$keys = $this->get_existing_keys();
-
-		if ( false == $keys || is_wp_error( $keys )){
-			$is_set = false;
-		} else {
-			$is_set = true;
-		}
-
-		/**
-		* Filter allows for extending if key sets are set.
-		*
-		* Usually used in reference to if new keys need to be generated and saved.
-		* 
-		* @since 0.8.0 
-		*
-		* @return boolean If keys exist.
-		**/
-		return apply_filters( "trustedlogin/encryption/are-keys-set", $is_set );
-	}
-
-	/**
 	* Creats a new public/private key set.
 	*
 	* @since 0.8.0 
@@ -90,7 +61,7 @@ class TrustedLogin_Encryption {
 	* 	@type string $public_key  The public key used for encrypting.
 	* }
 	**/
-	private function create_new_keys() {
+	private function keys_create() {
 
 		$config = array(
 		    'digest_alg' => 'sha512',
@@ -108,7 +79,7 @@ class TrustedLogin_Encryption {
 		$public_key = openssl_pkey_get_details($res);
 		$public_key = $public_key['key'];
 
-		$keys = (object) array( 'private_key'=> $private_key, 'public_key' => $public_key );
+		$keys = (object) array( 'private_key' => $private_key, 'public_key' => $public_key );
 
 		return $keys;
 	}
@@ -118,12 +89,12 @@ class TrustedLogin_Encryption {
 	*
 	* @since 0.8.0 
 	*
-	* @see TrustedLogin_Encryption::create_new_keys()
+	* @see TrustedLogin_Encryption::keys_create()
 	*
 	* @param   stdClass  The keys to save. 
 	* @return  mixed  True if keys saved. WP_Error if not.
 	**/
-	private function save_keys( $keys ){
+	private function keys_save( $keys ){
 
 		if ( empty( $keys ) ){
 			return new WP_Error( 'empty_keys', 'Keys cannot be empty' );
@@ -150,33 +121,31 @@ class TrustedLogin_Encryption {
 	*
 	* @returns string 	A public key in which to encrypt 
 	**/
-	public function return_public_key(){
+	public function keys_get_public_key(){
 
-		if ( $this->are_keys_set() ){
+		$public_key = false;
+		$keys = $this->keys_get();
 
-			// Keys are set so let's fetch and return the public key
-
-			$keys = $this->get_existing_keys();
-
-			if ( !is_wp_error( $keys )){
-				return $keys->pubKey;
-			} else {
-				return $keys;
+		if ( $keys ){
+			
+			if ( property_exists( $keys, 'public_key' ) ){
+				$public_key = $keys->public_key;
 			}
+			
+		} 
 
-		} else {
-
-			// Keys are not set yet, so we'll create new ones and return the public key
-
-			$keys = $this->create_new_keys();
-			$saved = $this->save_keys( $keys );
-
-			if ( is_wp_error( $saved )){
-				return $saved;
-			}
-
-			return $keys->pubKey;
+		if ( $public_key ){
+			return $public_key;
 		}
+
+		$keys = $this->keys_create();
+		$saved = $this->keys_save( $keys );
+
+		if ( is_wp_error( $saved )){
+			return $saved;
+		}
+
+		return $keys->public_key;
 
 	}
 
@@ -192,13 +161,9 @@ class TrustedLogin_Encryption {
 
 		$decrypted_payload = '';
 
-		if ( !$this->are_keys_set() ){
-			return new WP_Error( 'no_keys', 'Cannot decrypt, as no keys exist yet.' );
-		}
+		$keys = $this->keys_get();
 
-		$keys = $this->get_existing_keys();
-
-		if ( !$keys || !property_exists( $keys, 'privKey' ) ){
+		if ( !$keys || !property_exists( $keys, 'private_key' ) ){
 			return new WP_Error( 'key_error', 'Cannot get keys from the local DB.' );
 		} 
 
@@ -213,7 +178,7 @@ class TrustedLogin_Encryption {
 			return new WP_Error( 'data_malformated', 'Encrypted data needed to be base64 encoded.' );
 		}
 
-		openssl_private_decrypt($encrypted_payload, $decrypted_payload, $keys->privKey, OPENSSL_PKCS1_OAEP_PADDING);
+		openssl_private_decrypt($encrypted_payload, $decrypted_payload, $keys->private_key, OPENSSL_PKCS1_OAEP_PADDING);
 
 		if ( empty( $decrypted_payload )){
 			return new WP_Error( 'decryption_failed', 'Decryption failed.' );
