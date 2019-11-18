@@ -32,7 +32,7 @@ class TrustedLogin_Encryption {
 	* 
 	* @return stdClass|false If keys exist, returns the stdClass of keys. If not, returns false. 
 	**/
-	private function keys_get(){
+	private function get_keys(){
 
 		$keys = get_site_option( $this->key_option_name );
 
@@ -61,7 +61,7 @@ class TrustedLogin_Encryption {
 	* 	@type string $public_key  The public key used for encrypting.
 	* }
 	**/
-	private function keys_create() {
+	private function create_keys() {
 
 		$config = array(
 		    'digest_alg' => 'sha512',
@@ -89,12 +89,12 @@ class TrustedLogin_Encryption {
 	*
 	* @since 0.8.0 
 	*
-	* @see TrustedLogin_Encryption::keys_create()
+	* @see TrustedLogin_Encryption::create_keys()
 	*
 	* @param   stdClass  The keys to save. 
 	* @return  mixed  True if keys saved. WP_Error if not.
 	**/
-	private function keys_save( $keys ){
+	private function update_keys( $keys ){
 
 		if ( empty( $keys ) ){
 			return new WP_Error( 'empty_keys', 'Keys cannot be empty' );
@@ -121,10 +121,10 @@ class TrustedLogin_Encryption {
 	*
 	* @returns string 	A public key in which to encrypt 
 	**/
-	public function keys_get_public_key(){
+	public function get_public_key(){
 
 		$public_key = false;
-		$keys = $this->keys_get();
+		$keys = $this->get_keys();
 
 		if ( $keys ){
 			
@@ -138,8 +138,8 @@ class TrustedLogin_Encryption {
 			return $public_key;
 		}
 
-		$keys = $this->keys_create();
-		$saved = $this->keys_save( $keys );
+		$keys = $this->create_keys();
+		$saved = $this->update_keys( $keys );
 
 		if ( is_wp_error( $saved )){
 			return $saved;
@@ -161,7 +161,7 @@ class TrustedLogin_Encryption {
 
 		$decrypted_payload = '';
 
-		$keys = $this->keys_get();
+		$keys = $this->get_keys();
 
 		if ( !$keys || !property_exists( $keys, 'private_key' ) ){
 			return new WP_Error( 'key_error', 'Cannot get keys from the local DB.' );
