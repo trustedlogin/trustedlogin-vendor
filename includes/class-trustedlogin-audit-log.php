@@ -17,6 +17,19 @@ class TrustedLogin_Audit_Log {
 
 	const db_table_name = 'tl_audit_log';
 
+    /**
+     * @var Array - current site's TrustedLogin settings
+     * @since 0.4.0
+     **/
+    private $options;
+
+    /**
+     * @var Array - the default settings for our plugin
+     * @see TL_Options trait
+     * @since 0.4.0
+     **/
+    private $default_options;
+
 	/** @todo remove */
 	private $debug_mode = false;
 
@@ -74,6 +87,8 @@ class TrustedLogin_Audit_Log {
 	}
 
 	public function maybe_output_log() {
+
+		$this->tls_settings_set_defaults();
 
 		if ( ! $this->tls_settings_is_toggled( 'tls_output_audit_log' ) ) {
 			return;
