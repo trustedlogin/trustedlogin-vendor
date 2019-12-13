@@ -274,8 +274,7 @@ class TrustedLogin_Endpoint {
 	public function api_get_envelope( $site_id ) {
 		if ( empty( $site_id ) ) {
 			$this->dlog( 'Error: site_id cannot be empty.', __METHOD__ );
-
-			return false;
+			return new WP_Error( 'data-error', __( 'Site ID cannot be empty', 'tl-support-side') );
 		}
 
 		/**
@@ -283,8 +282,12 @@ class TrustedLogin_Endpoint {
 		 * @todo use $store_token to get envelope from Vault
 		 **/
 
-		if ( false == ( $tokens = get_option( 'tl_tmp_tokens', false ) ) ) {
-			$tokens = $this->api_get_tokens();
+		// make sure we have the auth details from the settings page before continuing. 
+		$auth       = $this->tls_settings_get_value( 'tls_account_key' );
+		$account_id = $this->tls_settings_get_value( 'tls_account_id' );
+		if ( empty( $auth ) || empty( $account_id ) ) {
+			$this->dlog( "no auth or account_id provided", __METHOD__ );
+			return new WP_Error( 'setup-error', __( 'No auth or account_id data found', 'tl-support-side' ) );
 		}
 
 		$this->audit_log->insert( $site_id, 'requested' );
@@ -310,7 +313,7 @@ class TrustedLogin_Endpoint {
 			$envelope = false;
 		}
 
-		$success = ( $envelope ) ? __( 'Succcessful', 'tl-support-side' ) : __( 'Failed', 'tl-support-side' );
+		$success = ( !is_wp_error( $envelope ) ) ? __( 'Succcessful', 'tl-support-side' ) : __( 'Failed', 'tl-support-side' );
 
 		$this->audit_log->insert( $site_id, 'received', $success );
 
