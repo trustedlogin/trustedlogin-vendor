@@ -246,6 +246,12 @@ class TrustedLogin_Endpoint {
 		// then get the envelope
 		$envelope = $this->api_get_envelope( $identifier );
 
+		if ( is_wp_error( $envelope ) ){
+			$this->audit_log->insert( $identifier, 'failed', $envelope->get_error_message() );
+			wp_redirect( get_site_url(), 302 );
+			exit;
+		}
+
 		$url = ( $envelope ) ? $this->envelope_to_url( $envelope ) : false;
 
 		if ( is_wp_error( $url ) ){
