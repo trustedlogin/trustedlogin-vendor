@@ -65,7 +65,7 @@ class TrustedLogin_Support_Side
     private $menu_location;
 
     /**
-     * @var Array - current site's TrustedLoging settings
+     * @var Array - current site's TrustedLogin settings
      * @since 0.4.0
      **/
     private $options;
