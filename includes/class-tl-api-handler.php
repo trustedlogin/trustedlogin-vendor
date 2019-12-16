@@ -114,7 +114,7 @@ class TL_API_Handler
      * @param String $method - HTTP RESTful method ('POST','GET','DELETE','PUT','UPDATE')
      * @return Array|false - response from the RESTful API
      **/
-    public function api_prepare($endpoint, $data, $method)
+    public function call($endpoint, $data, $method)
     {
 
         $additional_headers = array();
