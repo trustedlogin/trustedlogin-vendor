@@ -289,11 +289,11 @@ class TrustedLogin_Endpoint {
 		$data = array();
 
 		// Let's grab the user details. Logged in status already confirmed in maybe_redirect_support();
-		$_u = wp_get_current_user();
-		if ( 0 == $_u->ID ){
+		$current_user = wp_get_current_user();
+		if ( 0 == $current_user->ID ){
 			return new WP_Error( 'auth-error', __( 'User not logged in.', 'tl-support-side' ) );
 		}
-		$data['user'] = array( 'id' => $_u->ID, 'name' => $_u->display_name );
+		$data['user'] = array( 'id' => $current_user->ID, 'name' => $current_user->display_name );
 
 		// make sure we have the auth details from the settings page before continuing. 
 		$auth       = $this->tls_settings_get_value( 'tls_account_key' );
@@ -304,8 +304,8 @@ class TrustedLogin_Endpoint {
 		}
 
 		// Then let's get the identity verification pair to confirm the site is the one sending the request.
-		$tl_encr = new TrustedLogin_Encryption();
-		$data['auth'] = $tl_encr->create_identity_nonce();
+		$trustedlogin_encryption = new TrustedLogin_Encryption();
+		$data['auth'] = $trustedlogin_encryption->create_identity_nonce();
 
 		if ( is_wp_error( $data['auth'] ) ){
 			return $data['auth'];
