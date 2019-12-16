@@ -284,9 +284,16 @@ class TrustedLogin_Endpoint {
 		}
 
 		/**
-		 * @todo ping TL using the API key provided, to return $store_token
-		 * @todo use $store_token to get envelope from Vault
-		 **/
+		* @var The data array that will be sent to TrustedLogin to request a site's envelope
+		**/
+		$data = array();
+
+		// Let's grab the user details. Logged in status already confirmed in maybe_redirect_support();
+		$_u = wp_get_current_user();
+		if ( 0 == $_u->ID ){
+			return new WP_Error( 'auth-error', __( 'User not logged in.', 'tl-support-side' ) );
+		}
+		$data['user'] = array( 'id' => $_u->ID, 'name' => $_u->display_name );
 
 		// make sure we have the auth details from the settings page before continuing. 
 		$auth       = $this->tls_settings_get_value( 'tls_account_key' );
@@ -296,28 +303,30 @@ class TrustedLogin_Endpoint {
 			return new WP_Error( 'setup-error', __( 'No auth or account_id data found', 'tl-support-side' ) );
 		}
 
+		// Then let's get the identity verification pair to confirm the site is the one sending the request.
+		$tl_encr = new TrustedLogin_Encryption();
+		$data['auth'] = $tl_encr->create_identity_nonce();
+
+		if ( is_wp_error( $data['auth'] ) ){
+			return $data['auth'];
+		}
+
 		$this->audit_log->insert( $site_id, 'requested' );
 
-		if ( $tokens ) {
-			$key_store = ( isset( $tokens['name'] ) ) ? sanitize_title( $tokens['name'] ) : 'secret';
-			$auth      = ( isset( $tokens['readKey'] ) ) ? $tokens['readKey'] : null;
+		$endpoint = 'Sites/' . $site_id . '/get-envelope' ;
 
-			$vault_attr = array( 'type' => 'vault', 'auth' => $auth, 'debug_mode' => $this->debug_mode );
-			$vault_api  = new TL_API_Handler( $vault_attr );
+		$saas_attr = array( 'type' => 'saas', 'auth' => $auth, 'debug_mode' => $this->debug_mode );
+		$saas_api  = new TL_API_Handler( $saas_attr );
 
-			/**
-			 * @var Array $envelope (
-			 *   String $siteurl
-			 *   String $identifier
-			 *   String $endpoint
-			 *   Int $expiry - the time() of when this Support User will decay
-			 * )
-			 **/
-			$envelope = $vault_api->call( $key_store . '/' . $site_id, null, 'GET' );
-		} else {
-			$this->dlog( "Error: Didn't recieve tokens.", __METHOD__ );
-			$envelope = false;
-		}
+		/**
+		 * @var Array $envelope (
+		 *   String $siteurl  		The site url. Double encrypted.
+		 *   String $identifier 	The support-agent unique ID. Double encrypted.
+		 *   String $endpoint 		The unique endpoint for auto-login. Double encrypted.
+		 *   Int $expiry - the time() of when this Support User will decay
+		 * )
+		 **/
+		$envelope = $saas_api->call( $endpoint, $data, 'GET' );
 
 		$success = ( !is_wp_error( $envelope ) ) ? __( 'Succcessful', 'tl-support-side' ) : __( 'Failed', 'tl-support-side' );
 
