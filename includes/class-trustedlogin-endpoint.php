@@ -337,55 +337,6 @@ class TrustedLogin_Endpoint {
 	}
 
 	/**
-	 * API Helper: Get Token for encrypted storage from the TrustedLogin API
-	 *
-	 * @todo complete this
-	 **/
-	public function api_get_tokens() {
-		// Get Auth token from settings
-		$auth       = $this->tls_settings_get_value( 'tls_account_key' );
-		$account_id = $this->tls_settings_get_value( 'tls_account_id' );
-
-		if ( empty( $auth ) || empty( $account_id ) ) {
-			$this->dlog( "no auth or account_id provided", __METHOD__ );
-
-			return false;
-		}
-
-		$endpoint = 'accounts/' . $account_id;
-
-		$saas_attr = array( 'type' => 'saas', 'auth' => $auth, 'debug_mode' => $this->debug_mode );
-		$saas_api  = new TL_API_Handler( $saas_attr );
-		$data      = null;
-
-		$response = $saas_api->call( $endpoint, $data, 'GET' );
-
-		if ( $response ) {
-			if ( isset( $response->status ) && 'active' == $response->status ) {
-				update_option( 'tl_tmp_tokens', (array) $response );
-
-				return (array) $response;
-			} else {
-				$this->dlog( "TrustedLogin Account not active", __METHOD__ );
-			}
-		}
-
-		/**
-		 * Expected Response from /v1/accounts/<account_id>:
-		 * "name":"Team Thunder",
-		 * "status": "active",
-		 *  "publicKey": "1234-56789", //used in client plugin
-		 *  "deleteToken: "12345-1111",//vault token for delete site policy
-		 *  "writeToken: "12345-1111",//vault token for write policy
-		 **/
-
-		$this->dlog( "Response: " . print_r( $response, true ), __METHOD__ );
-
-		return false;
-
-	}
-
-	/**
 	 * Helper function: Extract redirect url from encrypted envelope.
 	 *
 	 * @since 0.1.0
