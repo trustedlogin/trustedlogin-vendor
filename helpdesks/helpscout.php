@@ -185,7 +185,7 @@ class TL_HelpScout
              *   String $deleteKey - the token to use to Revoke Site from SaaS
              * ]
              **/
-            $response = $saas_api->api_prepare($endpoint, $data, $method);
+            $response = $saas_api->call($endpoint, $data, $method);
 
             $this->dlog("Response: " . print_r($response, true), __METHOD__);
 
