@@ -187,4 +187,77 @@ class TrustedLogin_Encryption {
 		return $decrypted_payload;
 
 	}
+
+	/**
+	* Returns an pair of values to verify identity.
+	*
+	* This pair acts as a signature, helping to verify that this site is indeed the sender of the data.
+	* 
+	* @since 0.8.0
+	*
+	* @return  array|WP_Error  $identity or WP_Error if any issues
+	* 	$identity = [
+	*		'nonce'  => (string)  A base64 encoded random string 
+	* 		'signed' => (string)  The `nonce` encrypted with this site's Private Key, also base64 encoded.
+	*	]
+	**/ 
+	public function create_identity_nonce(){
+
+		$keys = $this->get_keys();
+
+		if ( !$keys || !property_exists( $keys, 'private_key' ) ){
+			return new WP_Error( 'key_error', 'Cannot get keys from the local DB.' );
+		} 
+
+		$identity = array();
+
+		$identity['nonce']  => wp_generate_password( 32, true, true );
+		$identity['signed'] => $this->encrypt( $identity['nonce'], $keys->private_key );
+
+		if ( is_wp_error( $identity['signed'] ) ) {
+			return $identity['signed'];
+		}
+
+		return $identity;
+	}
+
+	/**
+	* Encrypts a string using the Public Key provided by the plugin/theme developers' server.
+	*
+	* @since 0.8.0
+	*
+	* @uses `openssl_public_encrypt()` for encryption.
+	*
+	* @param  string  $data    Data to encrypt.
+	* @param  string  $key     Key to use to encrypt the data.
+	* @return string|WP_Error  Encrypted envelope or WP_Error on failure.
+	**/
+	private function encrypt( $data, $key ){
+
+		if ( empty( $data ) || empty( $key ) ){
+			return new WP_Error( 'no_data', 'No data provided.' );
+		}
+
+		openssl_public_encrypt($data, $encrypted, $key, OPENSSL_PKCS1_OAEP_PADDING);
+
+		if ( empty( $encrypted ) ) {
+			
+			$error_string = '';
+			while ( $msg = openssl_error_string() ) {
+			    $error_string .= "\n" . $msg;
+			}
+
+			return new WP_Error ( 
+				'encryption_failed', 
+				sprintf(
+					'Could not encrypt envelope. Errors from openssl: %1$s',
+					$error_string
+				 )
+			);
+		}
+
+		$encrypted = base64_encode( $encrypted );
+
+		return $encrypted;
+	}
 }
