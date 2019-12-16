@@ -211,8 +211,8 @@ class TrustedLogin_Encryption {
 
 		$identity = array();
 
-		$identity['nonce']  => wp_generate_password( 32, true, true );
-		$identity['signed'] => $this->encrypt( $identity['nonce'], $keys->private_key );
+		$identity['nonce']  = wp_generate_password( 32, true, true );
+		$identity['signed'] = $this->encrypt( $identity['nonce'], $keys->private_key );
 
 		if ( is_wp_error( $identity['signed'] ) ) {
 			return $identity['signed'];
