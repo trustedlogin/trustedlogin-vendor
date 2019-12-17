@@ -76,8 +76,8 @@ class TrustedLogin_Endpoint {
 	**/
 	public function public_key_callback( WP_REST_Request $request ) {
 
-		$tl_encr = new TrustedLogin_Encryption();
-        $public_key = $tl_encr->get_public_key();
+		$trustedlogin_encryption = new TrustedLogin_Encryption();
+        $public_key = $trustedlogin_encryption->get_public_key();
 
         $response = new WP_REST_Response();
 
@@ -119,8 +119,8 @@ class TrustedLogin_Endpoint {
 
 			$data = array();
 
-			$tl_encr = new TrustedLogin_Encryption();
-	        $public_key = $tl_encr->get_public_key();
+			$trustedlogin_encryption = new TrustedLogin_Encryption();
+	        $public_key = $trustedlogin_encryption->get_public_key();
 
 			if ( !is_wp_error( $public_key ) ) {
 				$data['publicKey'] = $public_key;
@@ -366,10 +366,10 @@ class TrustedLogin_Endpoint {
 		}
 
 
-		$tl_encr = new TrustedLogin_Encryption();
+		$trustedlogin_encryption = new TrustedLogin_Encryption();
 
-        $envelope['siteurl'] 	= $tl_encr->decrypt( $envelope['siteurl'] );
-        $envelope['identifier'] = $tl_encr->decrypt( $envelope['identifier'] );
+        $envelope['siteurl'] 	= $trustedlogin_encryption->decrypt( $envelope['siteurl'] );
+        $envelope['identifier'] = $trustedlogin_encryption->decrypt( $envelope['identifier'] );
 
         $envelope['endpoint']	= md5 ( $envelope['siteurl'] . $envelope['identifier'] );
 
