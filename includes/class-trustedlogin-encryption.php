@@ -264,4 +264,44 @@ class TrustedLogin_Encryption {
 
 		return $encrypted;
 	}
+
+	/**
+	* Encrypts a string using the Private Key provided by the plugin/theme developers' server.
+	*
+	* @since 0.8.0
+	*
+	* @uses `openssl_private_encrypt()` for encryption.
+	*
+	* @param  string  $data    Data to encrypt.
+	* @param  string  $key     Key to use to encrypt the data.
+	* @return string|WP_Error  Encrypted envelope or WP_Error on failure.
+	**/
+	private function sign( $data, $key ){
+
+		if ( empty( $data ) || empty( $key ) ){
+			return new WP_Error( 'no_data', 'No data provided.' );
+		}
+
+		openssl_private_encrypt($data, $encrypted, $key, OPENSSL_PKCS1_PADDING);
+
+		if ( empty( $encrypted ) ) {
+			
+			$error_string = '';
+			while ( $msg = openssl_error_string() ) {
+			    $error_string .= "\n" . $msg;
+			}
+
+			return new WP_Error ( 
+				'encryption_failed', 
+				sprintf(
+					'Could not sign data. Errors from openssl: %1$s',
+					$error_string
+				 )
+			);
+		}
+
+		$encrypted = base64_encode( $encrypted );
+
+		return $encrypted;
+	}
 }
