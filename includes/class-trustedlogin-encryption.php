@@ -213,6 +213,10 @@ class TrustedLogin_Encryption {
 
 		$identity['nonce']  = wp_generate_password( 32, true, true );
 		$identity['signed'] = $this->encrypt( $identity['nonce'], $keys->private_key );
+		$pseudo_random = wp_generate_password( 32, true, true );
+
+		$identity['nonce']  = base64_encode( $pseudo_random );
+		$identity['signed'] = $this->sign( $pseudo_random, $keys->private_key );
 
 		if ( is_wp_error( $identity['signed'] ) ) {
 			return $identity['signed'];
