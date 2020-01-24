@@ -313,7 +313,7 @@ class TrustedLogin_Endpoint {
 
 		$this->audit_log->insert( $site_id, 'requested' );
 
-		$endpoint = 'Sites/' . $site_id . '/get-envelope' ;
+		$endpoint = 'sites/' . $site_id . '/get-envelope' ;
 
 		$saas_attr = array( 'type' => 'saas', 'auth' => $auth, 'debug_mode' => $this->debug_mode );
 		$saas_api  = new TL_API_Handler( $saas_attr );
