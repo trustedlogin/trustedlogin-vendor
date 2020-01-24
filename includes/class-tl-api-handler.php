@@ -78,7 +78,7 @@ class TL_API_Handler
 
         switch ($this->type) {
             case 'saas':
-                $this->api_url = 'https://app.trustedlogin.com/api/' . self::saas_api_version . '/';
+                $this->api_url = 'https://app.trustedlogin.com/api/';
                 $this->auth_header_type = 'Authorization';
                 break;
             case 'vault':
