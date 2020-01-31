@@ -383,6 +383,9 @@ class TrustedLogin_Settings
             case 'helpdesk':
             return $this->tls_settings_get_selected_values('tls_helpdesk');
             break;
+            case 'debug_enabled':
+            return $this->tls_settings_is_toggled('tls_debug_enabled');
+            break;
             default:
             return $value = (array_key_exists($setting, $this->options)) ? $this->options[$setting] : false;
         }
