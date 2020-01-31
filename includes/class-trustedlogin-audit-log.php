@@ -79,8 +79,6 @@ class TrustedLogin_Audit_Log {
 
 	public function maybe_output_log() {
 
-		$this->tls_settings_set_defaults();
-
 		$audit_log_enabled = $this->settings->tls_settings_is_toggled( 'tls_output_audit_log' );
 
 		if ( ! $audit_log_enabled ) {
