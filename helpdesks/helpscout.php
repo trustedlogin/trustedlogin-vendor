@@ -9,7 +9,7 @@
 class TL_HelpScout
 {
 
-    use TL_Options;
+    // use TL_Options;
     use TL_Debug_Logging;
 
     /**
@@ -51,11 +51,15 @@ class TL_HelpScout
             'version' => '0.1.0',
         );
 
-        $this->tls_settings_set_defaults();
+        $this->settings   = new TrustedLogin_Settings();
+        $this->secret     = $this->settings->get_setting( 'tls_' . $this->details->slug . '_secret' );
+        $this->debug_mode = $this->settings->get_setting( 'debug_enabled' );
 
-        $this->secret = $this->tls_settings_get_value('tls_' . $this->details->slug . '_secret');
+        // $this->tls_settings_set_defaults();
 
-        $this->debug_mode = $this->tls_settings_is_toggled('tls_debug_enabled');
+        // $this->secret = $this->tls_settings_get_value('tls_' . $this->details->slug . '_secret');
+
+        // $this->debug_mode = $this->tls_settings_is_toggled('tls_debug_enabled');
 
         add_action('admin_init', array($this, 'add_extra_settings'));
 
@@ -97,7 +101,8 @@ class TL_HelpScout
     public function helpscout_secret_field_render()
     {
 
-        $this->tls_settings_render_input_field('tls_' . $this->details->slug . '_secret', 'password', false);
+        $this->settings->tls_settings_render_input_field('tls_' . $this->details->slug . '_secret', 'password', false);
+        // $this->tls_settings_render_input_field('tls_' . $this->details->slug . '_secret', 'password', false);
 
     }
 
@@ -136,7 +141,8 @@ class TL_HelpScout
 
         }
 
-        $saas_auth = $this->tls_settings_get_value('tls_account_key');
+        $saas_auth = $this->settings->get_setting( 'tls_account_key' );
+        // $saas_auth = $this->tls_settings_get_value('tls_account_key');
 
         if (!$saas_auth) {
             $error = __('Please make sure the TrustedLogin API Key setting is entered.', 'tl-support-side');
