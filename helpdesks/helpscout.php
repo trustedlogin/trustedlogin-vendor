@@ -52,7 +52,7 @@ class TL_HelpScout
 
         $this->settings   = new TrustedLogin_Settings();
         $this->secret     = $this->settings->get_setting( 'tls_' . $this->details->slug . '_secret' );
-        $this->debug_mode = $this->settings->get_setting( 'debug_enabled' );
+        $this->debug_mode = $this->settings->debug_mode_enabled();
 
         // $this->tls_settings_set_defaults();
 

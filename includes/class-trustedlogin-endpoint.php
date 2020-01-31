@@ -11,10 +11,6 @@ class TrustedLogin_Endpoint {
 	use TL_Debug_Logging;
 	use TL_Licensing;
 
-	// TODO: Remove
-	// private $debug_mode = true;
-	// private $options = array();
-
 	/**
 	 * @var String - the endpoint used to redirect Support Agents to Client WP admin panels
 	 * @since 0.3.0

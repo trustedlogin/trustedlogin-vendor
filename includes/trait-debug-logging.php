@@ -1,9 +1,26 @@
 <?php
 
-// v1.1.0
+// v2.0.0
 
 trait TL_Debug_Logging
 {
+
+    /**
+    * Helper that checks if debugging is enabled in current and deprecated formats.
+    *
+    * @since 0.9.0
+    * @return bool
+    **/
+    function debugging_enabled(){
+
+        if ( property_exists( $this, 'settings' ) ){
+            return (bool) $this->settings->debug_mode_enabled();
+        }
+
+        if ( property_exists( $this, 'debug_mode' ) ){
+            return (bool) $this->debug_mode;
+        }
+    }
 
     /**
      * Plugin Helper: Debug logging within the plugin folder.
@@ -15,7 +32,8 @@ trait TL_Debug_Logging
     function dlog($text, $method = null)
     {
 
-        if (!$this->debug_mode) {
+        if ( ! $this->debugging_enabled() ) 
+        {
             return;
         }
         // open log file
