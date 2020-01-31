@@ -24,6 +24,7 @@ require_once plugin_dir_path(__FILE__) . 'includes/trait-debug-logging.php';
 require_once plugin_dir_path(__FILE__) . 'includes/trait-options.php';
 require_once plugin_dir_path(__FILE__) . 'includes/trait-licensing.php';
 
+require_once plugin_dir_path(__FILE__) . 'includes/class-trustedlogin-settings.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-trustedlogin-endpoint.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-tl-api-handler.php';
 require_once plugin_dir_path(__FILE__) . 'includes/class-trustedlogin-audit-log.php';
@@ -41,34 +42,6 @@ class TrustedLogin_Support_Side
      * @since 0.1.0
      **/
     private $plugin_version;
-
-    /**
-     * @var Boolean - whether or not to save a local text log
-     * @see TL_Debug_logging trait
-     * @since 0.1.0
-     **/
-    private $debug_mode;
-
-    /**
-     * @var Array - the default settings for our plugin
-     * @see TL_Options trait
-     * @since 0.4.0
-     **/
-    private $default_options;
-
-    /**
-     * @var String - where the TrustedLogin settings should sit in menu.
-     * @see TL_Options trait
-     * @see Filter: trustedlogin_menu_location
-     * @since 0.4.0
-     **/
-    private $menu_location;
-
-    /**
-     * @var Array - current site's TrustedLogin settings
-     * @since 0.4.0
-     **/
-    private $options;
 
 	/**
 	 * @var TrustedLogin_Audit_Log
@@ -92,23 +65,12 @@ class TrustedLogin_Support_Side
 
 	    $this->endpoint = new TrustedLogin_Endpoint();
 
+        $this->settings = new TrustedLogin_Settings( $this->plugin_version );
+
 	    // Setup the Plugin Settings
-
-	    /**
-	     * Filter: Where in the menu the TrustedLogin Options should go.
-	     * Added to allow devs to move options item under 'Settings' menu item in wp-admin to keep things neat.
-	     *
-	     * @since 0.4.0
-	     * @param String either 'main' or 'submenu'
-	     **/
-	    $this->menu_location = apply_filters('trustedlogin_menu_location', 'main');
-
-	    $this->tls_settings_set_defaults();
-	    add_action('admin_menu', array($this, 'tls_settings_add_admin_menu'));
-	    add_action('admin_init', array($this, 'tls_settings_init'));
-	    add_action('admin_enqueue_scripts', array($this, 'tls_settings_scripts'));
-
-	    $this->debug_mode = $this->tls_settings_is_toggled('tls_debug_enabled');
+        if ( is_admin() ){
+            $this->settings->admin_init();
+        }
 
 	    add_action('plugins_loaded', array($this, 'init_helpdesk_integration'));
     }
