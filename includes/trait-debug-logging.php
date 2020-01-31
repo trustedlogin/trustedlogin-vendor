@@ -11,7 +11,8 @@ trait TL_Debug_Logging
     * @since 0.9.0
     * @return bool
     **/
-    function debugging_enabled(){
+    function debugging_enabled()
+    { 
 
         if ( property_exists( $this, 'settings' ) ){
             return (bool) $this->settings->debug_mode_enabled();

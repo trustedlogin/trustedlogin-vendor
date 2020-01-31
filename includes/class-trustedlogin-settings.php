@@ -13,7 +13,7 @@ class TrustedLogin_Settings
      * @var Boolean - whether or not to save a local text log
      * @since 0.1.0
      **/
-    private $debug_mode;
+    protected $debug_mode;
 
     /**
      * @var Array - the default settings for our plugin
@@ -63,12 +63,11 @@ class TrustedLogin_Settings
         add_action('admin_init', array($this, 'tls_settings_init'));
         add_action('admin_enqueue_scripts', array($this, 'tls_settings_scripts'));
 
-        $this->debug_mode = $this->tls_settings_is_toggled('tls_debug_enabled');
     }
 
     public function debug_mode_enabled( ){
 
-        return $this->debug_mode;
+        return (bool) $this->debug_mode;
 
     }
 
@@ -89,6 +88,8 @@ class TrustedLogin_Settings
         }
 
         $this->options = get_option('tls_settings', $this->default_options);
+
+        $this->debug_mode = $this->tls_settings_is_toggled('tls_debug_enabled');
     }
 
     public function tls_settings_add_admin_menu()
@@ -387,7 +388,7 @@ class TrustedLogin_Settings
             return $this->tls_settings_is_toggled('tls_debug_enabled');
             break;
             default:
-            return $value = (array_key_exists($setting, $this->options)) ? $this->options[$setting] : false;
+            return $value = (array_key_exists($setting_name, $this->options)) ? $this->options[$setting_name] : false;
         }
 
     }
