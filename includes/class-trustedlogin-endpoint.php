@@ -9,11 +9,12 @@
 class TrustedLogin_Endpoint {
 
 	use TL_Debug_Logging;
-	use TL_Options;
+	// use TL_Options;
 	use TL_Licensing;
 
 	// TODO: Remove
-	private $debug_mode = true;
+	// private $debug_mode = true;
+	// private $options = array();
 
 	/**
 	 * @var String - the endpoint used to redirect Support Agents to Client WP admin panels
@@ -28,9 +29,18 @@ class TrustedLogin_Endpoint {
 	const rest_endpoint = 'trustedlogin/v1';
 
 	/**
+	* @var TrustedLogin_Settings
+	* @since 0.9.0
+	**/
+	private $settings;
+
+	/**
 	 * TrustedLogin_Endpoint constructor.
 	 */
-	public function __construct() {
+	public function __construct( TrustedLogin_Settings $settings_instance ) {
+
+		$this->settings = $settings_instance; 
+
 		add_action( 'init', array( $this, 'maybe_add_rewrite_rule' ) );
 		add_action( 'template_redirect', array( $this, 'maybe_endpoint_redirect' ), 99 );
 		add_filter( 'query_vars', array( $this, 'endpoint_add_var' ) );
@@ -296,8 +306,9 @@ class TrustedLogin_Endpoint {
 		$data['user'] = array( 'id' => $current_user->ID, 'name' => $current_user->display_name );
 
 		// make sure we have the auth details from the settings page before continuing. 
-		$auth       = $this->tls_settings_get_value( 'tls_account_key' );
-		$account_id = $this->tls_settings_get_value( 'tls_account_id' );
+		$auth 		= $this->settings->get_setting( 'tls_account_key' );
+		$account_id = $this->settings->get_setting( 'tls_account_id' );
+
 		if ( empty( $auth ) || empty( $account_id ) ) {
 			$this->dlog( "no auth or account_id provided", __METHOD__ );
 			return new WP_Error( 'setup-error', __( 'No auth or account_id data found', 'tl-support-side' ) );
@@ -404,7 +415,7 @@ class TrustedLogin_Endpoint {
 			return false;
 		}
 
-		$required_roles = $this->tls_settings_get_approved_roles();
+		$required_roles = $this->settings->tls_settings_get_approved_roles();
 
 		$intersect = array_intersect( $required_roles, $user_roles );
 
