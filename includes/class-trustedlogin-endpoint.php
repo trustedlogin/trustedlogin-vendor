@@ -9,7 +9,6 @@
 class TrustedLogin_Endpoint {
 
 	use TL_Debug_Logging;
-	// use TL_Options;
 	use TL_Licensing;
 
 	// TODO: Remove

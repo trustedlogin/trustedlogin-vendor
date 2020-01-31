@@ -21,7 +21,6 @@ if (!defined('ABSPATH')) {
 define( 'TRUSTEDLOGIN_PLUGIN_VERSION', '0.8.0' );
 
 require_once plugin_dir_path(__FILE__) . 'includes/trait-debug-logging.php';
-require_once plugin_dir_path(__FILE__) . 'includes/trait-options.php';
 require_once plugin_dir_path(__FILE__) . 'includes/trait-licensing.php';
 
 require_once plugin_dir_path(__FILE__) . 'includes/class-trustedlogin-settings.php';
@@ -34,7 +33,6 @@ class TrustedLogin_Support_Side
 {
 
     use TL_Debug_Logging;
-    use TL_Options;
     use TL_Licensing;
 
     /**

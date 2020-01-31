@@ -9,7 +9,6 @@
 class TL_HelpScout
 {
 
-    // use TL_Options;
     use TL_Debug_Logging;
 
     /**
