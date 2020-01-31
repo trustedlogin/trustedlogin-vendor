@@ -66,11 +66,11 @@ class TrustedLogin_Support_Side
 
 	    $this->plugin_version = TRUSTEDLOGIN_PLUGIN_VERSION;
 
-	    $this->audit_log = new TrustedLogin_Audit_Log();
-
         $this->settings = new TrustedLogin_Settings( $this->plugin_version );
 
         $this->endpoint = new TrustedLogin_Endpoint( $this->settings );
+
+        $this->audit_log = new TrustedLogin_Audit_Log( $this->settings );
 
 	    // Setup the Plugin Settings
         if ( is_admin() ){

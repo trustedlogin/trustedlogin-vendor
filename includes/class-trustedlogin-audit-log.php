@@ -8,7 +8,6 @@ if ( ! defined('ABSPATH') ) {
 class TrustedLogin_Audit_Log {
 
 	use TL_Debug_Logging;
-	use TL_Options;
 
 	/**
 	 * Version of the Audit Log DB schema
@@ -17,23 +16,15 @@ class TrustedLogin_Audit_Log {
 
 	const db_table_name = 'tl_audit_log';
 
-    /**
-     * @var Array - current site's TrustedLogin settings
-     * @since 0.4.0
-     **/
-    private $options;
+	/**
+	* @var TrustedLogin_Settings
+	* @since 0.9.0
+	**/
+	private $settings;
 
-    /**
-     * @var Array - the default settings for our plugin
-     * @see TL_Options trait
-     * @since 0.4.0
-     **/
-    private $default_options;
+	public function __construct( TrustedLogin_Settings $settings_instance ) {
 
-	/** @todo remove */
-	private $debug_mode = false;
-
-	public function __construct() {
+		$this->settings = $settings_instance;
 
 		register_activation_hook( __FILE__, array( $this, 'init' ) );
 
@@ -90,7 +81,9 @@ class TrustedLogin_Audit_Log {
 
 		$this->tls_settings_set_defaults();
 
-		if ( ! $this->tls_settings_is_toggled( 'tls_output_audit_log' ) ) {
+		$audit_log_enabled = $this->settings->tls_settings_is_toggled( 'tls_output_audit_log' );
+
+		if ( ! $audit_log_enabled ) {
 			return;
 		}
 
