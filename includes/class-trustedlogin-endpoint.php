@@ -410,7 +410,7 @@ class TrustedLogin_Endpoint {
 			return false;
 		}
 
-		$required_roles = $this->settings->tls_settings_get_approved_roles();
+		$required_roles = $this->settings->get_approved_roles();
 
 		$intersect = array_intersect( $required_roles, $user_roles );
 
