@@ -54,6 +54,11 @@ class TrustedLogin_Support_Side
 	 */
     private $endpoint;
 
+    /**
+    * @var TrustedLogin_Settings
+    **/
+    private $settings;
+
     public function __construct() {}
 
     public function setup() {
