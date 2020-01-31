@@ -30,11 +30,19 @@ class TrustedLogin_Endpoint {
 	private $settings;
 
 	/**
+	* @var TrustedLogin_Audit_Log
+	* @since 0.9.0
+	**/
+	private $audit_log;
+
+	/**
 	 * TrustedLogin_Endpoint constructor.
 	 */
 	public function __construct( TrustedLogin_Settings $settings_instance ) {
 
 		$this->settings = $settings_instance; 
+
+		$this->audit_log = new TrustedLogin_Audit_Log( $this->settings );
 
 		add_action( 'init', array( $this, 'maybe_add_rewrite_rule' ) );
 		add_action( 'template_redirect', array( $this, 'maybe_endpoint_redirect' ), 99 );
@@ -321,7 +329,7 @@ class TrustedLogin_Endpoint {
 
 		$endpoint = 'sites/' . $site_id . '/get-envelope' ;
 
-		$saas_attr = array( 'type' => 'saas', 'auth' => $auth, 'debug_mode' => $this->debug_mode );
+		$saas_attr = array( 'type' => 'saas', 'auth' => $auth, 'debug_mode' => $this->settings->debug_mode_enabled() );
 		$saas_api  = new TL_API_Handler( $saas_attr );
 
 		/**
