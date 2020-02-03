@@ -260,6 +260,7 @@ class TrustedLogin_Endpoint {
 		$envelope = $this->api_get_envelope( $identifier );
 
 		if ( is_wp_error( $envelope ) ){
+			$this->dlog( 'Error: '. $envelope->get_error_message() , __METHOD__ );
 			$this->audit_log->insert( $identifier, 'failed', $envelope->get_error_message() );
 			wp_redirect( get_site_url(), 302 );
 			exit;
@@ -279,6 +280,8 @@ class TrustedLogin_Endpoint {
 			wp_redirect( $url, 302 );
 			exit;
 		}
+
+		$this->dlog( "Got to end of function, with no action.", __METHOD__ );
 	}
 
 	/**
