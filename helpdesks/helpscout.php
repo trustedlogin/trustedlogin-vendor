@@ -196,19 +196,19 @@ class TL_HelpScout
 
             if ($response) {
                 if (isset($response->keyStoreID) && isset($response->accountNamespace)) {
-                    $for_vault[] = (array) $response;
+                    $trustedlogin_sessions[] = (array) $response;
                 }
             }
 
         } // foreach($licenses)
 
-        if (!empty($for_vault)) {
-            foreach ($for_vault as $vault_set) {
+        if (!empty($trustedlogin_sessions)) {
+            foreach ($trustedlogin_sessions as $trustedlogin_session) {
                 $item_html .= sprintf(
                     $item_template,
-                    esc_url(site_url('/' . $url_endpoint . '/' . $vault_set['keyStoreID'])),
+                    esc_url(site_url('/' . $url_endpoint . '/' . $trustedlogin_session['keyStoreID'])),
                     __('TrustedLogin to', 'tl-support-side'),
-                    esc_url($vault_set['siteURL'])
+                    esc_url($trustedlogin_session['siteURL'])
                 );
             }
         }

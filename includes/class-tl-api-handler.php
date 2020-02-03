@@ -15,15 +15,9 @@ class TL_API_Handler
 	 **/
 	const saas_api_version = 'v1';
 
-	/**
-	 * @since 0.1.0
-	 * @var String - API version
-	 **/
-	const vault_api_version = 'v1';
-
     /**
      * @since 0.1.0
-     * @var String - the type of API Handler we're working with. Possible options: 'saas', 'vault'
+     * @var String - the type of API Handler we're working with. Possible options: 'saas'
      **/
     private $type;
 
@@ -78,12 +72,9 @@ class TL_API_Handler
 
         switch ($this->type) {
             case 'saas':
+            default:
                 $this->api_url = 'https://app.trustedlogin.com/api/';
                 $this->auth_header_type = 'Authorization';
-                break;
-            case 'vault':
-                $this->api_url = 'https://vault.trustedlogin.com/' . self::vault_api_version . '/';
-                $this->auth_header_type = 'X-Vault-Token';
                 break;
         }
 
@@ -108,7 +99,7 @@ class TL_API_Handler
      * Prepare API call and return result
      *
      * @since 0.4.1
-     * @param String $type - where the API is being prepared for (either 'saas' or 'vault')
+     * @param String $type - where the API is being prepared for ('saas')
      * @param String $endpoint - the API endpoint to be pinged
      * @param Array $data - the data variables being synced
      * @param String $method - HTTP RESTful method ('POST','GET','DELETE','PUT','UPDATE')
@@ -169,7 +160,7 @@ class TL_API_Handler
 
         if (isset($body->errors)) {
             foreach ($body->errors as $error) {
-                $this->dlog("Error from Vault: $error", __METHOD__);
+                $this->dlog("Error from API: $error", __METHOD__);
             }
             return false;
         }
