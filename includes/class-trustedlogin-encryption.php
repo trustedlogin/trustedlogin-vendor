@@ -9,7 +9,10 @@
  **/
 class TrustedLogin_Encryption {
 
+	use TL_Debug_Logging;
+
 	private $key_option_name;
+
 
 	public function __construct() {
 
@@ -39,6 +42,8 @@ class TrustedLogin_Encryption {
 		if ( false !== $keys ){
 			$keys = json_decode( $keys );
 		}
+
+		$this->dlog( "Keys: " . print_r( $keys, true ), __METHOD__ );
 		
 		/**
 		* Filter allows site admins to change where the key is fetched from.
@@ -211,8 +216,6 @@ class TrustedLogin_Encryption {
 
 		$identity = array();
 
-		$identity['nonce']  = wp_generate_password( 32, true, true );
-		$identity['signed'] = $this->encrypt( $identity['nonce'], $keys->private_key );
 		$pseudo_random = wp_generate_password( 32, true, true );
 
 		$identity['nonce']  = base64_encode( $pseudo_random );
