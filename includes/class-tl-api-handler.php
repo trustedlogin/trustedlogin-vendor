@@ -46,6 +46,12 @@ class TL_API_Handler
     private $auth_header_type;
 
     /**
+    * @since 0.8.0
+    * @var Array - Additional headers added to the TL_API_Handler instance. Eg for adding 'X-TL-TOKEN' values.
+    **/
+    private $additional_headers = array();
+
+    /**
      * @since 0.1.0
      * @var Boolean - whether or not debug logging is enabled.
      **/
@@ -94,6 +100,36 @@ class TL_API_Handler
 		return $this->auth_header_type;
 	}
 
+    /**
+     * @return array
+     */
+    public function get_additional_headers() {
+        return $this->additional_headers;
+    }
+
+    /**
+    * Sets the Header authorization type
+    *
+    * @since 0.8.0
+    * 
+    * @param  string  $key    The Header key to add.
+    * @param  string  $value  The Header value to add.
+    * @return Array|false
+    **/
+    public function set_additional_header( $key, $value )
+    {
+
+        if ( empty( $key ) || empty( $value) ){
+            return false;
+        }
+
+        $this->additional_headers[$key] = $headers;
+
+        return $this->additional_headers;
+        
+    }
+
+
 
     /**
      * Prepare API call and return result
@@ -108,7 +144,8 @@ class TL_API_Handler
     public function call($endpoint, $data, $method)
     {
 
-        $additional_headers = array();
+        $additional_headers = $this->get_additional_headers();
+        
         $url = $this->api_url . $endpoint;
 
         if (!empty($this->auth_key)) {
