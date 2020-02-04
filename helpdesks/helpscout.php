@@ -95,7 +95,6 @@ class TL_HelpScout
     {
 
         $this->settings->tls_settings_render_input_field('tls_' . $this->details->slug . '_secret', 'password', false);
-        // $this->tls_settings_render_input_field('tls_' . $this->details->slug . '_secret', 'password', false);
 
     }
 
