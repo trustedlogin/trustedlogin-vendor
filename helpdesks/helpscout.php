@@ -116,26 +116,26 @@ class TL_HelpScout
     public function webhook_endpoint()
     {
 
-        $signature = (isset($_SERVER['X-HELPSCOUT-SIGNATURE'])) ? $_SERVER['X-HELPSCOUT-SIGNATURE'] : null;
+        $signature = ( isset( $_SERVER['X-HELPSCOUT-SIGNATURE']) ) ? $_SERVER['X-HELPSCOUT-SIGNATURE'] : null;
         $data = file_get_contents('php://input');
 
-        if (!$this->helpscout_verify_source($data, $signature)) {
+        if ( !$this->helpscout_verify_source( $data, $signature) ) {
 
-            wp_send_json_error(array('message' => 'Unauthorized'), 401);
+            wp_send_json_error( array( 'message' => 'Unauthorized' ), 401 );
         }
 
         $licenses = array();
 
-        $this->dlog("data: $data", __METHOD__);
+        $this->dlog( "data: $data", __METHOD__ );
 
-        $data_obj = json_decode($data, false);
+        $data_obj = json_decode( $data, false );
 
-        $email = sanitize_email($data_obj->customer->email);
+        $email = sanitize_email( $data_obj->customer->email );
 
-        if ($this->is_edd_store() && !empty($email)) {
+        if ( $this->is_edd_store() && !empty($email) ) {
 
-            if ($this->has_edd_licensing()) {
-                $licenses = $this->edd_get_licenses($email);
+            if ( $this->has_edd_licensing() ) {
+                $licenses = $this->edd_get_licenses( $email );
             }
 
         }
@@ -143,13 +143,13 @@ class TL_HelpScout
         $saas_auth  = $this->settings->get_setting( 'tls_account_key' );
         $public_key = $this->settings->get_setting( 'tls_public_key' );
 
-        if (!$saas_auth) {
-            $error = __('Please make sure the TrustedLogin API Key setting is entered.', 'tl-support-side');
-            $this->dlog($error, __METHOD__);
-            wp_send_json_error(array('message' => $error));
+        if ( !$saas_auth || !$public_key ) {
+            $error = __( 'Please make sure the TrustedLogin API Key setting is entered.', 'tl-support-side' );
+            $this->dlog( $error, __METHOD__ );
+            wp_send_json_error( array( 'message' => $error ) );
         }
 
-        $saas_attr = (object) array('type' => 'saas', 'auth' => $saas_auth, 'debug_mode' => $this->debug_mode);
+        $saas_attr = (object) array( 'type' => 'saas', 'auth' => $saas_auth, 'debug_mode' => $this->debug_mode );
         $saas_api = new TL_API_Handler($saas_attr);
 
         /**
@@ -170,7 +170,7 @@ class TL_HelpScout
         $html_template = '<ul class="c-sb-list c-sb-list--two-line">%1$s</ul>';
         $item_template = '<li class="c-sb-list-item"><a href="%1$s">%2$s %3$s</a></li>';
         $no_items_template = '<li class="c-sb-list-item">%1$s</li>';
-        $url_endpoint = apply_filters('trustedlogin_redirect_endpoint', 'trustedlogin');
+        $url_endpoint = apply_filters( 'trustedlogin_redirect_endpoint', 'trustedlogin' );
 
         /**
          * Filter: allow for other addons to generate the licenses array
@@ -182,9 +182,9 @@ class TL_HelpScout
          * @param String $email
          * @return Array
          **/
-        $licenses = apply_filters('trusted_login_get_licenses', $licenses, $email);
+        $licenses = apply_filters( 'trusted_login_get_licenses', $licenses, $email );
 
-        foreach ($licenses as $license) {
+        foreach ( $licenses as $license ) {
 
             // check licenses for TrustedLogin Sites via SaaS app.
 
@@ -202,12 +202,12 @@ class TL_HelpScout
              *   String $deleteKey - the token to use to Revoke Site from SaaS
              * ]
              **/
-            $response = $saas_api->call($endpoint, $data, $method);
+            $response = $saas_api->call( $endpoint, $data, $method );
 
-            $this->dlog("Response: " . print_r($response, true), __METHOD__);
+            $this->dlog( "Response: " . print_r( $response, true ), __METHOD__ );
 
-            if ($response) {
-                if (isset($response->keyStoreID) && isset($response->accountNamespace)) {
+            if ( $response ) {
+                if ( isset( $response->keyStoreID ) && isset( $response->accountNamespace ) ) {
                     $trustedlogin_sessions[] = (array) $response;
                 }
             }
@@ -218,9 +218,9 @@ class TL_HelpScout
             foreach ($trustedlogin_sessions as $trustedlogin_session) {
                 $item_html .= sprintf(
                     $item_template,
-                    esc_url(site_url('/' . $url_endpoint . '/' . $trustedlogin_session['keyStoreID'])),
-                    __('TrustedLogin to', 'tl-support-side'),
-                    esc_url($trustedlogin_session['siteURL'])
+                    esc_url( site_url( '/' . $url_endpoint . '/' . $trustedlogin_session['keyStoreID'] ) ),
+                    __( 'TrustedLogin to', 'tl-support-side' ),
+                    esc_url( $trustedlogin_session['siteURL'] )
                 );
             }
         }
@@ -228,13 +228,13 @@ class TL_HelpScout
         if (empty($item_html)) {
             $item_html = sprintf(
                 $no_items_template,
-                __('No TrustedLogin sessions authorized for this user.', 'tl-support-side')
+                __( 'No TrustedLogin sessions authorized for this user.', 'tl-support-side' )
             );
         }
 
-        $return_html = sprintf($html_template, $item_html);
+        $return_html = sprintf( $html_template, $item_html );
 
-        wp_send_json_success(array('html' => $return_html));
+        wp_send_json_success( array('html' => $return_html ) );
 
     }
 
