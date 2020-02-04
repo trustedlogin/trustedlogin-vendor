@@ -77,6 +77,7 @@ class TrustedLogin_Settings
             $this->default_options = apply_filters('trustedlogin_default_settings', array(
                 'tls_account_id' => "",
                 'tls_account_key' => "",
+                'tls_public_key' => "",
                 'tls_helpdesk' => array(),
                 'tls_approved_roles' => array('administrator'),
                 'tls_debug_enabled' => 'on',
@@ -141,8 +142,16 @@ class TrustedLogin_Settings
         );
 
         add_settings_field(
+            'tls_public_key',
+            __('TrustedLogin Public Key ', 'tl-support-side'),
+            array($this, 'tls_settings_public_key_field_render'),
+            'TLS_plugin_options',
+            'tls_options_section'
+        );
+
+        add_settings_field(
             'tls_approved_roles',
-            __('Which roles can automatically be logged into customer sites?', 'tl-support-side'),
+            __('Which WP roles can automatically be logged into customer sites?', 'tl-support-side'),
             array($this, 'tls_settings_approved_roles_field_render'),
             'TLS_plugin_options',
             'tls_options_section'
@@ -178,6 +187,13 @@ class TrustedLogin_Settings
     {
 
         $this->tls_settings_render_input_field('tls_account_key', 'password', true);
+
+    }
+
+    public function tls_settings_public_key_field_render()
+    {
+
+        $this->tls_settings_render_input_field('tls_public_key', 'text', true);
 
     }
 

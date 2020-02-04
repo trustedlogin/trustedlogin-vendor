@@ -140,8 +140,8 @@ class TL_HelpScout
 
         }
 
-        $saas_auth = $this->settings->get_setting( 'tls_account_key' );
-        // $saas_auth = $this->tls_settings_get_value('tls_account_key');
+        $saas_auth  = $this->settings->get_setting( 'tls_account_key' );
+        $public_key = $this->settings->get_setting( 'tls_public_key' );
 
         if (!$saas_auth) {
             $error = __('Please make sure the TrustedLogin API Key setting is entered.', 'tl-support-side');
@@ -151,6 +151,18 @@ class TL_HelpScout
 
         $saas_attr = (object) array('type' => 'saas', 'auth' => $saas_auth, 'debug_mode' => $this->debug_mode);
         $saas_api = new TL_API_Handler($saas_attr);
+
+        /**
+        * @var Additional SaaS Token for authenticating API queries.
+        * @see https://github.com/trustedlogin/trustedlogin-ecommerce/blob/master/docs/user-remote-authentication.md
+        **/
+        $saas_token = hash( 'sha256', $public_key . $saas_auth );
+        $token_added = $saas_api->set_additional_header( 'X-TL-TOKEN', $saas_token );
+
+        if ( ! $token_added ){
+            $this->dlog( $error , __METHOD__ );
+            wp_send_json_error( array('message' => $error), 500 );
+        }
 
         $for_vault = array();
         $item_html = '';
