@@ -123,7 +123,7 @@ class TL_API_Handler
             return false;
         }
 
-        $this->additional_headers[$key] = $headers;
+        $this->additional_headers[$key] = $value;
 
         return $this->additional_headers;
         

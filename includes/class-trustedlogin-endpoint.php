@@ -312,11 +312,11 @@ class TrustedLogin_Endpoint {
 		$data['user'] = array( 'id' => $current_user->ID, 'name' => $current_user->display_name );
 
 		// make sure we have the auth details from the settings page before continuing. 
-		$auth 		= $this->settings->get_setting( 'tls_account_key' );
+		$saas_auth	= $this->settings->get_setting( 'tls_account_key' );
 		$account_id = $this->settings->get_setting( 'tls_account_id' );
 		$public_key = $this->settings->get_setting( 'tls_public_key' );
 
-		if ( empty( $auth ) || empty( $account_id ) || empty( $public_key ) ) {
+		if ( empty( $saas_auth ) || empty( $account_id ) || empty( $public_key ) ) {
 			$this->dlog( "no api_key, public_key or account_id provided", __METHOD__ );
 			return new WP_Error( 'setup-error', __( 'No auth, public key or account_id data found', 'tl-support-side' ) );
 		}
@@ -333,7 +333,7 @@ class TrustedLogin_Endpoint {
 
 		$endpoint = 'sites/' . $site_id . '/get-envelope' ;
 
-		$saas_attr = array( 'type' => 'saas', 'auth' => $auth, 'debug_mode' => $this->settings->debug_mode_enabled() );
+		$saas_attr = array( 'type' => 'saas', 'auth' => $saas_auth, 'debug_mode' => $this->settings->debug_mode_enabled() );
 		$saas_api  = new TL_API_Handler( $saas_attr );
 
 		/**
