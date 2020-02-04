@@ -54,12 +54,6 @@ class TL_HelpScout
         $this->secret     = $this->settings->get_setting( 'tls_' . $this->details->slug . '_secret' );
         $this->debug_mode = $this->settings->debug_mode_enabled();
 
-        // $this->tls_settings_set_defaults();
-
-        // $this->secret = $this->tls_settings_get_value('tls_' . $this->details->slug . '_secret');
-
-        // $this->debug_mode = $this->tls_settings_is_toggled('tls_debug_enabled');
-
         add_action('admin_init', array($this, 'add_extra_settings'));
 
         add_action('wp_ajax_' . $this->details->slug . '_webhook', array($this, 'webhook_endpoint'));
