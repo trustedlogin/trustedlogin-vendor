@@ -314,10 +314,11 @@ class TrustedLogin_Endpoint {
 		// make sure we have the auth details from the settings page before continuing. 
 		$auth 		= $this->settings->get_setting( 'tls_account_key' );
 		$account_id = $this->settings->get_setting( 'tls_account_id' );
+		$public_key = $this->settings->get_setting( 'tls_public_key' );
 
-		if ( empty( $auth ) || empty( $account_id ) ) {
-			$this->dlog( "no auth or account_id provided", __METHOD__ );
-			return new WP_Error( 'setup-error', __( 'No auth or account_id data found', 'tl-support-side' ) );
+		if ( empty( $auth ) || empty( $account_id ) || empty( $public_key ) ) {
+			$this->dlog( "no api_key, public_key or account_id provided", __METHOD__ );
+			return new WP_Error( 'setup-error', __( 'No auth, public key or account_id data found', 'tl-support-side' ) );
 		}
 
 		// Then let's get the identity verification pair to confirm the site is the one sending the request.
@@ -334,6 +335,19 @@ class TrustedLogin_Endpoint {
 
 		$saas_attr = array( 'type' => 'saas', 'auth' => $auth, 'debug_mode' => $this->settings->debug_mode_enabled() );
 		$saas_api  = new TL_API_Handler( $saas_attr );
+
+		/**
+        * @var String  $saas_token  Additional SaaS Token for authenticating API queries.
+        * @see https://github.com/trustedlogin/trustedlogin-ecommerce/blob/master/docs/user-remote-authentication.md
+        **/
+        $saas_token = hash( 'sha256', $public_key . $saas_auth );
+        $token_added = $saas_api->set_additional_header( 'X-TL-TOKEN', $saas_token );
+
+        if ( ! $token_added ){
+        	$error = __( 'Error setting X-TL-TOKEN header', 'tl-support-side' );
+            $this->dlog( $error , __METHOD__ );
+            return new WP_Error( 'x-tl-token-error' , $error );
+        }
 
 		/**
 		 * @var Array $envelope (
