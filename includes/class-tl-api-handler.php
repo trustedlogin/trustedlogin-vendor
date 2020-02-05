@@ -78,8 +78,7 @@ class TL_API_Handler
 
         switch ($this->type) {
             case 'saas':
-            default:
-                $this->api_url = 'https://app.trustedlogin.com/api/';
+                $this->api_url = apply_filters( 'trustedlogin/api-url/saas', 'https://app.trustedlogin.com/api/' );
                 $this->auth_header_type = 'Authorization';
                 break;
         }
