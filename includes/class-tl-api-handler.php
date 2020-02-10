@@ -15,15 +15,9 @@ class TL_API_Handler
 	 **/
 	const saas_api_version = 'v1';
 
-	/**
-	 * @since 0.1.0
-	 * @var String - API version
-	 **/
-	const vault_api_version = 'v1';
-
     /**
      * @since 0.1.0
-     * @var String - the type of API Handler we're working with. Possible options: 'saas', 'vault'
+     * @var String - the type of API Handler we're working with. Possible options: 'saas'
      **/
     private $type;
 
@@ -52,6 +46,12 @@ class TL_API_Handler
     private $auth_header_type;
 
     /**
+    * @since 0.8.0
+    * @var Array - Additional headers added to the TL_API_Handler instance. Eg for adding 'X-TL-TOKEN' values.
+    **/
+    private $additional_headers = array();
+
+    /**
      * @since 0.1.0
      * @var Boolean - whether or not debug logging is enabled.
      **/
@@ -78,12 +78,8 @@ class TL_API_Handler
 
         switch ($this->type) {
             case 'saas':
-                $this->api_url = apply_filters('trustedlogin/api-url/saas', 'https://app.trustedlogin.com/api/' . self::saas_api_version . '/');
+                $this->api_url = apply_filters( 'trustedlogin/api-url/saas', 'https://app.trustedlogin.com/api/' );
                 $this->auth_header_type = 'Authorization';
-                break;
-            case 'vault':
-                $this->api_url = apply_filters('trustedlogin/api-url/vault', 'https://vault.trustedlogin.com/' . self::vault_api_version . '/');
-                $this->auth_header_type = 'X-Vault-Token';
                 break;
         }
 
@@ -103,25 +99,56 @@ class TL_API_Handler
 		return $this->auth_header_type;
 	}
 
+    /**
+     * @return array
+     */
+    public function get_additional_headers() {
+        return $this->additional_headers;
+    }
+
+    /**
+    * Sets the Header authorization type
+    *
+    * @since 0.8.0
+    * 
+    * @param  string  $key    The Header key to add.
+    * @param  string  $value  The Header value to add.
+    * @return Array|false
+    **/
+    public function set_additional_header( $key, $value )
+    {
+
+        if ( empty( $key ) || empty( $value) ){
+            return false;
+        }
+
+        $this->additional_headers[$key] = $value;
+
+        return $this->additional_headers;
+        
+    }
+
+
 
     /**
      * Prepare API call and return result
      *
      * @since 0.4.1
-     * @param String $type - where the API is being prepared for (either 'saas' or 'vault')
+     * @param String $type - where the API is being prepared for ('saas')
      * @param String $endpoint - the API endpoint to be pinged
      * @param Array $data - the data variables being synced
      * @param String $method - HTTP RESTful method ('POST','GET','DELETE','PUT','UPDATE')
      * @return Array|false - response from the RESTful API
      **/
-    public function api_prepare($endpoint, $data, $method)
+    public function call($endpoint, $data, $method)
     {
 
-        $additional_headers = array();
+        $additional_headers = $this->get_additional_headers();
+        
         $url = $this->api_url . $endpoint;
 
-        if (!empty($this->auth)) {
-            $additional_headers[$this->auth_header_type] = $this->auth;
+        if (!empty($this->auth_key)) {
+            $additional_headers[$this->auth_header_type] = $this->auth_key;
         }
 
         if ($this->auth_required && empty($additional_headers)) {
@@ -169,7 +196,7 @@ class TL_API_Handler
 
         if (isset($body->errors)) {
             foreach ($body->errors as $error) {
-                $this->dlog("Error from Vault: $error", __METHOD__);
+                $this->dlog("Error from API: $error", __METHOD__);
             }
             return false;
         }

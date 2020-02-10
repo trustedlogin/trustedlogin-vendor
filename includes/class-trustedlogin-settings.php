@@ -1,13 +1,83 @@
 <?php
-trait TL_Options
+/**
+ * Class: TrustedLogin Settings
+ *
+ * @package trustedlogin-vendor
+ * @version 0.2.0
+ **/
+
+class TrustedLogin_Settings
 {
 
-    public function tls_settings_set_defaults()
+    /**
+     * @var Boolean - whether or not to save a local text log
+     * @since 0.1.0
+     **/
+    protected $debug_mode;
+
+    /**
+     * @var Array - the default settings for our plugin
+     * @since 0.1.0
+     **/
+    private $default_options;
+
+    /**
+     * @var String - where the TrustedLogin settings should sit in menu.
+     * @see Filter: trustedlogin_menu_location
+     * @since 0.1.0
+     **/
+    private $menu_location;
+
+    /**
+     * @var Array - current site's TrustedLogin settings
+     * @since 0.1.0
+     **/
+    private $options;
+
+    /**
+     * @var String - the x.x.x value of the current plugin version. Used for versioning of settings page assets.
+     * @since 0.1.0
+     **/
+    private $plugin_version;
+
+    public function __construct( $plugin_version = null ){
+
+        $this->set_defaults();
+
+        $this->plugin_version = ( is_null( $plugin_version ) ) ? '0.0.0' : $plugin_version ;
+
+    }
+
+    public function admin_init(){
+
+        /**
+         * Filter: Where in the menu the TrustedLogin Options should go.
+         * Added to allow devs to move options item under 'Settings' menu item in wp-admin to keep things neat.
+         *
+         * @since 0.1.0
+         * @param String either 'main' or 'submenu'
+         **/
+        $this->menu_location = apply_filters('trustedlogin_menu_location', 'main');
+
+        add_action('admin_menu', array($this, 'tls_settings_add_admin_menu'));
+        add_action('admin_init', array($this, 'tls_settings_init'));
+        add_action('admin_enqueue_scripts', array($this, 'tls_settings_scripts'));
+
+    }
+
+    public function debug_mode_enabled( ){
+
+        return (bool) $this->debug_mode;
+
+    }
+
+    public function set_defaults()
     {
         if (property_exists($this, 'default_options')) {
             $this->default_options = apply_filters('trustedlogin_default_settings', array(
                 'tls_account_id' => "",
                 'tls_account_key' => "",
+                'tls_public_key' => "",
                 'tls_helpdesk' => array(),
                 'tls_approved_roles' => array('administrator'),
                 'tls_debug_enabled' => 'on',
@@ -19,6 +89,8 @@ trait TL_Options
         }
 
         $this->options = get_option('tls_settings', $this->default_options);
+
+        $this->debug_mode = $this->tls_settings_is_toggled('tls_debug_enabled');
     }
 
     public function tls_settings_add_admin_menu()
@@ -70,8 +142,16 @@ trait TL_Options
         );
 
         add_settings_field(
+            'tls_public_key',
+            __('TrustedLogin Public Key ', 'tl-support-side'),
+            array($this, 'tls_settings_public_key_field_render'),
+            'TLS_plugin_options',
+            'tls_options_section'
+        );
+
+        add_settings_field(
             'tls_approved_roles',
-            __('Which roles can automatically be logged into customer sites?', 'tl-support-side'),
+            __('Which WP roles can automatically be logged into customer sites?', 'tl-support-side'),
             array($this, 'tls_settings_approved_roles_field_render'),
             'TLS_plugin_options',
             'tls_options_section'
@@ -110,6 +190,13 @@ trait TL_Options
 
     }
 
+    public function tls_settings_public_key_field_render()
+    {
+
+        $this->tls_settings_render_input_field('tls_public_key', 'text', true);
+
+    }
+
     public function tls_settings_account_id_field_render()
     {
         $this->tls_settings_render_input_field('tls_account_id', 'text', true);
@@ -134,7 +221,7 @@ trait TL_Options
     {
 
         $roles = get_editable_roles();
-        $selected_roles = $this->tls_settings_get_approved_roles();
+        $selected_roles = $this->get_approved_roles();
 
         $select = "<select name='tls_settings[tls_approved_roles][]' id='tls_approved_roles' class='postform regular-text ltr' multiple='multiple' regular-text ltr>";
 
@@ -161,7 +248,7 @@ trait TL_Options
         /**
          * Filter: The array of TrustLogin supported HelpDesks
          *
-         * @since 0.4.0
+         * @since 0.1.0
          * @param Array ('slug'=>'Title')
          **/
         $helpdesks = apply_filters('trustedlogin_supported_helpdesks', array(
@@ -265,14 +352,25 @@ trait TL_Options
 
     public function tls_settings_scripts()
     {
-        wp_register_style('chosen', plugins_url('/assets/chosen/chosen.min.css', dirname(__FILE__)));
-        wp_register_script('chosen', plugins_url('/assets/chosen/chosen.jquery.min.js', dirname(__FILE__)), array('jquery'), false, true);
+
+        wp_register_style( 
+            'chosen', 
+            plugins_url( '/assets/chosen/chosen.min.css', dirname( __FILE__ ) )
+        );
+        wp_register_script( 
+            'chosen', 
+            plugins_url( '/assets/chosen/chosen.jquery.min.js', dirname( __FILE__ ) ),
+            array('jquery'), 
+            false, 
+            true
+        );
 
         wp_register_style('trustedlogin-settings',
             plugins_url('/assets/trustedlogin-settings.css', dirname(__FILE__)),
             array(),
             $this->plugin_version
         );
+
         wp_register_script('trustedlogin-settings',
             plugins_url('/assets/trustedlogin-settings.js', dirname(__FILE__)),
             array('jquery'),
@@ -281,7 +379,37 @@ trait TL_Options
         );
     }
 
-    public function tls_settings_get_approved_roles()
+    /**
+    * Returns the value of a setting
+    *
+    * @since 0.2.0
+    * 
+    * @param  String    $setting_name  The name of the setting to get the value for
+    * @return Mixed     The value of the setting, or false if it's not found.
+    **/
+    public function get_setting( $setting_name ){
+        
+        if ( empty( $setting_name ) ){
+            return new WP_Error( 'input-error', __('Cannot fetch empty setting name', 'trustedlogin' ) );
+        }
+
+        switch ( $setting_name ){
+            case 'approved_roles':
+            return $this->tls_settings_get_selected_values('tls_approved_roles');
+            break;
+            case 'helpdesk':
+            return $this->tls_settings_get_selected_values('tls_helpdesk');
+            break;
+            case 'debug_enabled':
+            return $this->tls_settings_is_toggled('tls_debug_enabled');
+            break;
+            default:
+            return $value = (array_key_exists($setting_name, $this->options)) ? $this->options[$setting_name] : false;
+        }
+
+    }
+
+    public function get_approved_roles()
     {
         return $this->tls_settings_get_selected_values('tls_approved_roles');
     }

@@ -9,11 +9,7 @@
 class TrustedLogin_Endpoint {
 
 	use TL_Debug_Logging;
-	use TL_Options;
 	use TL_Licensing;
-
-	// TODO: Remove
-	private $debug_mode = true;
 
 	/**
 	 * @var String - the endpoint used to redirect Support Agents to Client WP admin panels
@@ -28,9 +24,26 @@ class TrustedLogin_Endpoint {
 	const rest_endpoint = 'trustedlogin/v1';
 
 	/**
+	* @var TrustedLogin_Settings
+	* @since 0.9.0
+	**/
+	private $settings;
+
+	/**
+	* @var TrustedLogin_Audit_Log
+	* @since 0.9.0
+	**/
+	private $audit_log;
+
+	/**
 	 * TrustedLogin_Endpoint constructor.
 	 */
-	public function __construct() {
+	public function __construct( TrustedLogin_Settings $settings_instance ) {
+
+		$this->settings = $settings_instance; 
+
+		$this->audit_log = new TrustedLogin_Audit_Log( $this->settings );
+
 		add_action( 'init', array( $this, 'maybe_add_rewrite_rule' ) );
 		add_action( 'template_redirect', array( $this, 'maybe_endpoint_redirect' ), 99 );
 		add_filter( 'query_vars', array( $this, 'endpoint_add_var' ) );
@@ -59,8 +72,49 @@ class TrustedLogin_Endpoint {
 			),
 		) );
 
+		register_rest_route( self::rest_endpoint, '/public_key', array(
+			'methods'  => WP_REST_Server::READABLE,
+			'callback' => array( $this, 'public_key_callback'),
+		) );
+
 	}
 
+	/**
+	* Returns the Public Key for this specific vendor/plugin.
+	*
+	* @since 0.8.0
+	*
+	* @param  WP_REST_Request  $request 
+	* @return WP_REST_Response
+	**/
+	public function public_key_callback( WP_REST_Request $request ) {
+
+		$trustedlogin_encryption = new TrustedLogin_Encryption();
+        $public_key = $trustedlogin_encryption->get_public_key();
+
+        $response = new WP_REST_Response();
+
+		if ( ! is_wp_error( $public_key ) ) {
+			$data = array( 'publicKey' => $public_key );
+			$response->set_data( $data );
+			$response->set_status( 200 );
+		} else {
+			$response->set_status( 204 );
+		}
+
+		return $response;
+
+	}
+
+	/**
+	* Verifies that the site has a license and can indeed request support.
+	*
+	* @since 0.3.0 - initial build
+	* @since 0.8.0 - added `TrustedLogin_Encryption->get_public_key()` data to response.
+	*
+	* @param  WP_REST_Request  $request
+	* @return WP_REST_Response 
+	**/
 	public function verify_callback( WP_REST_Request $request ) {
 
 		$key     = $request->get_param( 'key' );
@@ -75,6 +129,17 @@ class TrustedLogin_Endpoint {
 		if ( ! $check ) {
 			$response->set_status( 404 );
 		} else {
+
+			$data = array();
+
+			$trustedlogin_encryption = new TrustedLogin_Encryption();
+	        $public_key = $trustedlogin_encryption->get_public_key();
+
+			if ( !is_wp_error( $public_key ) ) {
+				$data['publicKey'] = $public_key;
+				$response->set_data( $data );
+			}
+
 			$response->set_status( 200 );
 		}
 
@@ -173,6 +238,7 @@ class TrustedLogin_Endpoint {
 	 * Helper: If all checks pass, redirect support agent to client site's admin panel
 	 *
 	 * @since 0.4.0
+	 * @since 0.8.0 - added `TrustedLogin_Encryption->decrypt()` to decrypt envelope from Vault.
 	 *
 	 * @param String $identifier collected via endpoint
 	 *
@@ -193,7 +259,20 @@ class TrustedLogin_Endpoint {
 		// then get the envelope
 		$envelope = $this->api_get_envelope( $identifier );
 
+		if ( is_wp_error( $envelope ) ){
+			$this->dlog( 'Error: '. $envelope->get_error_message() , __METHOD__ );
+			$this->audit_log->insert( $identifier, 'failed', $envelope->get_error_message() );
+			wp_redirect( get_site_url(), 302 );
+			exit;
+		}
+
 		$url = ( $envelope ) ? $this->envelope_to_url( $envelope ) : false;
+
+		if ( is_wp_error( $url ) ){
+			$this->audit_log->insert( $identifier, 'failed', $url->get_error_message() );
+			wp_redirect( get_site_url(), 302 );
+			exit;
+		}
 
 		if ( $url ) {
 			// then redirect
@@ -201,6 +280,8 @@ class TrustedLogin_Endpoint {
 			wp_redirect( $url, 302 );
 			exit;
 		}
+
+		$this->dlog( "Got to end of function, with no action.", __METHOD__ );
 	}
 
 	/**
@@ -215,96 +296,74 @@ class TrustedLogin_Endpoint {
 	public function api_get_envelope( $site_id ) {
 		if ( empty( $site_id ) ) {
 			$this->dlog( 'Error: site_id cannot be empty.', __METHOD__ );
-
-			return false;
+			return new WP_Error( 'data-error', __( 'Site ID cannot be empty', 'tl-support-side') );
 		}
 
 		/**
-		 * @todo ping TL using the API key provided, to return $store_token
-		 * @todo use $store_token to get envelope from Vault
-		 **/
+		* @var The data array that will be sent to TrustedLogin to request a site's envelope
+		**/
+		$data = array();
 
-		if ( false == ( $tokens = get_option( 'tl_tmp_tokens', false ) ) ) {
-			$tokens = $this->api_get_tokens();
+		// Let's grab the user details. Logged in status already confirmed in maybe_redirect_support();
+		$current_user = wp_get_current_user();
+		if ( 0 == $current_user->ID ){
+			return new WP_Error( 'auth-error', __( 'User not logged in.', 'tl-support-side' ) );
+		}
+		$data['user'] = array( 'id' => $current_user->ID, 'name' => $current_user->display_name );
+
+		// make sure we have the auth details from the settings page before continuing. 
+		$saas_auth	= $this->settings->get_setting( 'tls_account_key' );
+		$account_id = $this->settings->get_setting( 'tls_account_id' );
+		$public_key = $this->settings->get_setting( 'tls_public_key' );
+
+		if ( empty( $saas_auth ) || empty( $account_id ) || empty( $public_key ) ) {
+			$this->dlog( "no api_key, public_key or account_id provided", __METHOD__ );
+			return new WP_Error( 'setup-error', __( 'No auth, public key or account_id data found', 'tl-support-side' ) );
+		}
+
+		// Then let's get the identity verification pair to confirm the site is the one sending the request.
+		$trustedlogin_encryption = new TrustedLogin_Encryption();
+		$data['auth'] = $trustedlogin_encryption->create_identity_nonce();
+
+		if ( is_wp_error( $data['auth'] ) ){
+			return $data['auth'];
 		}
 
 		$this->audit_log->insert( $site_id, 'requested' );
 
-		if ( $tokens ) {
-			$key_store = ( isset( $tokens['name'] ) ) ? sanitize_title( $tokens['name'] ) : 'secret';
-			$auth      = ( isset( $tokens['readKey'] ) ) ? $tokens['readKey'] : null;
+		$endpoint = 'sites/' . $site_id . '/get-envelope' ;
 
-			$vault_attr = array( 'type' => 'vault', 'auth' => $auth, 'debug_mode' => $this->debug_mode );
-			$vault_api  = new TL_API_Handler( $vault_attr );
+		$saas_attr = array( 'type' => 'saas', 'auth' => $saas_auth, 'debug_mode' => $this->settings->debug_mode_enabled() );
+		$saas_api  = new TL_API_Handler( $saas_attr );
 
-			/**
-			 * @var Array $envelope (
-			 *   String $siteurl
-			 *   String $identifier
-			 *   String $endpoint
-			 *   Int $expiry - the time() of when this Support User will decay
-			 * )
-			 **/
-			$envelope = $vault_api->call( $key_store . '/' . $site_id, null, 'GET' );
-		} else {
-			$this->dlog( "Error: Didn't recieve tokens.", __METHOD__ );
-			$envelope = false;
-		}
+		/**
+        * @var String  $saas_token  Additional SaaS Token for authenticating API queries.
+        * @see https://github.com/trustedlogin/trustedlogin-ecommerce/blob/master/docs/user-remote-authentication.md
+        **/
+        $saas_token = hash( 'sha256', $public_key . $saas_auth );
+        $token_added = $saas_api->set_additional_header( 'X-TL-TOKEN', $saas_token );
 
-		$success = ( $envelope ) ? __( 'Succcessful', 'tl-support-side' ) : __( 'Failed', 'tl-support-side' );
+        if ( ! $token_added ){
+        	$error = __( 'Error setting X-TL-TOKEN header', 'tl-support-side' );
+            $this->dlog( $error , __METHOD__ );
+            return new WP_Error( 'x-tl-token-error' , $error );
+        }
+
+		/**
+		 * @var Array $envelope (
+		 *   String $siteurl  		The site url. Double encrypted.
+		 *   String $identifier 	The support-agent unique ID. Double encrypted.
+		 *   String $endpoint 		The unique endpoint for auto-login. Double encrypted.
+		 *   Int $expiry - the time() of when this Support User will decay
+		 * )
+		 **/
+		$envelope = $saas_api->call( $endpoint, $data, 'GET' );
+
+		$success = ( !is_wp_error( $envelope ) ) ? __( 'Succcessful', 'tl-support-side' ) : __( 'Failed', 'tl-support-side' );
 
 		$this->audit_log->insert( $site_id, 'received', $success );
 
 		return $envelope;
-
-	}
-
-	/**
-	 * API Helper: Get Token for encrypted storage from the TrustedLogin API
-	 *
-	 * @todo complete this
-	 **/
-	public function api_get_tokens() {
-		// Get Auth token from settings
-		$auth       = $this->tls_settings_get_value( 'tls_account_key' );
-		$account_id = $this->tls_settings_get_value( 'tls_account_id' );
-
-		if ( empty( $auth ) || empty( $account_id ) ) {
-			$this->dlog( "no auth or account_id provided", __METHOD__ );
-
-			return false;
-		}
-
-		$endpoint = 'accounts/' . $account_id;
-
-		$saas_attr = array( 'type' => 'saas', 'auth' => $auth, 'debug_mode' => $this->debug_mode );
-		$saas_api  = new TL_API_Handler( $saas_attr );
-		$data      = null;
-
-		$response = $saas_api->call( $endpoint, $data, 'GET' );
-
-		if ( $response ) {
-			if ( isset( $response->status ) && 'active' == $response->status ) {
-				update_option( 'tl_tmp_tokens', (array) $response );
-
-				return (array) $response;
-			} else {
-				$this->dlog( "TrustedLogin Account not active", __METHOD__ );
-			}
-		}
-
-		/**
-		 * Expected Response from /v1/accounts/<account_id>:
-		 * "name":"Team Thunder",
-		 * "status": "active",
-		 *  "publicKey": "1234-56789", //used in client plugin
-		 *  "deleteToken: "12345-1111",//vault token for delete site policy
-		 *  "writeToken: "12345-1111",//vault token for write policy
-		 **/
-
-		$this->dlog( "Response: " . print_r( $response, true ), __METHOD__ );
-
-		return false;
 
 	}
 
@@ -326,16 +385,30 @@ class TrustedLogin_Endpoint {
 		if ( ! is_array( $envelope ) ) {
 			$this->dlog( 'Error: envelope not an array. e:' . print_r( $envelope, true ), __METHOD__ );
 
-			return false;
+			return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly' );
 		}
 
 		if ( ! array_key_exists( 'identifier', $envelope )
 		     || ! array_key_exists( 'siteurl', $envelope )
-		     || ! array_key_exists( 'endpoint', $envelope ) ) {
+		 ) {
 			$this->dlog( 'Error: malformed envelope. e:' . print_r( $envelope, true ), __METHOD__ );
 
-			return false;
+			return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly' );
 		}
+
+
+		$trustedlogin_encryption = new TrustedLogin_Encryption();
+
+        $envelope['siteurl'] 	= $trustedlogin_encryption->decrypt( $envelope['siteurl'] );
+        $envelope['identifier'] = $trustedlogin_encryption->decrypt( $envelope['identifier'] );
+
+        $envelope['endpoint']	= md5 ( $envelope['siteurl'] . $envelope['identifier'] );
+
+        if ( is_wp_error( $envelope['siteurl'] ) || is_wp_error( $envelope['identifier'] ) ){
+        	$this->dlog( "Error decrypting siteurl: " . $envelope['siteurl']->get_error_message(), __METHOD__ );
+        	$this->dlog( "Error decrypting identifier: " . $envelope['identifier']->get_error_message(), __METHOD__ );
+        	return new WP_Error( 'decryption_failed', 'Could not decrypt siteurl or identifier' );
+        }
 
 		$url = $envelope['siteurl'] . '/' . $envelope['endpoint'] . '/' . $envelope['identifier'];
 
@@ -362,7 +435,7 @@ class TrustedLogin_Endpoint {
 			return false;
 		}
 
-		$required_roles = $this->tls_settings_get_approved_roles();
+		$required_roles = $this->settings->get_approved_roles();
 
 		$intersect = array_intersect( $required_roles, $user_roles );
 
