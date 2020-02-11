@@ -58,8 +58,8 @@ trait TL_Debug_Logging {
 				fclose( $fh );
 			}
 
-            if (true === WP_DEBUG) {
 		} catch ( Exception $e ) {
+			if ( defined('WP_DEBUG') && WP_DEBUG ) {
 				error_log( __METHOD__ . ' - ' . $text );
 			}
 		}
