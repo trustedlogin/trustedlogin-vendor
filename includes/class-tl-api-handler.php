@@ -5,14 +5,13 @@
  *
  * @package tl-support-side
  * @version 0.1.0
- **/
-class TL_API_Handler
-{
+ */
+class TL_API_Handler {
 
 	/**
 	 * @since 0.1.0
 	 * @var String - API version
-	 **/
+	 */
 	const saas_api_version = 'v1';
 
 	/**
@@ -23,7 +22,7 @@ class TL_API_Handler
 
     /**
      * @since 0.1.0
-     * @var String - the type of API Handler we're working with. Possible options: 'saas', 'vault'
+     * @var String - the type of API Handler we're working with. Possible options: 'saas'
      **/
     private $type;
 
@@ -51,6 +50,12 @@ class TL_API_Handler
      **/
     private $auth_header_type;
 
+	/**
+	 * @since 0.8.0
+	 * @var Array - Additional headers added to the TL_API_Handler instance. Eg for adding 'X-TL-TOKEN' values.
+	 */
+	private $additional_headers = array();
+
     /**
      * @since 0.1.0
      * @var Boolean - whether or not debug logging is enabled.
@@ -67,7 +72,7 @@ class TL_API_Handler
 		    'auth' => null,
 		    'debug_mode' => false,
 	    );
-    	
+
     	$atts = wp_parse_args( $data, $defaults );
 
         $this->type = $atts['type'];
@@ -92,8 +97,8 @@ class TL_API_Handler
 	/**
 	 * @return string
 	 */
-    public function get_api_url() {
-        return $this->api_url;
+	public function get_api_url() {
+		return $this->api_url;
 	}
 
 	/**
@@ -104,139 +109,171 @@ class TL_API_Handler
 	}
 
 	/**
-	 * @alias of TL_API_Handler::api_prepare
+	 * @return array
 	 */
-	public function call() {
-		return call_user_func_array( array( $this, 'api_prepare' ), func_get_args() );
+	public function get_additional_headers() {
+		return $this->additional_headers;
+	}
+
+	/**
+	 * Sets the Header authorization type
+	 *
+	 * @since 0.8.0
+	 *
+	 * @param string $value The Header value to add.
+	 *
+	 * @param string $key The Header key to add.
+	 *
+	 * @return Array|false
+	 */
+	public function set_additional_header( $key, $value ) {
+
+		if ( empty( $key ) || empty( $value ) ) {
+			return false;
+		}
+
+		$this->additional_headers[ $key ] = $value;
+
+		return $this->additional_headers;
+
 	}
 
 
-    /**
-     * Prepare API call and return result
-     *
-     * @since 0.4.1
-     * @param String $type - where the API is being prepared for (either 'saas' or 'vault')
-     * @param String $endpoint - the API endpoint to be pinged
-     * @param Array $data - the data variables being synced
-     * @param String $method - HTTP RESTful method ('POST','GET','DELETE','PUT','UPDATE')
-     * @return Array|false - response from the RESTful API
-     **/
-    public function api_prepare($endpoint, $data, $method)
-    {
+	/**
+	 * Prepare API call and return result
+	 *
+	 * @since 0.4.1
+	 *
+	 * @param String $endpoint - the API endpoint to be pinged
+	 * @param Array $data - the data variables being synced
+	 * @param String $method - HTTP RESTful method ('POST','GET','DELETE','PUT','UPDATE')
+	 *
+	 * @param String $type - where the API is being prepared for ('saas')
+	 *
+	 * @return Array|false - response from the RESTful API
+	 */
+	public function call( $endpoint, $data, $method ) {
 
-        $additional_headers = array();
-        $url = $this->api_url . $endpoint;
+		$additional_headers = $this->get_additional_headers();
 
-        if (!empty($this->auth_key)) {
-            $additional_headers[$this->auth_header_type] = $this->auth_key;
-        }
+		$url = $this->api_url . $endpoint;
 
-        if ($this->auth_required && empty($additional_headers)) {
-            $this->dlog("Auth required for " . $this->type . " API call", __METHOD__);
-            return false;
-        }
+		if ( ! empty( $this->auth_key ) ) {
+			$additional_headers[ $this->auth_header_type ] = $this->auth_key;
+		}
 
-        $this->dlog("Sending $method API call to $url", __METHOD__);
+		if ( $this->auth_required && empty( $additional_headers ) ) {
+			$this->dlog( "Auth required for " . $this->type . " API call", __METHOD__ );
 
-        $api_response = $this->api_send($url, $data, $method, $additional_headers);
+			return false;
+		}
 
-        return $this->handle_response($api_response);
+		$this->dlog( "Sending $method API call to $url", __METHOD__ );
 
-    }
+		$api_response = $this->api_send( $url, $data, $method, $additional_headers );
 
-    public function handle_response($api_response)
-    {
+		return $this->handle_response( $api_response );
 
-        if (empty($api_response) || !is_array($api_response)) {
-            $this->dlog('Malformed api_response received:' . print_r($api_response, true), __METHOD__);
-            return false;
-        }
+	}
 
-        // first check the HTTP Response code
-        $response_code = wp_remote_retrieve_response_code($api_response);
+	public function handle_response( $api_response ) {
 
-        switch ($response_code) {
-            case 204:
-                // does not return any body content, so can bounce out successfully here
-                return true;
-                break;
-            case 403:
-            // Problem with Token
-            // maybe do something here to handle this
-            case 404:
-            default:
-        }
+		if ( empty( $api_response ) || ! is_array( $api_response ) ) {
+			$this->dlog( 'Malformed api_response received:' . print_r( $api_response, true ), __METHOD__ );
 
-        $body = json_decode(wp_remote_retrieve_body($api_response));
+			return false;
+		}
 
-        if (empty($body) || !is_object($body)) {
-            $this->dlog('No body received:' . print_r($body, true), __METHOD__);
-            return false;
-        }
+		// first check the HTTP Response code
+		$response_code = wp_remote_retrieve_response_code( $api_response );
 
-        if (isset($body->errors)) {
-            foreach ($body->errors as $error) {
-                $this->dlog("Error from Vault: $error", __METHOD__);
-            }
-            return false;
-        }
+		switch ( $response_code ) {
+			case 204:
+				// does not return any body content, so can bounce out successfully here
+				return true;
+				break;
+			case 403:
+				// Problem with Token
+				// maybe do something here to handle this
+			case 404:
+			default:
+		}
 
-        return $body;
+		$body = json_decode( wp_remote_retrieve_body( $api_response ) );
 
-    }
+		if ( empty( $body ) || ! is_object( $body ) ) {
+			$this->dlog( 'No body received:' . print_r( $body, true ), __METHOD__ );
 
-    /**
-     * API Function: send the API request
-     *
-     * @since 0.4.0
-     * @param String $url - the complete url for the REST API request
-     * @param Array $data
-     * @param Array $addition_header - any additional headers required for auth/etc
-     * @return Array|false - wp_remote_post response or false if fail
-     **/
-    public function api_send($url, $data, $method, $additional_headers)
-    {
+			return false;
+		}
 
-        if (!in_array($method, array('POST', 'PUT', 'GET', 'PUSH', 'DELETE'))) {
-            $this->dlog("Error: Method not in allowed array list ($method)", __METHOD__);
-            return false;
-        }
+		if ( isset( $body->errors ) ) {
+			foreach ( $body->errors as $error ) {
+				$this->dlog( "Error from API: $error", __METHOD__ );
+			}
 
-        $headers = array(
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json',
-        );
+			return false;
+		}
 
-        if (!empty($additional_headers)) {
-            $headers = array_merge($headers, $additional_headers);
-        }
+		return $body;
 
-        $post_attr = array(
-            'method' => $method,
-            'timeout' => 45,
-            'redirection' => 5,
-            'httpversion' => '1.0',
-            'blocking' => true,
-            'headers' => $headers,
-            'cookies' => array(),
-        );
+	}
 
-        if ($data) {
-            $post_attr['body'] = json_encode($data);
-        }
+	/**
+	 * API Function: send the API request
+	 *
+	 * @since 0.4.0
+	 *
+	 * @param Array $data
+	 * @param Array $addition_header - any additional headers required for auth/etc
+	 *
+	 * @param String $url - the complete url for the REST API request
+	 *
+	 * @return Array|false - wp_remote_post response or false if fail
+	 */
+	public function api_send( $url, $data, $method, $additional_headers ) {
 
-        $response = wp_remote_post($url, $post_attr);
+		if ( ! in_array( $method, array( 'POST', 'PUT', 'GET', 'PUSH', 'DELETE' ) ) ) {
+			$this->dlog( "Error: Method not in allowed array list ($method)", __METHOD__ );
 
-        if (is_wp_error($response)) {
-            $error_message = $response->get_error_message();
-            $this->dlog(__METHOD__ . " - Something went wrong: $error_message");
-            return false;
-        } else {
-            $this->dlog(__METHOD__ . " - result " . print_r($response['response'], true));
-        }
+			return false;
+		}
 
-        return $response;
+		$headers = array(
+			'Accept'       => 'application/json',
+			'Content-Type' => 'application/json',
+		);
 
-    }
+		if ( ! empty( $additional_headers ) ) {
+			$headers = array_merge( $headers, $additional_headers );
+		}
 
+		$post_attr = array(
+			'method'      => $method,
+			'timeout'     => 45,
+			'redirection' => 5,
+			'httpversion' => '1.0',
+			'blocking'    => true,
+			'headers'     => $headers,
+			'cookies'     => array(),
+		);
+
+		if ( $data ) {
+			$post_attr['body'] = json_encode( $data );
+		}
+
+		$response = wp_remote_post( $url, $post_attr );
+
+		if ( is_wp_error( $response ) ) {
+			$error_message = $response->get_error_message();
+			$this->dlog( __METHOD__ . " - Something went wrong: $error_message" );
+
+			return false;
+		} else {
+			$this->dlog( __METHOD__ . " - result " . print_r( $response['response'], true ) );
+		}
+
+		return $response;
+
+	}
 }

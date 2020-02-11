@@ -1,76 +1,85 @@
 <?php
-trait TL_Licensing
-{
 
-	public function edd_has_licensing()
-    {
-        return function_exists('edd_software_licensing');
-    }
+trait TL_Licensing {
 
-    public function edd_get_licenses($email)
-    {
+	public function edd_has_licensing() {
+		return function_exists( 'edd_software_licensing' );
+	}
 
-        $keys = array();
-        $_u = get_user_by('email', $email);
+	public function edd_get_licenses( $email ) {
 
-        if ($_u) {
+		$keys = array();
+		$_u   = get_user_by( 'email', $email );
 
-            $licenses = edd_software_licensing()->get_license_keys_of_user($_u->ID, 0, 'all', true);
+		if ( $_u ) {
 
-            foreach ($licenses as $license) {
-                $children = edd_software_licensing()->get_child_licenses($license->ID);
-                if ($children) {
-                    foreach ($children as $child) {
-                        $keys[] = edd_software_licensing()->get_license_key($child->ID);
-                    }
-                }
+			$licenses = edd_software_licensing()->get_license_keys_of_user( $_u->ID, 0, 'all', true );
 
-                $keys[] = edd_software_licensing()->get_license_key($license->ID);
-            }
-        }
+			foreach ( $licenses as $license ) {
+				$children = edd_software_licensing()->get_child_licenses( $license->ID );
+				if ( $children ) {
+					foreach ( $children as $child ) {
+						$keys[] = edd_software_licensing()->get_license_key( $child->ID );
+					}
+				}
 
-        return (!empty($keys)) ? $keys : false;
-    }
+				$keys[] = edd_software_licensing()->get_license_key( $license->ID );
+			}
+		}
 
-    public function edd_verify_license($key){
-    	
-    	$key = sanitize_text_field($key);
+		return ( ! empty( $keys ) ) ? $keys : false;
+	}
 
-    	$license = new EDD_SL_License($key);
+	public function edd_verify_license( $key ) {
 
-    	$this->dlog('license: '.print_r($license,true),__METHOD__);
+		$key = sanitize_text_field( $key );
 
-    	return $license->exists;
-    }
+		$license = new EDD_SL_License( $key );
+
+		$this->dlog( 'license: ' . print_r( $license, true ), __METHOD__ );
+
+		return $license->exists;
+	}
 
 	/**
-	 * @param $type
-	 * @param $value
+	 * Helper function: Check if the current site is an EDD store
 	 *
-	 * @see Endpoint::verify_callback
-	 *
-	 * @return array|bool
+	 * @since 0.2.0
+	 * @return Boolean
 	 */
-    public function get_licenses_by($type, $value){
+	public function is_edd_store() {
+		return class_exists( 'Easy_Digital_Downloads' );
+	}
 
-    	$this->dlog("type: $type | value: $value",__METHOD__);
-    	
-    	if (!in_array($type, array('email','key'))){
-    		return false;
-    	}
+	/**
+	 * Helper function: Check if the current site is Woocommerce store
+	 *
+	 * @since 0.8.0
+	 * @return Boolean
+	 */
+	public function is_woo_store() {
+		return class_exists( 'woocommerce' );
+	}
 
-    	if ( $this->is_edd_store() && $this->edd_has_licensing() ){
-    		if ('email' == $type){
-    			return $this->edd_get_licenses($value);
-    		} else if ('key' == $type) {
-    			return $this->edd_verify_license($value);
-    		}
-    	} else if ($this->is_woo_store()){
-    		// handle woo licensing
-    	} 
+	public function get_licenses_by( $type, $value ) {
+
+		$this->dlog( "type: $type | value: $value", __METHOD__ );
+
+		if ( ! in_array( $type, array( 'email', 'key' ) ) ) {
+			return false;
+		}
+
+		if ( $this->is_edd_store() && $this->edd_has_licensing() ) {
+			if ( 'email' == $type ) {
+				return $this->edd_get_licenses( $value );
+			} else if ( 'key' == $type ) {
+				return $this->edd_verify_license( $value );
+			}
+		} else if ( $this->is_woo_store() ) {
+			// handle woo licensing
+		}
 
 		return false;
-    	
-    }
 
+	}
 }

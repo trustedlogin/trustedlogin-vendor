@@ -8,7 +8,6 @@ if ( ! defined('ABSPATH') ) {
 class TrustedLogin_Audit_Log {
 
 	use TL_Debug_Logging;
-	use TL_Options;
 
 	/**
 	 * Version of the Audit Log DB schema
@@ -17,10 +16,15 @@ class TrustedLogin_Audit_Log {
 
 	const db_table_name = 'tl_audit_log';
 
-	/** @todo remove */
-	private $debug_mode = false;
+	/**
+	 * @since 0.9.0
+	 * @var TrustedLogin_Settings
+	 */
+	private $settings;
 
-	public function __construct() {
+	public function __construct( TrustedLogin_Settings $settings_instance ) {
+
+		$this->settings = $settings_instance;
 
 		register_activation_hook( __FILE__, array( $this, 'init' ) );
 
@@ -39,7 +43,7 @@ class TrustedLogin_Audit_Log {
 	 * Action:  Maybe update the audit log database table if the plugin was updated via WP-admin.
 	 *
 	 * @since 0.1.0
-	 **/
+	 */
 	public function maybe_update_schema() {
 
 		if ( version_compare( get_site_option( 'tl_db_version' ), self::db_version, '<' ) ) {
@@ -51,7 +55,7 @@ class TrustedLogin_Audit_Log {
 	 * Activation Hook: Initialise a DB table to hold the TrustedLogin audit log.
 	 *
 	 * @since 0.1.0
-	 **/
+	 */
 	public function init() {
 		global $wpdb;
 
@@ -75,7 +79,9 @@ class TrustedLogin_Audit_Log {
 
 	public function maybe_output_log() {
 
-		if ( ! $this->tls_settings_is_toggled( 'tls_output_audit_log' ) ) {
+		$audit_log_enabled = $this->settings->tls_settings_is_toggled( 'tls_output_audit_log' );
+
+		if ( ! $audit_log_enabled ) {
 			return;
 		}
 
@@ -83,7 +89,7 @@ class TrustedLogin_Audit_Log {
 
 		/**
 		 * @todo - fix this
-		 **/
+		 */
 		echo '<h1 class="wp-heading-inline">Last Audit Log Entries</h1>';
 
 		if ( 0 < count( $entries ) ) {
@@ -95,9 +101,9 @@ class TrustedLogin_Audit_Log {
 	}
 
 	/**
-	 * @param $log_array
-	 *
 	 * @todo Convert to WP_Table_List
+	 *
+	 * @param $log_array
 	 *
 	 * @return string
 	 */
@@ -147,12 +153,12 @@ class TrustedLogin_Audit_Log {
 	 *
 	 * @since 0.1.0
 	 *
-	 * @param String $site_id - md5 hash identifier of the site being supported
-	 * @param String $action - what action is being logged (eg 'requested','redirected')
-	 * @param String $note - an optional string for adding context or extra info to the log
+	 * @param string $site_id md5 hash identifier of the site being supported
+	 * @param string $action The action being logged (eg 'requested','redirected')
+	 * @param string $note Optional string for adding context or extra info to the log
 	 *
-	 * @return boolean|null - True: saved; false: not saved, error; null: logged-out user (ID 0)
-	 **/
+	 * @return boolean|null True: saved; false: not saved, error; null: logged-out user (ID 0)
+	 */
 	public function insert( $site_id, $action, $note = null ) {
 		global $wpdb;
 
@@ -160,6 +166,7 @@ class TrustedLogin_Audit_Log {
 
 		if ( empty( $user_id ) ) {
 			$this->dlog( 'Error: user_id = 0', __METHOD__ );
+
 			return null;
 		}
 
@@ -178,6 +185,7 @@ class TrustedLogin_Audit_Log {
 
 		if ( ! $inserted ) {
 			$this->dlog( 'Error: Could not save this to audit log. u:' . $user_id . ' | s:' . $site_id . ' | a:' . $action, __METHOD__ );
+
 			return false;
 		}
 
@@ -192,7 +200,7 @@ class TrustedLogin_Audit_Log {
 	 * @param Int $limit
 	 *
 	 * @return Array
-	 **/
+	 */
 	public function get_log_entries( $limit = 10 ) {
 		global $wpdb;
 

@@ -1,52 +1,68 @@
 <?php
 
-// v1.1.0
+// v2.0.0
 
-trait TL_Debug_Logging
-{
+trait TL_Debug_Logging {
 
-    /**
-     * Plugin Helper: Debug logging within the plugin folder.
-     *
-     * @since 0.1.0
-     * @param String $text
-     * @return none
-     **/
-    function dlog($text, $method = null)
-    {
+	/**
+	 * Helper that checks if debugging is enabled in current and deprecated formats.
+	 *
+	 * @since 0.9.0
+	 *
+	 * @return bool
+	 */
+	function debugging_enabled() {
 
-        if (!$this->debug_mode) {
-            return;
-        }
-        // open log file
-        try
-        {
-            $filename = "tl-debug-log.txt";
-            $fh = fopen(plugin_dir_path(dirname(__FILE__)) . $filename, "a");
+		if ( property_exists( $this, 'settings' ) ) {
+			return (bool) $this->settings->debug_mode_enabled();
+		}
 
-            if (false == $fh) {
-                error_log(__METHOD__ . " - Could not open log file: " . plugin_dir_path(__FILE__) . $filename, 0);
-                throw new Exception('(ewi) Could not open log file.');
-            }
+		if ( property_exists( $this, 'debug_mode' ) ) {
+			return (bool) $this->debug_mode;
+		}
+	}
 
-            if (!is_null($method)) {
-                $text = '' . $method . ' => ' . $text;
-            }
+	/**
+	 * Plugin Helper: Debug logging within the plugin folder.
+	 *
+	 * @since 0.1.0
+	 *
+	 * @param String $text
+	 *
+	 * @return void
+	 */
+	function dlog( $text, $method = null ) {
 
-            $fw = fwrite($fh, date("d-m-Y, H:i") . " - $text\n");
+		if ( ! $this->debugging_enabled() ) {
+			return;
+		}
+		// open log file
+		try {
+			$filename = "tl-debug-log.txt";
+			$fh       = fopen( plugin_dir_path( dirname( __FILE__ ) ) . $filename, "a" );
 
-            if (false == $fw) {
-                error_log(__METHOD__ . " - Could not write file!", 0);
-            } else {
-                fclose($fh);
-            }
+			if ( false == $fh ) {
+				error_log( __METHOD__ . " - Could not open log file: " . plugin_dir_path( __FILE__ ) . $filename, 0 );
+				throw new Exception( '(ewi) Could not open log file.' );
+			}
 
-        } catch (Exception $e) {
-            if (true === WP_DEBUG) {
-                error_log(__METHOD__ . ' - ' . $text);
-            }
-        }
+			if ( ! is_null( $method ) ) {
+				$text = '' . $method . ' => ' . $text;
+			}
 
-    }
+			$fw = fwrite( $fh, date( "d-m-Y, H:i" ) . " - $text\n" );
 
+			if ( false == $fw ) {
+				error_log( __METHOD__ . " - Could not write file!", 0 );
+			} else {
+				fclose( $fh );
+			}
+
+		} catch ( Exception $e ) {
+			if ( defined('WP_DEBUG') && WP_DEBUG ) {
+				error_log( __METHOD__ . ' - ' . $text );
+			}
+		}
+
+	}
 }
