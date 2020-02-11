@@ -419,21 +419,23 @@ class TrustedLogin_Endpoint {
 
 		$trustedlogin_encryption = new TrustedLogin_Encryption();
 
-        $envelope['siteurl'] 	= $trustedlogin_encryption->decrypt( $envelope['siteurl'] );
-        $envelope['identifier'] = $trustedlogin_encryption->decrypt( $envelope['identifier'] );
+		$parts = array(
+			'siteurl' => $trustedlogin_encryption->decrypt( $envelope['siteurl'] ),
+			'identifier' => $trustedlogin_encryption->decrypt( $envelope['identifier'] ),
+		);
 
-        $envelope['endpoint']	= md5 ( $envelope['siteurl'] . $envelope['identifier'] );
+		if ( is_wp_error( $parts['siteurl'] ) || is_wp_error( $parts['identifier'] ) ) {
+			$this->dlog( "Error decrypting siteurl: " . $parts['siteurl']->get_error_message(), __METHOD__ );
+			$this->dlog( "Error decrypting identifier: " . $parts['identifier']->get_error_message(), __METHOD__ );
 
-        if ( is_wp_error( $envelope['siteurl'] ) || is_wp_error( $envelope['identifier'] ) ){
-        	$this->dlog( "Error decrypting siteurl: " . $envelope['siteurl']->get_error_message(), __METHOD__ );
-        	$this->dlog( "Error decrypting identifier: " . $envelope['identifier']->get_error_message(), __METHOD__ );
-        	return new WP_Error( 'decryption_failed', 'Could not decrypt siteurl or identifier' );
-        }
+			return new WP_Error( 'decryption_failed', 'Could not decrypt siteurl or identifier' );
+		}
 
-		$url = $envelope['siteurl'] . '/' . $envelope['endpoint'] . '/' . $envelope['identifier'];
+		$parts['endpoint'] = md5( $parts['siteurl'] . $parts['identifier'] );
+
+		$url = $parts['siteurl'] . '/' . $parts['endpoint'] . '/' . $parts['identifier'];
 
 		return $url;
-
 	}
 
 	/**
