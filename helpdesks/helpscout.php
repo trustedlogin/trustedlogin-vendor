@@ -133,6 +133,7 @@ class TL_HelpScout
 
         }
 
+        $account_id = $this->settings->get_setting( 'tls_account_id' );
         $saas_auth  = $this->settings->get_setting( 'tls_account_key' );
         $public_key = $this->settings->get_setting( 'tls_public_key' );
 
@@ -178,11 +179,11 @@ class TL_HelpScout
          **/
         $licenses = apply_filters( 'trusted_login_get_licenses', $licenses, $email );
 
-        foreach ( $licenses as $license ) {
+        foreach ( $licenses as $access_key ) {
 
             // check licenses for TrustedLogin Sites via SaaS app.
 
-            $endpoint = 'sites/?accessKey=' . $license;
+            $endpoint = '/accounts/' . $account_id . '/sites/' . $access_key;
             $method = 'GET';
             $body = null;
 
