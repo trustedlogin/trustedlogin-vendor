@@ -190,7 +190,7 @@ class TL_HelpScout
              * Expected result
              *
              * @var $response [
-             *   String $keyStoreID - the id of the secret in Key Store
+             *   String $secretId - the id of the secret in Key Store
              *   String $siteURL - the site the secret was generated on
              *   String $accountNamespace - the namepsace of the Vendor in TL SaaS
              *   String $deleteKey - the token to use to Revoke Site from SaaS
@@ -201,7 +201,7 @@ class TL_HelpScout
             $this->dlog( "Response: " . print_r( $response, true ), __METHOD__ );
 
             if ( $response ) {
-                if ( isset( $response->keyStoreID ) && isset( $response->accountNamespace ) ) {
+                if ( isset( $response->secretId ) && isset( $response->accountNamespace ) ) {
                     $trustedlogin_sessions[] = (array) $response;
                 }
             }
@@ -212,7 +212,7 @@ class TL_HelpScout
             foreach ($trustedlogin_sessions as $trustedlogin_session) {
                 $item_html .= sprintf(
                     $item_template,
-                    esc_url( site_url( '/' . $url_endpoint . '/' . $trustedlogin_session['keyStoreID'] ) ),
+                    esc_url( site_url( '/' . $url_endpoint . '/' . $trustedlogin_session['secretId'] ) ),
                     __( 'TrustedLogin to', 'tl-support-side' ),
                     esc_url( $trustedlogin_session['siteURL'] )
                 );
