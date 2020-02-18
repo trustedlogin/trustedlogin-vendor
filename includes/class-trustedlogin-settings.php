@@ -223,7 +223,7 @@ class TrustedLogin_Settings {
 
 			$saas_attr = (object) array( 'type' => 'saas', 'auth' => $saas_auth, 'debug_mode' => $debug_mode );
 
-			$saas_api = new TL_API_Handler( $saas_attr );
+			$saas_api  = new TL_API_Handler( $saas_attr );
 
 			/**
 	        * @var String  $saas_token  Additional SaaS Token for authenticating API queries.
