@@ -165,6 +165,67 @@ class TL_API_Handler {
 
 	}
 
+	/**
+	 * Verfies the provided credentials.
+	 *
+	 * @since 0.9.1
+	 *
+	 * @return true|WP_Error If 204 status received, returns true, otherwise a WP_Error for the status code provided.
+	 */
+	public function verify( $account_id ='' ){
+
+		$account_id = intval( $account_id );
+
+		if ( 0 == $account_id ){
+			return new WP_Error(
+				'verify-failed',
+				__('No account ID provided.', 'trustedlogin' )
+			);
+		}
+
+		$url 	  = $this->api_url . '/accounts/' . $account_id . '/verify';
+        $method   = 'GET';
+        $body     = null;
+        $headers  = $this->get_additional_headers();
+
+
+        $verification = $this->api_send( $url, $body, $method, $headers );
+
+        if ( ! $verification ){
+	    	return new WP_Error (
+	    		'verify-failed', 
+	    		__('We could not verify your TrustedLogin credentials, please try save settings again.', 'trustedlogin' ) 
+	    	);
+	    }
+
+	    $status = wp_remote_retrieve_response_code( $verification );
+
+	    switch ( $status ){
+	    	case 400:
+	    		return new WP_Error(
+	    			'verify-failed', 
+	    			__('Could not verify private/public keys, please double check provided keys.', 'trustedlogin' ) 
+	    		);
+	    		break;
+	    	case 404:
+	    		return new WP_Error(
+	    			'verify-failed', 
+	    			__('Account not found, please check the ID provided.', 'trustedlogin' ) 
+	    		);
+	    		break;
+	    	case 204:
+	    		return true;
+	    		break;
+	    	default:
+	    		return new WP_Error(
+	    			'verify-failed', 
+	    			sprintf( __('Status %d returned', 'trustedlogin' ), $status ) 
+	    		);
+
+
+	    }
+
+	}
 	public function handle_response( $api_response ) {
 
 		if ( empty( $api_response ) || ! is_array( $api_response ) ) {
