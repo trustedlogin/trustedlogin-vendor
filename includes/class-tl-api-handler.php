@@ -226,6 +226,16 @@ class TL_API_Handler {
 	    }
 
 	}
+
+	/**
+	 * Handles the response for API calls 
+	 *
+	 * @since 0.4.1
+	 *
+	 * @param Array|false $api_response The result from `$this->api_send()`.
+	 *
+	 * @return stdObject|bool  Either `json_decode()` of the result's body, or true if status == 204 or false if empty body or error.
+	 */
 	public function handle_response( $api_response ) {
 
 		if ( empty( $api_response ) || ! is_array( $api_response ) ) {
