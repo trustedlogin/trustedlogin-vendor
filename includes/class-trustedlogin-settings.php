@@ -252,20 +252,21 @@ class TrustedLogin_Settings {
 				__('Could not verify TrustedLogin credentials. %s', 'trustedlogin'),
 				esc_html__( $e->getMessage() )
 			);
+			
 			add_settings_error(
-	            'TLS_plugin_options', // Slug title of setting
-	            'trustedlogin_auth', // Slug-name , Used as part of 'id' attribute in HTML output.
+	            'TLS_plugin_options',
+	            'trustedlogin_auth',
 	            $error,
-	            'error' // Message type, controls HTML class. Accepts 'error' or 'updated'.
+	            'error'
 	        );
 		}
 
 		if ( $api_creds_verified ){
 			add_settings_error(
-	            'TLS_plugin_options', // Slug title of setting
-	            'trustedlogin_auth', // Slug-name , Used as part of 'id' attribute in HTML output.
+	            'TLS_plugin_options',
+	            'trustedlogin_auth',
 	            __( 'TrustedLogin API credentials verified.', 'trustedlogin' ),
-	            'updated' // Message type, controls HTML class. Accepts 'error' or 'updated'.
+	            'updated'
 	        );
 		}
 
