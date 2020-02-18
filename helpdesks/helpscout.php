@@ -184,8 +184,8 @@ class TL_HelpScout
             // check licenses for TrustedLogin Sites via SaaS app.
 
             $endpoint = '/accounts/' . $account_id . '/sites/' . $access_key;
-            $method = 'GET';
-            $body = null;
+            $method   = 'GET';
+            $body     = null;
 
             /**
              * Expected result
