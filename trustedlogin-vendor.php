@@ -60,6 +60,19 @@ class TrustedLogin_Support_Side {
 
 		$this->plugin_version = TRUSTEDLOGIN_PLUGIN_VERSION;
 
+		/*
+		 * Filter allows site admins to over-ride ssl check on dev/testing servers.
+		 * This should NEVER be used on production environments.
+		 */
+		if ( ! is_ssl() ){
+
+			// If SSL not enabled, show alert and don't load the plugin. 
+
+			add_action( 'admin_notices', array( $this, 'ssl_admin_notice' ) );
+			return false;
+		
+		}
+
 		$this->settings = new TrustedLogin_Settings( $this->plugin_version );
 
 		$this->endpoint = new TrustedLogin_Endpoint( $this->settings );
@@ -70,6 +83,18 @@ class TrustedLogin_Support_Side {
 		}
 
 		add_action( 'plugins_loaded', array( $this, 'init_helpdesk_integration' ) );
+	}
+
+	/*
+	 * Alerts the user that this TrustedLogin plugin can only run on sites with SSL enabled.
+	 *
+	 * @since 0.9.1
+	 */ 
+	public function ssl_admin_notice() {
+	    $class = 'notice notice-error';
+	    $message = __( 'TrustedLogin plugin NOT enabled. SSL required securely interact with servers.', 'trustedlogin' );
+	 
+	    printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) ); 
 	}
 
 	public function init_helpdesk_integration() {
@@ -85,7 +110,7 @@ class TrustedLogin_Support_Side {
 $init_tl = new TrustedLogin_Support_Side();
 $init_tl->setup();
 
-register_deactivation_hook(__FILE__, 'trustedlogin_supportside_deactivate' );
+register_deactivation_hook( __FILE__, 'trustedlogin_supportside_deactivate' );
 
 function trustedlogin_supportside_deactivate() {
     delete_option('tl_permalinks_flushed');
