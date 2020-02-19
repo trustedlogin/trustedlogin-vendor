@@ -92,7 +92,7 @@ class TrustedLogin_Support_Side {
 	 */ 
 	public function ssl_admin_notice() {
 	    $class = 'notice notice-error';
-	    $message = __( 'TrustedLogin plugin NOT enabled. SSL required securely interact with servers.', 'trustedlogin' );
+	    $message = __( 'TrustedLogin plugin NOT enabled. SSL required to securely interact with TrustedLogin servers.', 'trustedlogin' );
 	 
 	    printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) ); 
 	}
