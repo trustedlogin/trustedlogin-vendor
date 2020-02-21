@@ -10,25 +10,25 @@ class TL_API_Handler {
 
 	/**
 	 * @since 0.1.0
-	 * @var String - API version
+	 * @var string - API version
 	 */
 	const saas_api_version = 'v1';
 
 	/**
 	 * @since 0.1.0
-	 * @var String - the type of API Handler we're working with. Possible options: 'saas'
+	 * @var string - the type of API Handler we're working with. Possible options: 'saas'
 	 */
 	private $type;
 
 	/**
 	 * @since 0.1.0
-	 * @var String - the url for the API being queried.
+	 * @var string - the url for the API being queried.
 	 */
 	private $api_url;
 
 	/**
 	 * @since 0.1.0
-	 * @var String - The API/Auth Key for authenticating API calls
+	 * @var string - The API/Auth Key for authenticating API calls
 	 */
 	private $auth_key;
 
@@ -40,13 +40,13 @@ class TL_API_Handler {
 
 	/**
 	 * @since 0.1.0
-	 * @var String - The type of Header to use for sending the token
+	 * @var string - The type of Header to use for sending the token
 	 */
 	private $auth_header_type;
 
 	/**
 	 * @since 0.8.0
-	 * @var Array - Additional headers added to the TL_API_Handler instance. Eg for adding 'X-TL-TOKEN' values.
+	 * @var array - Additional headers added to the TL_API_Handler instance. Eg for adding 'X-TL-TOKEN' values.
 	 */
 	private $additional_headers = array();
 
@@ -113,7 +113,7 @@ class TL_API_Handler {
 	 *
 	 * @param string $key The Header key to add.
 	 *
-	 * @return Array|false
+	 * @return array|false
 	 */
 	public function set_additional_header( $key, $value ) {
 
@@ -133,13 +133,13 @@ class TL_API_Handler {
 	 *
 	 * @since 0.4.1
 	 *
-	 * @param String $endpoint - the API endpoint to be pinged
-	 * @param Array $data - the data variables being synced
-	 * @param String $method - HTTP RESTful method ('POST','GET','DELETE','PUT','UPDATE')
+	 * @param string $endpoint - the API endpoint to be pinged
+	 * @param array $data - the data variables being synced
+	 * @param string $method - HTTP RESTful method ('POST','GET','DELETE','PUT','UPDATE')
 	 *
-	 * @param String $type - where the API is being prepared for ('saas')
+	 * @param string $type - where the API is being prepared for ('saas')
 	 *
-	 * @return Array|false - response from the RESTful API
+	 * @return array|false - response from the RESTful API
 	 */
 	public function call( $endpoint, $data, $method ) {
 
@@ -193,8 +193,8 @@ class TL_API_Handler {
 
         if ( ! $verification ){
 	    	return new WP_Error (
-	    		'verify-failed', 
-	    		__('We could not verify your TrustedLogin credentials, please try save settings again.', 'trustedlogin' ) 
+	    		'verify-failed',
+	    		__('We could not verify your TrustedLogin credentials, please try save settings again.', 'trustedlogin' )
 	    	);
 	    }
 
@@ -203,20 +203,20 @@ class TL_API_Handler {
 	    switch ( $status ){
 	    	case 400:
 	    		return new WP_Error(
-	    			'verify-failed-400', 
-	    			__('Could not verify private/public keys, please double check provided keys.', 'trustedlogin' ) 
+	    			'verify-failed-400',
+	    			__('Could not verify private/public keys, please confirm the provided keys.', 'trustedlogin' )
 	    		);
 	    		break;
 	    	case 404:
 	    		return new WP_Error(
-	    			'verify-failed-404', 
-	    			__('Account not found, please check the ID provided.', 'trustedlogin' ) 
+	    			'verify-failed-404',
+	    			__('Account not found, please check the ID provided.', 'trustedlogin' )
 	    		);
 	    		break;
 	    	case 500:
 	    		return new WP_Error(
-	    			'verify-failed-500', 
-	    			sprintf( __('Status %d returned', 'trustedlogin' ), $status ) 
+	    			'verify-failed-500',
+	    			sprintf( __('Status %d returned', 'trustedlogin' ), $status )
 	    		);
 	    		break;
 	    }
@@ -225,7 +225,7 @@ class TL_API_Handler {
 
 	    if ( 'active' !== $body->status ){
 	    	return new WP_Error(
-    			'verify-failed-inactive', 
+    			'verify-failed-inactive',
     			__('Your TrustedLogin account is not active, please login to activate your account.', 'trustedlogin' )
     		);
 	    }
@@ -235,11 +235,11 @@ class TL_API_Handler {
 	}
 
 	/**
-	 * Handles the response for API calls 
+	 * Handles the response for API calls
 	 *
 	 * @since 0.4.1
 	 *
-	 * @param Array|false $api_response The result from `$this->api_send()`.
+	 * @param array|false $api_response The result from `$this->api_send()`.
 	 *
 	 * @return stdObject|bool  Either `json_decode()` of the result's body, or true if status == 204 or false if empty body or error.
 	 */
@@ -291,12 +291,12 @@ class TL_API_Handler {
 	 *
 	 * @since 0.4.0
 	 *
-	 * @param Array $data
-	 * @param Array $addition_header - any additional headers required for auth/etc
+	 * @param string $url The complete url for the REST API request
+	 * @param mixed $data Data to send as JSON-encoded request body
+	 * @param string $method HTTP request method (must be 'POST', 'PUT', 'GET', 'PUSH', or 'DELETE')
+	 * @param array $addition_headers Any additional headers to send in request (required for auth/etc)
 	 *
-	 * @param String $url - the complete url for the REST API request
-	 *
-	 * @return Array|false - wp_remote_post response or false if fail
+	 * @return array|false|WP_Error - wp_remote_post response, false if invalid HTTP  fail
 	 */
 	public function api_send( $url, $data, $method, $additional_headers ) {
 
