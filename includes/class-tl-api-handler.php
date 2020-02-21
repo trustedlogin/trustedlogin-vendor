@@ -183,7 +183,7 @@ class TL_API_Handler {
 			);
 		}
 
-		$url 	  = $this->api_url . '/accounts/' . $account_id . '/verify';
+		$url 	  = $this->api_url . '/accounts/' . $account_id ;
         $method   = 'GET';
         $body     = null;
         $headers  = $this->get_additional_headers();
@@ -213,17 +213,24 @@ class TL_API_Handler {
 	    			__('Account not found, please check the ID provided.', 'trustedlogin' ) 
 	    		);
 	    		break;
-	    	case 204:
-	    		return true;
-	    		break;
-	    	default:
+	    	case 500:
 	    		return new WP_Error(
 	    			'verify-failed', 
 	    			sprintf( __('Status %d returned', 'trustedlogin' ), $status ) 
 	    		);
-
-
+	    		break;
 	    }
+
+	    $body = json_decode( wp_remote_retrieve_body( $verification ) );
+
+	    if ( 'active' !== $body->status ){
+	    	return new WP_Error(
+    			'verify-failed', 
+    			__('Your TrustedLogin account is not active, please login to activate your account.', 'trustedlogin' )
+    		);
+	    }
+
+	    return true;
 
 	}
 
