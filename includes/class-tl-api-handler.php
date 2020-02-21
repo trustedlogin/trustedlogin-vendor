@@ -315,7 +315,7 @@ class TL_API_Handler {
 			$headers = array_merge( $headers, $additional_headers );
 		}
 
-		$post_attr = array(
+		$request_atts = array(
 			'method'      => $method,
 			'timeout'     => 45,
 			'redirection' => 5,
@@ -326,10 +326,10 @@ class TL_API_Handler {
 		);
 
 		if ( $data ) {
-			$post_attr['body'] = json_encode( $data );
+			$request_atts['body'] = json_encode( $data );
 		}
 
-		$response = wp_remote_post( $url, $post_attr );
+		$response = wp_remote_request( $url, $request_atts );
 
 		if ( is_wp_error( $response ) ) {
 			$error_message = $response->get_error_message();
