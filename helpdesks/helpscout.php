@@ -163,7 +163,7 @@ class TL_HelpScout
         $item_html = '';
 
         $html_template = '<ul class="c-sb-list c-sb-list--two-line">%1$s</ul>';
-        $item_template = '<li class="c-sb-list-item"><a href="%1$s">%2$s %3$s</a></li>';
+        $item_template = '<li class="c-sb-list-item"><a href="%1$s">%2$s %3$s</a> (%4$s)</li>';
         $no_items_template = '<li class="c-sb-list-item">%1$s</li>';
         $url_endpoint = apply_filters( 'trustedlogin_redirect_endpoint', 'trustedlogin' );
 
@@ -171,19 +171,22 @@ class TL_HelpScout
          * Filter: allow for other addons to generate the licenses array
          *
          * @since 0.6.0
-         * @param Array $licenses (
-         *   @see $response from saas_api to /Sites/?accessKey=<accessKey>
-         * )
-         * @param String $email
-         * @return Array
+         * @param array $licenses [
+         *   @var  object  $license [
+         *     @var  string  status  The status of the license.
+         *     @var  string  key     The license key.
+         *   ]
+         * ]
+         * @param string $email
+         * @return array
          **/
         $licenses = apply_filters( 'trusted_login_get_licenses', $licenses, $email );
 
-        foreach ( $licenses as $access_key ) {
+        foreach ( $licenses as $license ) {
 
             // check licenses for TrustedLogin Sites via SaaS app.
 
-            $endpoint = '/accounts/' . $account_id . '/sites/' . $access_key;
+            $endpoint = '/accounts/' . $account_id . '/sites/' . $license->key;
             $method   = 'GET';
             $body     = null;
 
@@ -214,8 +217,9 @@ class TL_HelpScout
                 $item_html .= sprintf(
                     $item_template,
                     esc_url( site_url( '/' . $url_endpoint . '/' . $trustedlogin_session['secretId'] ) ),
-                    __( 'TrustedLogin to', 'tl-support-side' ),
-                    esc_url( $trustedlogin_session['siteURL'] )
+                    __( 'TrustedLogin for ', 'tl-support-side' ),
+                    $license->key,
+                    $license->status
                 );
             }
         }
@@ -238,29 +242,28 @@ class TL_HelpScout
         return function_exists('edd_software_licensing');
     }
 
-    public function edd_get_licenses($email)
-    {
+    public function edd_get_licenses( $email ) {
 
-        $keys = array();
-        $_u = get_user_by('email', $email);
+        $licenses = array();
+        $user     = get_user_by( 'email', $email );
 
-        if ($_u) {
+        if ( $user ) {
 
-            $licenses = edd_software_licensing()->get_license_keys_of_user($_u->ID, 0, 'all', true);
+            $licenses = edd_software_licensing()->get_license_keys_of_user( $user->ID, 0, 'all', true );
 
-            foreach ($licenses as $license) {
-                $children = edd_software_licensing()->get_child_licenses($license->ID);
-                if ($children) {
-                    foreach ($children as $child) {
-                        $keys[] = edd_software_licensing()->get_license_key($child->ID);
+            foreach ( $licenses as $license ) {
+                $children = edd_software_licensing()->get_child_licenses( $license->ID );
+                if ( $children ) {
+                    foreach ( $children as $child ) {
+                        $licenses[] = edd_software_licensing()->get_license( $child->ID );
                     }
                 }
 
-                $keys[] = edd_software_licensing()->get_license_key($license->ID);
+                $licenses[] = edd_software_licensing()->get_license( $license->ID );
             }
         }
 
-        return (!empty($keys)) ? $keys : false;
+        return ( ! empty( $licenses ) ) ? $licenses : false;
     }
 
     public function helpscout_verify_source($data, $signature)
