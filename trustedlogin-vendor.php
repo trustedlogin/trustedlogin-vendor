@@ -20,73 +20,98 @@ if (!defined('ABSPATH')) {
 
 define( 'TRUSTEDLOGIN_PLUGIN_VERSION', '0.9.0' );
 
-require_once plugin_dir_path(__FILE__) . 'includes/trait-debug-logging.php';
-require_once plugin_dir_path(__FILE__) . 'includes/trait-licensing.php';
+/** @define "$path" "./" */
+$path = plugin_dir_path(__FILE__);
 
-require_once plugin_dir_path(__FILE__) . 'includes/class-trustedlogin-settings.php';
-require_once plugin_dir_path(__FILE__) . 'includes/class-trustedlogin-endpoint.php';
-require_once plugin_dir_path(__FILE__) . 'includes/class-tl-api-handler.php';
-require_once plugin_dir_path(__FILE__) . 'includes/class-trustedlogin-audit-log.php';
-require_once plugin_dir_path(__FILE__) . 'includes/class-trustedlogin-encryption.php';
+require_once $path . 'includes/trait-debug-logging.php';
+require_once $path . 'includes/trait-licensing.php';
 
-class TrustedLogin_Support_Side
-{
+require_once $path . 'includes/class-trustedlogin-settings.php';
+require_once $path . 'includes/class-trustedlogin-endpoint.php';
+require_once $path . 'includes/class-tl-api-handler.php';
+require_once $path . 'includes/class-trustedlogin-audit-log.php';
+require_once $path . 'includes/class-trustedlogin-encryption.php';
 
-    use TL_Debug_Logging;
-    use TL_Licensing;
+class TrustedLogin_Support_Side {
 
-    /**
-     * @var String - the x.x.x value of the current plugin version.
-     * @since 0.1.0
-     **/
-    private $plugin_version;
+	use TL_Debug_Logging;
+	use TL_Licensing;
+
+	/**
+	 * @since 0.1.0
+	 * @var String - the x.x.x value of the current plugin version.
+	 */
+	private $plugin_version;
 
 	/**
 	 * @var TrustedLogin_Endpoint
 	 */
-    private $endpoint;
+	private $endpoint;
 
-    /**
-    * @var TrustedLogin_Settings
-    **/
-    private $settings;
+	/**
+	 * @var TrustedLogin_Settings
+	 */
+	private $settings;
 
-    public function __construct() {}
+	public function __construct() {}
 
-    public function setup() {
-	    global $wpdb;
+	public function setup() {
+		global $wpdb;
 
-	    $this->plugin_version = TRUSTEDLOGIN_PLUGIN_VERSION;
+		$this->plugin_version = TRUSTEDLOGIN_PLUGIN_VERSION;
 
-        $this->settings = new TrustedLogin_Settings( $this->plugin_version );
+		/*
+		 * Filter allows site admins to over-ride ssl check on dev/testing servers.
+		 * This should NEVER be used on production environments.
+		 */
+		if ( ! is_ssl() ){
 
-        $this->endpoint = new TrustedLogin_Endpoint( $this->settings );
+			// If SSL not enabled, show alert and don't load the plugin. 
 
-	    // Setup the Plugin Settings
-        if ( is_admin() ){
-            $this->settings->admin_init();
-        }
+			add_action( 'admin_notices', array( $this, 'ssl_admin_notice' ) );
+			return false;
+		
+		}
 
-	    add_action('plugins_loaded', array($this, 'init_helpdesk_integration'));
-    }
+		$this->settings = new TrustedLogin_Settings( $this->plugin_version );
 
-    public function init_helpdesk_integration()
-    {
-    	
-	    // Load all field files automatically
-	    foreach ( glob( plugin_dir_path( __FILE__ ) . 'helpdesks/class-*.php' ) as $helpdesk ) {
-		    include_once $helpdesk;
-	    }
-    }
+		$this->endpoint = new TrustedLogin_Endpoint( $this->settings );
+
+		// Setup the Plugin Settings
+		if ( is_admin() ) {
+			$this->settings->admin_init();
+		}
+
+		add_action( 'plugins_loaded', array( $this, 'init_helpdesk_integration' ) );
+	}
+
+	/*
+	 * Alerts the user that this TrustedLogin plugin can only run on sites with SSL enabled.
+	 *
+	 * @since 0.9.1
+	 */ 
+	public function ssl_admin_notice() {
+	    $class = 'notice notice-error';
+	    $message = __( 'TrustedLogin plugin NOT enabled. SSL required to securely interact with TrustedLogin servers.', 'trustedlogin' );
+	 
+	    printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) ); 
+	}
+
+	public function init_helpdesk_integration() {
+
+		// Load all field files automatically
+		foreach ( glob( plugin_dir_path( __FILE__ ) . 'helpdesks/class-*.php' ) as $helpdesk ) {
+			include_once $helpdesk;
+		}
+	}
 
 }
 
 $init_tl = new TrustedLogin_Support_Side();
 $init_tl->setup();
 
-register_deactivation_hook(__FILE__, 'trustedlogin_supportside_deactivate' );
+register_deactivation_hook( __FILE__, 'trustedlogin_supportside_deactivate' );
 
-function trustedlogin_supportside_deactivate()
-{
+function trustedlogin_supportside_deactivate() {
     delete_option('tl_permalinks_flushed');
 }
