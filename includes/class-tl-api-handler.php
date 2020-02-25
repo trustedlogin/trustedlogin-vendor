@@ -203,19 +203,19 @@ class TL_API_Handler {
 	    switch ( $status ){
 	    	case 400:
 	    		return new WP_Error(
-	    			'verify-failed', 
+	    			'verify-failed-400', 
 	    			__('Could not verify private/public keys, please double check provided keys.', 'trustedlogin' ) 
 	    		);
 	    		break;
 	    	case 404:
 	    		return new WP_Error(
-	    			'verify-failed', 
+	    			'verify-failed-404', 
 	    			__('Account not found, please check the ID provided.', 'trustedlogin' ) 
 	    		);
 	    		break;
 	    	case 500:
 	    		return new WP_Error(
-	    			'verify-failed', 
+	    			'verify-failed-500', 
 	    			sprintf( __('Status %d returned', 'trustedlogin' ), $status ) 
 	    		);
 	    		break;
@@ -225,7 +225,7 @@ class TL_API_Handler {
 
 	    if ( 'active' !== $body->status ){
 	    	return new WP_Error(
-    			'verify-failed', 
+    			'verify-failed-inactive', 
     			__('Your TrustedLogin account is not active, please login to activate your account.', 'trustedlogin' )
     		);
 	    }
