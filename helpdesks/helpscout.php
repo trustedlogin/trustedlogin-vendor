@@ -4,7 +4,7 @@
  * Class: TrustedLogin - HelpScout Integration
  *
  * @package tl-support-side
- * @version 0.1.0
+ * @version 0.2.0
  **/
 class TL_HelpScout
 {
@@ -41,8 +41,7 @@ class TL_HelpScout
      **/
     private $details;
 
-    public function __construct()
-    {
+    public function __construct(){
 
         $this->details = (object) array(
             'name' => __('HelpScout', 'tl-support-side'),
@@ -61,17 +60,27 @@ class TL_HelpScout
 
     }
 
-    public function has_secret()
-    {
-        if (!isset($this->secret) || empty($this->secret)) {
+    /**
+     * Checks that the secret/api_key for helpscout is set in settings panel.
+     *
+     * @since 0.1.0
+     *
+     * @return bool  Whether the secret is set and not empty.
+     */
+    public function has_secret(){
+        if ( ! isset( $this->secret ) || empty( $this->secret )) {
             return false;
         }
 
         return true;
     }
 
-    public function add_extra_settings()
-    {
+    /**
+     * Appends extra settings into the TrustedLogin plugin settings page.
+     *
+     * @since 0.1.0
+     */
+    public function add_extra_settings(){
 
         add_settings_field(
             'tls_' . $this->details->slug . '_secret',
@@ -91,28 +100,43 @@ class TL_HelpScout
 
     }
 
-    public function helpscout_secret_field_render()
-    {
+    /**
+     * Renders the settings field for the helpdesk secret/api_key
+     */
+    public function helpscout_secret_field_render(){
 
         $this->settings->tls_settings_render_input_field('tls_' . $this->details->slug . '_secret', 'password', false);
 
     }
 
-    public function helpscout_url_field_render()
-    {
+    /**
+     * Renders the settings field for the helpdesk url
+     */
+    public function helpscout_url_field_render(){
 
         $url = add_query_arg('action', $this->details->slug . '_webhook', admin_url('admin-ajax.php'));
         echo '<input readonly="readonly" type="text" value="' . $url . '" class="regular-text ltr">';
 
     }
 
-    public function webhook_endpoint()
-    {
+    /**
+     * Generates the output for the helpscout widget.
+     * 
+     * Checks the `$_SERVER` array for the signature and verifies the source before checking for licenses matching to users email.
+     *
+     * @uses self::helpscout_verify_source()
+     *
+     * @since 0.1.0
+     * @since 0.9.2 - added the status of licenses to output
+     * 
+     * @return a JSON response back to an Ajax request.
+     */
+    public function webhook_endpoint(){
 
         $signature = ( isset( $_SERVER['X-HELPSCOUT-SIGNATURE']) ) ? $_SERVER['X-HELPSCOUT-SIGNATURE'] : null;
-        $data = file_get_contents('php://input');
+        $data = file_get_contents( 'php://input' );
 
-        if ( !$this->helpscout_verify_source( $data, $signature) ) {
+        if ( ! $this->helpscout_verify_source( $data, $signature ) ) {
 
             wp_send_json_error( array( 'message' => 'Unauthorized' ), 401 );
         }
@@ -125,7 +149,7 @@ class TL_HelpScout
 
         $email = sanitize_email( $data_obj->customer->email );
 
-        if ( $this->is_edd_store() && !empty($email) ) {
+        if ( $this->is_edd_store() && ! empty( $email ) ) {
 
             if ( $this->has_edd_licensing() ) {
                 $licenses = $this->edd_get_licenses( $email );
@@ -137,7 +161,7 @@ class TL_HelpScout
         $saas_auth  = $this->settings->get_setting( 'tls_account_key' );
         $public_key = $this->settings->get_setting( 'tls_public_key' );
 
-        if ( !$saas_auth || !$public_key ) {
+        if ( ! $saas_auth || ! $public_key ) {
             $error = __( 'Please make sure the TrustedLogin API Key setting is entered.', 'tl-support-side' );
             $this->dlog( $error, __METHOD__ );
             wp_send_json_error( array( 'message' => $error ) );
@@ -212,8 +236,8 @@ class TL_HelpScout
 
         } // foreach($licenses)
 
-        if (!empty($trustedlogin_sessions)) {
-            foreach ($trustedlogin_sessions as $trustedlogin_session) {
+        if ( ! empty( $trustedlogin_sessions ) ) {
+            foreach ( $trustedlogin_sessions as $trustedlogin_session ) {
                 $item_html .= sprintf(
                     $item_template,
                     esc_url( site_url( '/' . $url_endpoint . '/' . $trustedlogin_session['secretId'] ) ),
@@ -224,7 +248,7 @@ class TL_HelpScout
             }
         }
 
-        if (empty($item_html)) {
+        if ( empty ( $item_html ) ) {
             $item_html = sprintf(
                 $no_items_template,
                 __( 'No TrustedLogin sessions authorized for this user.', 'tl-support-side' )
@@ -237,11 +261,26 @@ class TL_HelpScout
 
     }
 
-    public function has_edd_licensing()
-    {
+    /**
+     * Checks if Easy Digital Downloads Licensing is enabled.
+     *
+     * @since 0.1.0
+     * 
+     * @return bool  Whether the `edd_software_licensing` function exists.
+     */
+    public function has_edd_licensing(){
         return function_exists('edd_software_licensing');
     }
 
+    /**
+     * Gets any EDD licenses attached to an email address
+     * 
+     * @since 0.1.0
+     * 
+     * @param  string  $email  The email to check for EDD licenses
+     *
+     * @return EDD_SL_License[]|false  Array of licenses or false if none are found.
+     **/
     public function edd_get_licenses( $email ) {
 
         $licenses = array();
@@ -266,18 +305,29 @@ class TL_HelpScout
         return ( ! empty( $licenses ) ) ? $licenses : false;
     }
 
-    public function helpscout_verify_source($data, $signature)
-    {
-        if (!$this->has_secret() || is_null($signature)) {
+    /**
+     * Verifies the source of the Widget AJAX request is from helpscout
+     *
+     * @since 0.1.0
+     *
+     * @param  string  $data provided via `PHP://input`.
+     * @param  string  $signature provided via `$_SERVER` attribute.
+     *
+     * @return bool  if the calculated hash matches the signature provided.
+     */
+    public function helpscout_verify_source( $data, $signature ){
+        
+        if ( ! $this->has_secret() || is_null( $signature ) ) {
             return false;
         }
 
         $calculated = base64_encode(hash_hmac('sha1', $data, $this->secret, true));
+        
         return $signature == $calculated;
     }
 
     /**
-     * Helper function: Check if the current site is an EDD store
+     * Checks if the current site is an EDD store
      *
      * @since 0.2.0
      * @return Boolean
