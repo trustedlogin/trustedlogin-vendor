@@ -190,7 +190,15 @@ class TL_API_Handler {
 
         $verification = $this->api_send( $url, $body, $method, $headers );
 
-        if ( ! $verification || is_wp_error( $verification ) ) {
+        if( is_wp_error( $verification ) ) {
+	        return new WP_Error (
+		        $verification->get_error_code(),
+		        __('We could not verify your TrustedLogin credentials, please try save settings again.', 'trustedlogin' ),
+		        $verification->get_error_message()
+	        );
+        }
+
+        if ( ! $verification ) {
 	    	return new WP_Error (
 	    		'verify-failed',
 	    		__('We could not verify your TrustedLogin credentials, please try save settings again.', 'trustedlogin' )
