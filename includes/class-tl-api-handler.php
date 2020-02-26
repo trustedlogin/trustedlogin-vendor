@@ -188,10 +188,9 @@ class TL_API_Handler {
         $body     = null;
         $headers  = $this->get_additional_headers();
 
-
         $verification = $this->api_send( $url, $body, $method, $headers );
 
-        if ( ! $verification ){
+        if ( ! $verification || is_wp_error( $verification ) ) {
 	    	return new WP_Error (
 	    		'verify-failed',
 	    		__('We could not verify your TrustedLogin credentials, please try save settings again.', 'trustedlogin' )
@@ -246,11 +245,15 @@ class TL_API_Handler {
 	 *
 	 * @since 0.4.1
 	 *
-	 * @param array|false $api_response The result from `$this->api_send()`.
+	 * @param array|false|WP_Error $api_response The result from `$this->api_send()`.
 	 *
 	 * @return stdObject|bool  Either `json_decode()` of the result's body, or true if status == 204 or false if empty body or error.
 	 */
 	public function handle_response( $api_response ) {
+
+		if ( is_wp_error( $api_response ) ) {
+			return false; // Logging intentionally left out; already logged in api_send()
+		}
 
 		if ( empty( $api_response ) || ! is_array( $api_response ) ) {
 			$this->dlog( 'Malformed api_response received:' . print_r( $api_response, true ), __METHOD__ );
@@ -268,7 +271,7 @@ class TL_API_Handler {
 				break;
 			case 403:
 				// Problem with Token
-				// maybe do something here to handle this
+				// TODO: Handle this
 			case 404:
 			default:
 		}
@@ -303,7 +306,7 @@ class TL_API_Handler {
 	 * @param string $method HTTP request method (must be 'POST', 'PUT', 'GET', 'PUSH', or 'DELETE')
 	 * @param array $addition_headers Any additional headers to send in request (required for auth/etc)
 	 *
-	 * @return array|false|WP_Error - wp_remote_post response, false if invalid HTTP  fail
+	 * @return array|false|WP_Error - wp_remote_post response, false if invalid HTTP method, WP_Error if request errors
 	 */
 	public function api_send( $url, $data, $method, $additional_headers ) {
 
@@ -339,13 +342,13 @@ class TL_API_Handler {
 		$response = wp_remote_request( $url, $request_atts );
 
 		if ( is_wp_error( $response ) ) {
-			$error_message = $response->get_error_message();
-			$this->dlog( __METHOD__ . " - Something went wrong: $error_message" );
 
-			return false;
-		} else {
-			$this->dlog( __METHOD__ . " - result " . print_r( $response['response'], true ) );
+			$this->dlog( sprintf( "%s - Something went wrong (%s): %s", __METHOD__, $response->get_error_code(), $response->get_error_message() ) );
+
+			return $response;
 		}
+
+		$this->dlog( __METHOD__ . " - result " . print_r( $response['response'], true ) );
 
 		return $response;
 
