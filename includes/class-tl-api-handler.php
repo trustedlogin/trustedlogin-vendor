@@ -220,7 +220,9 @@ class TL_API_Handler {
 	    		break;
 	    }
 
-	    $body = json_decode( wp_remote_retrieve_body( $verification ) );
+	    $body = wp_remote_retrieve_body( $verification );
+
+	    $body = json_decode( $body );
 
 	    if( ! $body ) {
 		    return new WP_Error(
