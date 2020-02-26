@@ -223,6 +223,13 @@ class TL_API_Handler {
 
 	    $body = json_decode( wp_remote_retrieve_body( $verification ) );
 
+	    if( ! $body ) {
+		    return new WP_Error(
+			    'verify-failed',
+			    __('Your TrustedLogin account is not active, please login to activate your account.', 'trustedlogin' )
+		    );
+	    }
+
 	    if ( 'active' !== $body->status ){
 	    	return new WP_Error(
     			'verify-failed-inactive',
