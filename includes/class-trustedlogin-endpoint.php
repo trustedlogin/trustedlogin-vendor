@@ -53,7 +53,7 @@ class TrustedLogin_Endpoint {
 	public function register_endpoints() {
 
 		register_rest_route( self::rest_endpoint, '/verify', array(
-			'methods'  => WP_REST_Server::READABLE,
+			'methods'  => \WP_REST_Server::READABLE,
 			'callback' => array( $this, 'verify_callback' ),
 			'args'     => array(
 				'key'     => array(
@@ -73,7 +73,7 @@ class TrustedLogin_Endpoint {
 		) );
 
 		register_rest_route( self::rest_endpoint, '/public_key', array(
-			'methods'  => WP_REST_Server::READABLE,
+			'methods'  => \WP_REST_Server::READABLE,
 			'callback' => array( $this, 'public_key_callback' ),
 		) );
 
@@ -84,15 +84,15 @@ class TrustedLogin_Endpoint {
 	 *
 	 * @since 0.8.0
 	 *
-	 * @param  WP_REST_Request  $request 
-	 * @return WP_REST_Response
+	 * @param  \WP_REST_Request  $request
+	 * @return \WP_REST_Response
 	 */
-	public function public_key_callback( WP_REST_Request $request ) {
+	public function public_key_callback( \WP_REST_Request $request ) {
 
 		$trustedlogin_encryption = new TrustedLogin_Encryption();
         $public_key              = $trustedlogin_encryption->get_public_key();
 
-        $response = new WP_REST_Response();
+        $response = new \WP_REST_Response();
 
 		if ( ! is_wp_error( $public_key ) ) {
 			$data = array( 'publicKey' => $public_key );
@@ -112,11 +112,11 @@ class TrustedLogin_Endpoint {
 	 * @since 0.3.0 Initial build
 	 * @since 0.8.0 Added `TrustedLogin_Encryption->get_public_key()` data to response.
 	 *
-	 * @param WP_REST_Request $request
+	 * @param \WP_REST_Request $request
 	 *
-	 * @return WP_REST_Response
+	 * @return \WP_REST_Response
 	 */
-	public function verify_callback( WP_REST_Request $request ) {
+	public function verify_callback( \WP_REST_Request $request ) {
 
 		$key     = $request->get_param( 'key' );
 		$type    = $request->get_param( 'type' );
@@ -126,7 +126,7 @@ class TrustedLogin_Endpoint {
 
 		$this->dlog( "Check: " . print_r( $check, true ), __METHOD__ );
 
-		$response = new WP_REST_Response();
+		$response = new \WP_REST_Response();
 
 		if ( ! $check ) {
 			$response->set_status( 404 );
@@ -155,7 +155,7 @@ class TrustedLogin_Endpoint {
 	 * @since 0.8.0
 	 *
 	 * @param string $param - The parameter value being validated
-	 * @param WP_REST_Request $request
+	 * @param \WP_REST_Request $request
 	 * @param int $key
 	 *
 	 * @return bool
