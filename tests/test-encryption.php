@@ -68,6 +68,8 @@ class EncryptionTest extends WP_UnitTestCase {
 		$public_key = $this->encryption->get_public_key();
 
 		$this->assertIsString( $public_key );
+
+		$this->assertContains( '-----BEGIN PUBLIC KEY-----', $public_key );
 	}
 
 	/**
