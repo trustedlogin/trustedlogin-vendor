@@ -19,6 +19,7 @@ class TrustedLogin_Encryption {
 		/**
 		 * Filter allows site admins to change the site option key for storing the keys data.
 		 *
+		 * @todo Validate string is short enough to be stored in database
 		 * @since 0.8.0
 		 *
 		 * @param TrustedLogin_Encryption $this

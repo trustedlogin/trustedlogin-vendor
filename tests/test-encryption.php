@@ -49,14 +49,15 @@ class EncryptionTest extends WP_UnitTestCase {
 		$this->assertObjectHasAttribute( 'public_key', $keys, 'public_key should be returned by create_keys ');
 		$this->assertObjectHasAttribute( 'private_key', $keys, 'private_key should be returned by create_keys ');
 
+		// Now we set keys
 		$keys = $method->invoke( $this->encryption, true );
 
 		$stored_value = get_site_option( $option_name );
 
-		// Don't set keys yet (passed false above)
 		$this->assertNotEmpty( $stored_value );
-
 		$this->assertEquals( json_encode( $keys ), $stored_value );
+
+		delete_site_option( $option_name );
 	}
 
 	/**
@@ -68,8 +69,10 @@ class EncryptionTest extends WP_UnitTestCase {
 		$property->setAccessible( true );
 		$setting_name = $property->getValue( $this->encryption );
 		$this->assertEquals( $setting_name, 'trustedlogin_keys' );
+		delete_site_option( $setting_name );
 
 
+		// Test what happens when filtering the setting name
 		add_filter( 'trustedlogin/encryption/keys-option', function() {
 			return 'should_be_filtered';
 		});
@@ -79,6 +82,8 @@ class EncryptionTest extends WP_UnitTestCase {
 		$property->setAccessible( true );
 		$setting_name = $property->getValue( $Encryption_Class );
 		$this->assertEquals( $setting_name, 'should_be_filtered' );
+
+		delete_site_option( $setting_name );
 	}
 
 	/**
@@ -86,13 +91,11 @@ class EncryptionTest extends WP_UnitTestCase {
 	 */
 	function test_get_keys() {
 
-		$method_create_keys = new ReflectionMethod( 'TrustedLogin_Encryption', 'create_keys' );
-		$method_create_keys->setAccessible( true );
+		$method_generate_keys = new ReflectionMethod( 'TrustedLogin_Encryption', 'generate_keys' );
+		$method_generate_keys->setAccessible( true );
 
-		/** @see TrustedLogin_Encryption::create_keys() */
-		$create_keys = $method_create_keys->invoke( $this->encryption );
-
-		$keys = get_site_option( $this->key_option_name );
+		/** @see TrustedLogin_Encryption::generate_keys() */
+		$generated_keys = $method_generate_keys->invoke( $this->encryption, true );
 
 		/** @see TrustedLogin_Encryption::get_keys() */
 		$method = new ReflectionMethod( 'TrustedLogin_Encryption', 'get_keys' );
@@ -103,6 +106,7 @@ class EncryptionTest extends WP_UnitTestCase {
 		$this->assertObjectHasAttribute( 'public_key', $keys, 'public_key should be returned by get_keys ');
 		$this->assertObjectHasAttribute( 'private_key', $keys, 'private_key should be returned by get_keys ');
 
+		$this->assertEquals( $keys, $generated_keys );
 	}
 
 	/**
