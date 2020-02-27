@@ -31,7 +31,9 @@ class EncryptionTest extends WP_UnitTestCase {
 	 */
 	function test_create_keys() {
 
-		$keys = $this->invokeMethod( $this->encryption, 'create_keys' );
+		$method = new ReflectionMethod( 'TrustedLogin_Encryption', 'create_keys' );
+		$method->setAccessible( true );
+		$keys = $method->invoke( $this->encryption, 'create_keys' );
 
 		$this->assertIsObject( $keys, 'create_keys should return an object' );
 		$this->assertObjectHasAttribute( 'public_key', $keys, 'public_key should be returned by create_keys ');
@@ -44,9 +46,15 @@ class EncryptionTest extends WP_UnitTestCase {
 	 */
 	function test_get_keys() {
 
-		$keys = $this->invokeMethod( $this->encryption, 'get_keys' );
+		$method = new ReflectionMethod( 'TrustedLogin_Encryption', 'create_keys' );
+		$method->setAccessible( true );
+		$create_keys = $method->invoke( $this->encryption, 'create_keys' );
 
 		$this->assertIsObject( $keys, 'get_keys should return an object' );
+		$method = new ReflectionMethod( 'TrustedLogin_Encryption', 'get_keys' );
+		$method->setAccessible( true );
+		$keys = $method->invoke( $this->encryption, 'get_keys' );
+
 		$this->assertObjectHasAttribute( 'public_key', $keys, 'public_key should be returned by get_keys ');
 		$this->assertObjectHasAttribute( 'private_key', $keys, 'private_key should be returned by get_keys ');
 
@@ -83,7 +91,10 @@ class EncryptionTest extends WP_UnitTestCase {
 
 		$nonces = $this->encryption::create_identity_nonce();
 
-		$keys = $this->invokeMethod( $this->encryption, 'get_keys' );
+		/** @see TrustedLogin_Encryption::get_keys() */
+		$method = new ReflectionMethod( 'TrustedLogin_Encryption', 'get_keys' );
+		$method->setAccessible( true );
+		$keys = $method->invoke( $this->encryption, 'get_keys' );
 
 		openssl_public_decrypt( base64_decode( $nonces['signed'] ), $decrypted, $keys->public_key, OPENSSL_PKCS1_PADDING );
 
