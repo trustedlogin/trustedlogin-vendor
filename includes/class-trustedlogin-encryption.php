@@ -185,6 +185,12 @@ class TrustedLogin_Encryption {
 			return new WP_Error( 'data_malformated', 'Encrypted data needed to be base64 encoded.' );
 		}
 
+		/**
+		 * Note about encryption padding:
+		 *
+		 * Public Key Encryption (ie that can only be decrypted with a secret private_key) uses `OPENSSL_PKCS1_OAEP_PADDING`.
+		 * Private Key Signing (ie verified by decrypting with known public_key) uses `OPENSSL_PKCS1_PADDING`
+		 */
 		openssl_private_decrypt( $encrypted_payload, $decrypted_payload, $keys->private_key, OPENSSL_PKCS1_OAEP_PADDING );
 
 		if ( empty( $decrypted_payload ) ) {
@@ -248,6 +254,12 @@ class TrustedLogin_Encryption {
 			return new WP_Error( 'no_data', 'No data provided.' );
 		}
 
+		/**
+		 * Note about encryption padding:
+		 *
+		 * Public Key Encryption (ie that can only be decrypted with a secret private_key) uses `OPENSSL_PKCS1_OAEP_PADDING`.
+		 * Private Key Signing (ie verified by decrypting with known public_key) uses `OPENSSL_PKCS1_PADDING`
+		 */
 		openssl_public_encrypt( $data, $encrypted, $key, OPENSSL_PKCS1_OAEP_PADDING );
 
 		if ( empty( $encrypted ) ) {
@@ -289,6 +301,12 @@ class TrustedLogin_Encryption {
 			return new WP_Error( 'no_data', 'No data provided.' );
 		}
 
+		/**
+		 * Note about encryption padding:
+		 *
+		 * Public Key Encryption (ie that can only be decrypted with a secret private_key) uses `OPENSSL_PKCS1_OAEP_PADDING`.
+		 * Private Key Signing (ie verified by decrypting with known public_key) uses `OPENSSL_PKCS1_PADDING`
+		 */
 		openssl_private_encrypt( $data, $encrypted, $key, OPENSSL_PKCS1_PADDING );
 
 		if ( empty( $encrypted ) ) {
