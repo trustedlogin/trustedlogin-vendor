@@ -151,11 +151,11 @@ class EncryptionTest extends WP_UnitTestCase {
 
 		openssl_public_decrypt( base64_decode( $nonces['signed'] ), $decrypted, $keys->public_key, OPENSSL_PKCS1_PADDING );
 
-		$this->assertIsString( $decrypted, 'openssl_public_decrypt should return a string' );
+		$this->assertTrue( is_string( $decrypted ), 'openssl_public_decrypt should return a string' );
 
 		$nonce_decoded = base64_decode( $nonces['nonce'] );
 
-		$this->assertIsString( $nonce_decoded, 'base64_decode( nonces[nonce] ) should return a string' );
+		$this->assertTrue( is_string( $nonce_decoded ), 'base64_decode( nonces[nonce] ) should return a string' );
 
 		$this->assertEquals( $decrypted, $nonce_decoded, 'decrypting nonces[signed] should equal nonces[nonce]' );
 
