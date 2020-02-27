@@ -85,7 +85,7 @@ class EncryptionTest extends WP_UnitTestCase {
 
 		$keys = $this->invokeMethod( $this->encryption, 'get_keys' );
 
-		openssl_public_decrypt( base64_decode( $nonces['signed'] ), $decrypted, $keys->public_key, OPENSSL_PKCS1_PADDING);
+		openssl_public_decrypt( base64_decode( $nonces['signed'] ), $decrypted, $keys->public_key, OPENSSL_PKCS1_PADDING );
 
 		$this->assertIsString( $decrypted, 'openssl_public_decrypt should return a string' );
 
