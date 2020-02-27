@@ -74,20 +74,19 @@ class TL_API_Handler {
 
 		$this->debug_mode = (bool) $atts['debug_mode'];
 
-		switch ( $this->type ) {
-			case 'saas':
-				$this->api_url          = apply_filters( 'trustedlogin/api-url/saas', 'https://app.trustedlogin.com/api/' );
-				$this->auth_header_type = 'Authorization';
-				break;
-		}
+		$this->api_url          = 'https://app.trustedlogin.com/api/';
 
+		$this->auth_header_type = 'Authorization';
 	}
 
 	/**
 	 * @return string
 	 */
 	public function get_api_url() {
-		return $this->api_url;
+
+		$url = apply_filters( 'trustedlogin/api-url/saas', $this->api_url );
+
+		return $url;
 	}
 
 	/**

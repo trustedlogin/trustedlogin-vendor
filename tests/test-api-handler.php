@@ -28,7 +28,11 @@ class APIHandlerTest extends WP_UnitTestCase {
 
 		$saas_api_handler = new TL_API_Handler( 'type=saas' );
 
-		$this->assertEquals( 'https://app.trustedlogin.com/api/' . $saas_api_handler::saas_api_version . '/', $saas_api_handler->get_api_url() );
+		$this->assertEquals( 'https://app.trustedlogin.com/api/', $saas_api_handler->get_api_url() );
+
+		add_filter( 'trustedlogin/api-url/saas', $filter_saas_url = function() { return 'https://www.duck.com'; } );
+		$this->assertEquals( 'https://www.duck.com', $saas_api_handler->get_api_url() );
+		remove_filter( 'trustedlogin/api-url/saas', $filter_saas_url );
 
 		$this->assertEquals( 'Authorization', $saas_api_handler->get_auth_header_type() );
 
