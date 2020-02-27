@@ -65,7 +65,7 @@ class EncryptionTest extends WP_UnitTestCase {
 	 */
 	function test_get_public_key() {
 
-		$public_key = $this->encryption::get_public_key();
+		$public_key = $this->encryption->get_public_key();
 
 		$this->assertIsString( $public_key );
 	}
@@ -75,7 +75,7 @@ class EncryptionTest extends WP_UnitTestCase {
 	 */
 	function test_create_identity_nonce() {
 
-		$nonces = $this->encryption::create_identity_nonce();
+		$nonces = $this->encryption->create_identity_nonce();
 
 		$this->assertTrue( is_array( $nonces ), 'create_identity_nonce should return an array' );
 
@@ -89,7 +89,7 @@ class EncryptionTest extends WP_UnitTestCase {
 	 */
 	function test_decrypt_nonce(){
 
-		$nonces = $this->encryption::create_identity_nonce();
+		$nonces = $this->encryption->create_identity_nonce();
 
 		/** @see TrustedLogin_Encryption::get_keys() */
 		$method = new ReflectionMethod( 'TrustedLogin_Encryption', 'get_keys' );
