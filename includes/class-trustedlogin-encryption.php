@@ -59,14 +59,16 @@ class TrustedLogin_Encryption {
 	 *
 	 * @since 0.8.0
 	 *
-	 * @return stdClass    $keys {
-	 *    The keys to save.
+	 * @param bool $update Whether to update the database with the new keys
 	 *
-	 * @type string $private_key The private key used for decrypting.
-	 * @type string $public_key The public key used for encrypting.
+	 * @return stdClass    $keys {
+	 *   The keys to save.
+	 *
+	 *   @type string $private_key The private key used for decrypting.
+	 *   @type string $public_key The public key used for encrypting.
 	 * }
 	 */
-	private function create_keys() {
+	private function generate_keys( $update = true ) {
 
 		$config = array(
 			'digest_alg'       => 'sha512',
@@ -77,45 +79,43 @@ class TrustedLogin_Encryption {
 		// Create the private and public key
 		$res = openssl_pkey_new( $config );
 
+		if ( ! $res ) {
+			return new WP_Error( 'openssl_error_privatekey', 'Could not generate a private key using OpenSSL.' );
+		}
+
 		// Extract the private key from $res to $private_key
-		openssl_pkey_export( $res, $private_key );
+		$private_key_success = openssl_pkey_export( $res, $private_key );
+
+		if ( ! $private_key_success || empty( $private_key ) ) {
+			return new WP_Error( 'openssl_error_privatekey_export', 'Could not extract a private key using OpenSSL.' );
+		}
 
 		// Extract the public key from $res to $public_key
 		$public_key = openssl_pkey_get_details( $res );
+
+		if( ! $public_key || ! isset( $public_key['key'] ) ) {
+			return new WP_Error( 'openssl_error_publickey', 'Could not get public key details using OpenSSL.' );
+		}
+
 		$public_key = $public_key['key'];
 
-		$keys = (object) array( 'private_key' => $private_key, 'public_key' => $public_key );
+		$keys = (object) array(
+			'private_key' => $private_key,
+			'public_key' => $public_key
+		);
+
+		if( $update ) {
+
+			$keys_db_ready = json_encode( $keys );
+
+			$saved = update_site_option( $this->key_option_name, $keys_db_ready );
+
+			if ( ! $saved ) {
+				return new WP_Error( 'db_error', 'Could not save keys to database.' );
+			}
+		}
 
 		return $keys;
-	}
-
-	/**
-	 * Saves the key pair to the local database for future use.
-	 *
-	 * @since 0.8.0
-	 *
-	 * @see TrustedLogin_Encryption::create_keys()
-	 *
-	 * @param stdClass  The keys to save.
-	 *
-	 * @return  mixed  True if keys saved. WP_Error if not.
-	 */
-	private function update_keys( $keys ) {
-
-		if ( empty( $keys ) ) {
-			return new WP_Error( 'empty_keys', 'Keys cannot be empty' );
-		}
-
-		$keys_db_ready = json_encode( $keys );
-
-		$saved = update_site_option( $this->key_option_name, $keys_db_ready );
-
-		if ( ! $saved ) {
-			return new WP_Error( 'db_error', 'Could not save keys to database' );
-		}
-
-		return true;
-
 	}
 
 	/**
@@ -129,30 +129,19 @@ class TrustedLogin_Encryption {
 	 */
 	public function get_public_key() {
 
-		$public_key = false;
-		$keys       = $this->get_keys();
+		$keys = $this->get_keys();
 
-		if ( $keys ) {
-
-			if ( property_exists( $keys, 'public_key' ) ) {
-				$public_key = $keys->public_key;
-			}
-
+		if ( $keys && isset( $keys->public_key ) ) {
+			return $keys->public_key;
 		}
 
-		if ( $public_key ) {
-			return $public_key;
-		}
+		$keys  = $this->generate_keys();
 
-		$keys  = $this->create_keys();
-		$saved = $this->update_keys( $keys );
-
-		if ( is_wp_error( $saved ) ) {
+		if ( is_wp_error( $keys ) ) {
 			return $saved;
 		}
 
 		return $keys->public_key;
-
 	}
 
 	/**
