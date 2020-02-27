@@ -11,7 +11,7 @@ class TrustedLogin_Encryption {
 
 	use TL_Debug_Logging;
 
-	private $key_option_name;
+	private $key_option_name = 'trustedlogin_keys';
 
 
 	public function __construct() {
@@ -24,7 +24,7 @@ class TrustedLogin_Encryption {
 		 * @param TrustedLogin_Encryption $this
 		 * @param string
 		 */
-		$this->key_option_name = apply_filters( 'trustedlogin/encryption/keys-option', 'trustedlogin_keys', $this );
+		$this->key_option_name = apply_filters( 'trustedlogin/encryption/keys-option', $this->key_option_name, $this );
 
 	}
 
