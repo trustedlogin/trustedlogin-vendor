@@ -33,7 +33,7 @@ class EncryptionTest extends WP_UnitTestCase {
 
 		$keys = $this->invokeMethod( $this->encryption, 'create_keys' );
 
-		$this->assertIsObject( $keys ), 'create_keys should return an object' );
+		$this->assertIsObject( $keys, 'create_keys should return an object' );
 		$this->assertObjectHasAttribute( 'public_key', $keys, 'public_key should be returned by create_keys ');
 		$this->assertObjectHasAttribute( 'private_key', $keys, 'private_key should be returned by create_keys ');
 
@@ -46,7 +46,7 @@ class EncryptionTest extends WP_UnitTestCase {
 
 		$keys = $this->invokeMethod( $this->encryption, 'get_keys' );
 
-		$this->assertIsObject( $keys ), 'get_keys should return an object' );
+		$this->assertIsObject( $keys, 'get_keys should return an object' );
 		$this->assertObjectHasAttribute( 'public_key', $keys, 'public_key should be returned by get_keys ');
 		$this->assertObjectHasAttribute( 'private_key', $keys, 'private_key should be returned by get_keys ');
 
@@ -59,7 +59,7 @@ class EncryptionTest extends WP_UnitTestCase {
 
 		$public_key = $this->encryption::get_public_key();
 
-		$this->assertIsString( $public_key )
+		$this->assertIsString( $public_key );
 	}
 
 	/**
