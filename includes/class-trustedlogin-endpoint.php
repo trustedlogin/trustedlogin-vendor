@@ -325,11 +325,14 @@ class TrustedLogin_Endpoint {
 
 		// Then let's get the identity verification pair to confirm the site is the one sending the request.
 		$trustedlogin_encryption = new TrustedLogin_Encryption();
-		$data['auth'] 			 = $trustedlogin_encryption->create_identity_nonce();
+		$auth_nonce 			 = $trustedlogin_encryption->create_identity_nonce();
 
-		if ( is_wp_error( $data['auth'] ) ) {
-			return $data['auth'];
+		if ( is_wp_error( $auth_nonce ) ) {
+			return $auth_nonce;
 		}
+
+		$data['nonce'] 		 = $auth_nonce['nonce'];
+		$data['signedNonce'] = $auth_nonce['signed'];
 
 		$this->audit_log->insert( $secret_id, 'requested' );
 
