@@ -35,7 +35,7 @@ class EncryptionTest extends WP_UnitTestCase {
 		$method->setAccessible( true );
 		$keys = $method->invoke( $this->encryption, 'create_keys' );
 
-		$this->assertIsObject( $keys, 'create_keys should return an object' );
+		$this->assertTrue( is_object( $keys ), 'create_keys should return an object' );
 		$this->assertObjectHasAttribute( 'public_key', $keys, 'public_key should be returned by create_keys ');
 		$this->assertObjectHasAttribute( 'private_key', $keys, 'private_key should be returned by create_keys ');
 
@@ -50,11 +50,11 @@ class EncryptionTest extends WP_UnitTestCase {
 		$method->setAccessible( true );
 		$create_keys = $method->invoke( $this->encryption, 'create_keys' );
 
-		$this->assertIsObject( $keys, 'get_keys should return an object' );
 		$method = new ReflectionMethod( 'TrustedLogin_Encryption', 'get_keys' );
 		$method->setAccessible( true );
 		$keys = $method->invoke( $this->encryption, 'get_keys' );
 
+		$this->assertTrue( is_object( $keys ), 'get_keys should return an object' );
 		$this->assertObjectHasAttribute( 'public_key', $keys, 'public_key should be returned by get_keys ');
 		$this->assertObjectHasAttribute( 'private_key', $keys, 'private_key should be returned by get_keys ');
 
@@ -77,7 +77,7 @@ class EncryptionTest extends WP_UnitTestCase {
 
 		$nonces = $this->encryption::create_identity_nonce();
 
-		$this->assertIsArray( $nonces, 'create_identity_nonce should return an array' );
+		$this->assertTrue( is_array( $nonces ), 'create_identity_nonce should return an array' );
 
 		$this->assertArrayHasKey( 'nonce', $nonces, 'create_identity_nonce return array should contain a nonce key' );
 		$this->assertArrayHasKey( 'signed', $nonces, 'create_identity_nonce return array should contain a signed key' );
@@ -104,8 +104,8 @@ class EncryptionTest extends WP_UnitTestCase {
 
 		$this->assertIsString( $nonce_decoded, 'base64_decode( nonces[nonce] ) should return a string' );
 
-		$this->assertIsEqual( $decrypted, $nonce_decoded, 'decrypting nonces[signed] should equal nonces[nonce]' );
-	
+		$this->assertEquals( $decrypted, $nonce_decoded, 'decrypting nonces[signed] should equal nonces[nonce]' );
+
 	}
 
 	
