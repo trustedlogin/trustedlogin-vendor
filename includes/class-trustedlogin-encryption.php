@@ -281,7 +281,7 @@ class TrustedLogin_Encryption {
 	 * @param string $data Data to encrypt.
 	 * @param string $key Key to use to encrypt the data.
 	 *
-	 * @return string|WP_Error  Encrypted envelope or WP_Error on failure.
+	 * @return string|WP_Error  Base64 encoded encrypted value or WP_Error on failure.
 	 */
 	private function sign( $data, $key ) {
 
