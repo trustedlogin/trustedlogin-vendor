@@ -161,6 +161,7 @@ class EncryptionTest extends WP_UnitTestCase {
 
 	/**
 	 * Tests to make sure the public key can be used to decrypt the nonce
+	 * @covers TrustedLogin_Encryption::create_identity_nonce
 	 */
 	function test_decrypt_nonce(){
 
@@ -173,7 +174,9 @@ class EncryptionTest extends WP_UnitTestCase {
 		$method->setAccessible( true );
 		$keys = $method->invoke( $this->encryption, true );
 
-		openssl_public_decrypt( base64_decode( $nonces['signed'] ), $decrypted, $keys->public_key, OPENSSL_PKCS1_PADDING );
+		$did_decrypt = openssl_public_decrypt( base64_decode( $nonces['signed'] ), $decrypted, $keys->public_key, OPENSSL_PKCS1_PADDING );
+
+		$this->assertTrue( $did_decrypt, 'openssl_public_decrypt failed' );
 
 		$this->assertTrue( is_string( $decrypted ), 'openssl_public_decrypt should return a string' );
 
