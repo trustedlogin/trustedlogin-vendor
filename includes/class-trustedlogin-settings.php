@@ -186,12 +186,12 @@ class TrustedLogin_Settings {
 	 *
 	 * Note: Although hooked up to `sanitize_callback`, this function does NOT sanitize data provided.
 	 *
-	 * @uses `add_settings_error()` to set an alert for verification failures/errors and success message when API creds verified. 
+	 * @uses `add_settings_error()` to set an alert for verification failures/errors and success message when API creds verified.
 	 *
 	 * @since 0.9.1
 	 *
 	 * @param Array $input Data saved on Settings page.
-	 * 
+	 *
 	 * @return Array Output of sanitized data.
 	 */
 	public function verify_api_details( $input ){
@@ -203,7 +203,7 @@ class TrustedLogin_Settings {
 		$api_creds_verified = false;
 
 		try {
-			
+
 			$checks = array(
 				'tls_account_key' => __('Private Key', 'trustedlogin'),
 				'tls_account_id'  => __('Account ID', 'trustedlogin'),
@@ -252,7 +252,7 @@ class TrustedLogin_Settings {
 				__('Could not verify TrustedLogin credentials. %s', 'trustedlogin'),
 				esc_html__( $e->getMessage() )
 			);
-			
+
 			add_settings_error(
 	            'TLS_plugin_options',
 	            'trustedlogin_auth',
