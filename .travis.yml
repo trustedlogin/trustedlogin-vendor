@@ -33,8 +33,6 @@ matrix:
       env: WP_VERSION=latest
     - php: 5.6
       env: WP_VERSION=trunk
-    - php: 5.6
-      env: WP_TRAVISCI=phpcs
     - php: 5.3
       env: WP_VERSION=latest
       dist: precise
@@ -63,8 +61,4 @@ script:
     if [[ ! -z "$WP_VERSION" ]] ; then
       phpunit
       WP_MULTISITE=1 phpunit
-    fi
-  - |
-    if [[ "$WP_TRAVISCI" == "phpcs" ]] ; then
-      phpcs
     fi
