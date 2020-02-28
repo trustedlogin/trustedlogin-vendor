@@ -2,10 +2,10 @@
 /**
  * PHPUnit bootstrap file
  *
- * @package Tl_Support_Side
+ * @package Trustedlogin_Vendor
  */
 
-define( 'DOING_TL_VENDOR_TESTS', true );
+define( 'DOING_TL_VENDOR_TESTS', true ); // Added by TrustedLogin
 
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
 
@@ -14,7 +14,8 @@ if ( ! $_tests_dir ) {
 }
 
 if ( ! file_exists( $_tests_dir . '/includes/functions.php' ) ) {
-	throw new Exception( "Could not find $_tests_dir/includes/functions.php, have you run bin/install-wp-tests.sh ?" );
+	echo "Could not find $_tests_dir/includes/functions.php, have you run bin/install-wp-tests.sh ?" . PHP_EOL; // WPCS: XSS ok.
+	exit( 1 );
 }
 
 // Give access to tests_add_filter() function.
