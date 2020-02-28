@@ -44,10 +44,14 @@ class AuditLogTest extends WP_UnitTestCase {
 
 		$this->user_factory = new WP_UnitTest_Factory_For_User();
 
+		$this->setup_users();
+	}
+
+	function setup_users() {
 		$admin = $this->user_factory->create( array(
-			'user_login' => md5( microtime() ),
-			'user_email' => md5( microtime() ) . '@trustedlogin.tests',
-			'role' => 'administrator' )
+				'user_login' => md5( microtime() ),
+				'user_email' => md5( microtime() ) . '@trustedlogin.tests',
+				'role' => 'administrator' )
 		);
 
 		$editor = $this->user_factory->create( array(
@@ -74,6 +78,8 @@ class AuditLogTest extends WP_UnitTestCase {
 	 * @covers TrustedLogin_Audit_Log::insert
 	 */
 	function test_get_log_entries() {
+
+		$this->setup_users();
 
 		// Only users with manage_options should be able to see logs (for now)
 		wp_set_current_user( 0 );
@@ -116,6 +122,8 @@ class AuditLogTest extends WP_UnitTestCase {
 	 * @covers TrustedLogin_Audit_Log::insert
 	 */
 	function test_insert() {
+
+		$this->setup_users();
 
 		wp_set_current_user( 0 );
 		$this->assertNull( $this->audit_log->insert( '12', 'added', 'This is a note' ), 'Insert should fail when user is not logged-in' );
