@@ -2,10 +2,11 @@ workflows:
   version: 2
   main:
     jobs:
-      - php56-build
-      - php70-build
-      - php71-build
+      - php73-build
       - php72-build
+      - php71-build
+      - php70-build
+      - php56-build
 
 version: 2
 
@@ -97,4 +98,9 @@ jobs:
     <<: *php_job
     docker:
       - image: circleci/php:7.2
+      - image: *mysql_image
+  php73-build:
+    <<: *php_job
+    docker:
+      - image: circleci/php:7.3
       - image: *mysql_image
