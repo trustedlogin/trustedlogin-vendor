@@ -1,16 +1,16 @@
 <?php
 /**
  * Plugin Name: TrustedLogin Support Plugin
- * Plugin URI: https://trustedlogin.com
+ * Plugin URI: https://www.trustedlogin.com
  * Description: Authenticate support team members to securely log them in to client sites via TrustedLogin
  * Version: 0.9.0
- * Author: trustedlogin.com
- * Author URI: https://trustedlogin.com
+ * Requires PHP: 5.4
+ * Author: Katz Web Services, Inc.
+ * Author URI: https://www.trustedlogin.com
  * Text Domain: tl-support-side
- *
- * Copyright: © 2019 TrustedLogin
- * License: GNU General Public License v3.0
- * License URI: http://www.gnu.org/licenses/gpl-3.0.html
+ * License: GPL v2
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Copyright: © 2020 Katz Web Services, Inc.
  */
 
 if (!defined('ABSPATH')) {
