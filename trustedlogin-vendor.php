@@ -64,13 +64,12 @@ class TrustedLogin_Support_Side {
 		 * Filter allows site admins to over-ride ssl check on dev/testing servers.
 		 * This should NEVER be used on production environments.
 		 */
-		if ( ! is_ssl() ){
+		if ( ! is_ssl() && ! defined( 'DOING_TL_VENDOR_TESTS') ) {
 
-			// If SSL not enabled, show alert and don't load the plugin. 
-
+			// If SSL not enabled, show alert and don't load the plugin.
 			add_action( 'admin_notices', array( $this, 'ssl_admin_notice' ) );
+
 			return false;
-		
 		}
 
 		$this->settings = new TrustedLogin_Settings( $this->plugin_version );
