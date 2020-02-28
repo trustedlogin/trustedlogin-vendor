@@ -106,12 +106,12 @@ class AuditLogTest extends WP_UnitTestCase {
 		$this->assertEquals( $microtime, $log_entries[0]->tl_site_id, 'The note did not contain the expected site ID passed by $microtime' );
 
 		$i = 0;
-		while( $i < 20 ) {
+		while( $i < 50 ) {
 			$i++;
 			$this->audit_log->insert( $microtime, 'added', 'This is a note' );
 		}
 
-		$this->assertCount( 10, $this->audit_log->get_log_entries(), 'The limit failed' );
+		$this->assertCount( 25, $this->audit_log->get_log_entries(), 'The limit failed' );
 
 		$this->assertCount( 20, $this->audit_log->get_log_entries( 20 ), 'The limit failed' );
 
