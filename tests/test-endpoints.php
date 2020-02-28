@@ -22,8 +22,12 @@ class EndpointsTest extends WP_UnitTestCase {
 	public function __construct() {
 		$this->TL = new TrustedLogin_Support_Side;
 		$this->TL->setup();
-		
-		$this->endpoint = new TrustedLogin_Endpoint();
+
+		$settings = new ReflectionProperty( $this->TL, 'settings' );
+		$settings->setAccessible( true );
+		$settings_value = $settings->getValue( $this->TL );
+
+		$this->endpoint = new TrustedLogin_Endpoint( $settings_value );
 	}
 
 	/**
