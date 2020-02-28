@@ -12,18 +12,22 @@ class EndpointsTest extends WP_UnitTestCase {
 
 	/** @var TrustedLogin_Support_Side */
 	private $TL;
-	
+
 	private $endpoint;
 
-	
+
 	/**
 	 * AuditLogTest constructor.
 	 */
 	public function __construct() {
 		$this->TL = new TrustedLogin_Support_Side;
 		$this->TL->setup();
-		
-		$this->endpoint = new TrustedLogin_Endpoint();
+
+		$settings = new ReflectionProperty( $this->TL, 'settings' );
+		$settings->setAccessible( true );
+		$settings_value = $settings->getValue( $this->TL );
+
+		$this->endpoint = new TrustedLogin_Endpoint( $settings_value );
 	}
 
 	/**
@@ -61,9 +65,9 @@ class EndpointsTest extends WP_UnitTestCase {
 		$this->assertTrue( $this->endpoint->validate_callback( 'EDD' ) );
 
 		$this->assertTrue( $this->endpoint->validate_callback( 'WooCommerce' ) );
-		
+
 		$this->assertFalse( $this->endpoint->validate_callback( 'New Licensing Thingy' ) );
-		
+
 		add_filter( 'trustedlogin_api_ecom_types', $filter = function( $types = array() ) {
 			$types[] = 'New Licensing Thingy';
 

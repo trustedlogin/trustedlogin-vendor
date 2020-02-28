@@ -11,7 +11,7 @@ class TrustedLogin_Encryption {
 
 	use TL_Debug_Logging;
 
-	private $key_option_name;
+	private $key_option_name = 'trustedlogin_keys';
 
 
 	public function __construct() {
@@ -19,12 +19,13 @@ class TrustedLogin_Encryption {
 		/**
 		 * Filter allows site admins to change the site option key for storing the keys data.
 		 *
+		 * @todo Validate string is short enough to be stored in database
 		 * @since 0.8.0
 		 *
 		 * @param TrustedLogin_Encryption $this
 		 * @param string
 		 */
-		$this->key_option_name = apply_filters( 'trustedlogin/encryption/keys-option', 'trustedlogin_keys', $this );
+		$this->key_option_name = apply_filters( 'trustedlogin/encryption/keys-option', $this->key_option_name, $this );
 
 	}
 
@@ -33,14 +34,25 @@ class TrustedLogin_Encryption {
 	 *
 	 * @since 0.8.0
 	 *
-	 * @return stdClass|false If keys exist, returns the stdClass of keys. If not, returns false.
+	 * @param bool $generate_if_not_set If keys aren't saved in the database, should create using {@see generate_keys}?
+	 *
+	 * @return stdClass|WP_Error If keys exist, returns the stdClass of keys. Otherwise, WP_Error explaning things.
 	 */
-	private function get_keys() {
+	private function get_keys( $generate_if_not_set = true ) {
 
-		$keys = get_site_option( $this->key_option_name );
+		$keys = false;
+		$value = get_site_option( $this->key_option_name );
 
-		if ( false !== $keys ) {
-			$keys = json_decode( $keys );
+		if ( $value ) {
+			$keys = json_decode( $value );
+
+			if( ! $keys ) {
+				$this->dlog( "Keys were not decoded properly: " . print_r( $value, true ), __METHOD__ );
+			}
+		}
+
+		if ( ! $keys && $generate_if_not_set ) {
+			$keys = $this->generate_keys( true );
 		}
 
 		$this->dlog( "Keys: " . print_r( $keys, true ), __METHOD__ );
@@ -48,7 +60,7 @@ class TrustedLogin_Encryption {
 		/**
 		 * Filter allows site admins to change where the key is fetched from.
 		 *
-		 * @param stdClass $keys
+		 * @param stdClass|WP_Error $keys
 		 * @param TrustedLogin_Encryption $this
 		 */
 		return apply_filters( 'trustedlogin/encryption/get-keys', $keys, $this );
@@ -59,14 +71,16 @@ class TrustedLogin_Encryption {
 	 *
 	 * @since 0.8.0
 	 *
-	 * @return stdClass    $keys {
-	 *    The keys to save.
+	 * @param bool $update Whether to update the database with the new keys. Default: true
 	 *
-	 * @type string $private_key The private key used for decrypting.
-	 * @type string $public_key The public key used for encrypting.
-	 * }
+	 * @return stdClass|WP_Error $keys {
+	 *   The keys to save.
+	 *
+	 *   @type string $private_key The private key used for decrypting.
+	 *   @type string $public_key The public key used for encrypting.
+	 * } or WP_Error
 	 */
-	private function create_keys() {
+	private function generate_keys( $update = true ) {
 
 		$config = array(
 			'digest_alg'       => 'sha512',
@@ -77,45 +91,51 @@ class TrustedLogin_Encryption {
 		// Create the private and public key
 		$res = openssl_pkey_new( $config );
 
+		if ( ! $res ) {
+			return new WP_Error( 'openssl_error_privatekey', 'Could not generate a private key using OpenSSL.' );
+		}
+
 		// Extract the private key from $res to $private_key
-		openssl_pkey_export( $res, $private_key );
+		$private_key_success = openssl_pkey_export( $res, $private_key );
+
+		if ( ! $private_key_success || empty( $private_key ) ) {
+			return new WP_Error( 'openssl_error_privatekey_export', 'Could not extract a private key using OpenSSL.' );
+		}
 
 		// Extract the public key from $res to $public_key
 		$public_key = openssl_pkey_get_details( $res );
+
+		if( ! $public_key || ! isset( $public_key['key'] ) ) {
+			return new WP_Error( 'openssl_error_publickey', 'Could not get public key details using OpenSSL.' );
+		}
+
 		$public_key = $public_key['key'];
 
-		$keys = (object) array( 'private_key' => $private_key, 'public_key' => $public_key );
+		$keys = (object) array(
+			'private_key' => $private_key,
+			'public_key' => $public_key
+		);
+
+		if( $update ) {
+
+			$keys_db_ready = json_encode( $keys );
+
+			if ( ! $keys_db_ready ) {
+				return new WP_Error( 'json_error', 'Could not encode keys to JSON.', $keys );
+			}
+
+			// Instead of update_site_option(), which can return false if value didn't change, success is much clearer
+			// when deleting and checking whether adding worked
+			delete_site_option( $this->key_option_name );
+
+			$saved = add_site_option( $this->key_option_name, $keys_db_ready );
+
+			if ( ! $saved ) {
+				return new WP_Error( 'db_error', 'Could not save keys to database.' );
+			}
+		}
 
 		return $keys;
-	}
-
-	/**
-	 * Saves the key pair to the local database for future use.
-	 *
-	 * @since 0.8.0
-	 *
-	 * @see TrustedLogin_Encryption::create_keys()
-	 *
-	 * @param stdClass  The keys to save.
-	 *
-	 * @return  mixed  True if keys saved. WP_Error if not.
-	 */
-	private function update_keys( $keys ) {
-
-		if ( empty( $keys ) ) {
-			return new WP_Error( 'empty_keys', 'Keys cannot be empty' );
-		}
-
-		$keys_db_ready = json_encode( $keys );
-
-		$saved = update_site_option( $this->key_option_name, $keys_db_ready );
-
-		if ( ! $saved ) {
-			return new WP_Error( 'db_error', 'Could not save keys to database' );
-		}
-
-		return true;
-
 	}
 
 	/**
@@ -125,34 +145,21 @@ class TrustedLogin_Encryption {
 	 *
 	 * @since 0.8.0
 	 *
-	 * @returns string    A public key in which to encrypt
+	 * @returns string|WP_Error A public key in which to encrypt, or an error
 	 */
 	public function get_public_key() {
 
-		$public_key = false;
-		$keys       = $this->get_keys();
+		$keys = $this->get_keys();
 
-		if ( $keys ) {
-
-			if ( property_exists( $keys, 'public_key' ) ) {
-				$public_key = $keys->public_key;
-			}
-
+		if ( is_wp_error( $keys ) ) {
+			return $keys;
 		}
 
-		if ( $public_key ) {
-			return $public_key;
+		if ( $keys && is_object( $keys ) && isset( $keys->public_key ) ) {
+			return $keys->public_key;
 		}
 
-		$keys  = $this->create_keys();
-		$saved = $this->update_keys( $keys );
-
-		if ( is_wp_error( $saved ) ) {
-			return $saved;
-		}
-
-		return $keys->public_key;
-
+		return new WP_Error( 'get_keys_failed', 'Could not get public get_keys stored invalid JSON.');
 	}
 
 	/**
@@ -185,6 +192,12 @@ class TrustedLogin_Encryption {
 			return new WP_Error( 'data_malformated', 'Encrypted data needed to be base64 encoded.' );
 		}
 
+		/**
+		 * Note about encryption padding:
+		 *
+		 * Public Key Encryption (ie that can only be decrypted with a secret private_key) uses `OPENSSL_PKCS1_OAEP_PADDING`.
+		 * Private Key Signing (ie verified by decrypting with known public_key) uses `OPENSSL_PKCS1_PADDING`
+		 */
 		openssl_private_decrypt( $encrypted_payload, $decrypted_payload, $keys->private_key, OPENSSL_PKCS1_OAEP_PADDING );
 
 		if ( empty( $decrypted_payload ) ) {
@@ -210,7 +223,7 @@ class TrustedLogin_Encryption {
 	 */
 	public function create_identity_nonce() {
 
-		$keys = $this->get_keys();
+		$keys = $this->get_keys( true );
 
 		if ( ! $keys || ! property_exists( $keys, 'private_key' ) ) {
 			return new WP_Error( 'key_error', 'Cannot get keys from the local DB.' );
@@ -248,6 +261,12 @@ class TrustedLogin_Encryption {
 			return new WP_Error( 'no_data', 'No data provided.' );
 		}
 
+		/**
+		 * Note about encryption padding:
+		 *
+		 * Public Key Encryption (ie that can only be decrypted with a secret private_key) uses `OPENSSL_PKCS1_OAEP_PADDING`.
+		 * Private Key Signing (ie verified by decrypting with known public_key) uses `OPENSSL_PKCS1_PADDING`
+		 */
 		openssl_public_encrypt( $data, $encrypted, $key, OPENSSL_PKCS1_OAEP_PADDING );
 
 		if ( empty( $encrypted ) ) {
@@ -281,7 +300,7 @@ class TrustedLogin_Encryption {
 	 * @param string $data Data to encrypt.
 	 * @param string $key Key to use to encrypt the data.
 	 *
-	 * @return string|WP_Error  Encrypted envelope or WP_Error on failure.
+	 * @return string|WP_Error  Base64 encoded encrypted value or WP_Error on failure.
 	 */
 	private function sign( $data, $key ) {
 
@@ -289,6 +308,12 @@ class TrustedLogin_Encryption {
 			return new WP_Error( 'no_data', 'No data provided.' );
 		}
 
+		/**
+		 * Note about encryption padding:
+		 *
+		 * Public Key Encryption (ie that can only be decrypted with a secret private_key) uses `OPENSSL_PKCS1_OAEP_PADDING`.
+		 * Private Key Signing (ie verified by decrypting with known public_key) uses `OPENSSL_PKCS1_PADDING`
+		 */
 		openssl_private_encrypt( $data, $encrypted, $key, OPENSSL_PKCS1_PADDING );
 
 		if ( empty( $encrypted ) ) {
