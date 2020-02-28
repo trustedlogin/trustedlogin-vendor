@@ -34,14 +34,25 @@ class TrustedLogin_Encryption {
 	 *
 	 * @since 0.8.0
 	 *
-	 * @return stdClass|false If keys exist, returns the stdClass of keys. If not, returns false.
+	 * @param bool $generate_if_not_set If keys aren't saved in the database, should create using {@see generate_keys}?
+	 *
+	 * @return stdClass|WP_Error If keys exist, returns the stdClass of keys. Otherwise, WP_Error explaning things.
 	 */
-	private function get_keys() {
+	private function get_keys( $generate_if_not_set = true ) {
 
-		$keys = get_site_option( $this->key_option_name );
+		$keys = false;
+		$value = get_site_option( $this->key_option_name );
 
-		if ( false !== $keys ) {
-			$keys = json_decode( $keys );
+		if ( $value ) {
+			$keys = json_decode( $value );
+
+			if( ! $keys ) {
+				$this->dlog( "Keys were not decoded properly: " . print_r( $value, true ), __METHOD__ );
+			}
+		}
+
+		if ( ! $keys && $generate_if_not_set ) {
+			$keys = $this->generate_keys( true );
 		}
 
 		$this->dlog( "Keys: " . print_r( $keys, true ), __METHOD__ );
@@ -49,7 +60,7 @@ class TrustedLogin_Encryption {
 		/**
 		 * Filter allows site admins to change where the key is fetched from.
 		 *
-		 * @param stdClass $keys
+		 * @param stdClass|WP_Error $keys
 		 * @param TrustedLogin_Encryption $this
 		 */
 		return apply_filters( 'trustedlogin/encryption/get-keys', $keys, $this );
@@ -60,14 +71,14 @@ class TrustedLogin_Encryption {
 	 *
 	 * @since 0.8.0
 	 *
-	 * @param bool $update Whether to update the database with the new keys
+	 * @param bool $update Whether to update the database with the new keys. Default: true
 	 *
-	 * @return stdClass    $keys {
+	 * @return stdClass|WP_Error $keys {
 	 *   The keys to save.
 	 *
 	 *   @type string $private_key The private key used for decrypting.
 	 *   @type string $public_key The public key used for encrypting.
-	 * }
+	 * } or WP_Error
 	 */
 	private function generate_keys( $update = true ) {
 
@@ -109,7 +120,15 @@ class TrustedLogin_Encryption {
 
 			$keys_db_ready = json_encode( $keys );
 
-			$saved = update_site_option( $this->key_option_name, $keys_db_ready );
+			if ( ! $keys_db_ready ) {
+				return new WP_Error( 'json_error', 'Could not encode keys to JSON.', $keys );
+			}
+
+			// Instead of update_site_option(), which can return false if value didn't change, success is much clearer
+			// when deleting and checking whether adding worked
+			delete_site_option( $this->key_option_name );
+
+			$saved = add_site_option( $this->key_option_name, $keys_db_ready );
 
 			if ( ! $saved ) {
 				return new WP_Error( 'db_error', 'Could not save keys to database.' );
@@ -126,23 +145,21 @@ class TrustedLogin_Encryption {
 	 *
 	 * @since 0.8.0
 	 *
-	 * @returns string    A public key in which to encrypt
+	 * @returns string|WP_Error A public key in which to encrypt, or an error
 	 */
 	public function get_public_key() {
 
 		$keys = $this->get_keys();
 
-		if ( $keys && isset( $keys->public_key ) ) {
+		if ( is_wp_error( $keys ) ) {
+			return $keys;
+		}
+
+		if ( $keys && is_object( $keys ) && isset( $keys->public_key ) ) {
 			return $keys->public_key;
 		}
 
-		$keys  = $this->generate_keys();
-
-		if ( is_wp_error( $keys ) ) {
-			return $saved;
-		}
-
-		return $keys->public_key;
+		return new WP_Error( 'get_keys_failed', 'Could not get public get_keys stored invalid JSON.');
 	}
 
 	/**
@@ -206,7 +223,7 @@ class TrustedLogin_Encryption {
 	 */
 	public function create_identity_nonce() {
 
-		$keys = $this->get_keys();
+		$keys = $this->get_keys( true );
 
 		if ( ! $keys || ! property_exists( $keys, 'private_key' ) ) {
 			return new WP_Error( 'key_error', 'Cannot get keys from the local DB.' );
