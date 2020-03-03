@@ -84,21 +84,27 @@ class TL_HelpScout
      */
     public function add_extra_settings(){
 
-        add_settings_field(
-            'tls_' . $this->details->slug . '_secret',
-            $this->details->name . ' ' . __('Secret Key', 'tl-support-side'),
-            array($this, 'helpscout_secret_field_render'),
-            'TLS_plugin_options',
-            'tls_options_section'
-        );
+        $settings = new TrustedLogin_Settings();
 
-        add_settings_field(
-            'tls_' . $this->details->slug . '_url',
-            $this->details->name . ' ' . __('Webhook URL', 'tl-support-side'),
-            array($this, 'helpscout_url_field_render'),
-            'TLS_plugin_options',
-            'tls_options_section'
-        );
+        if ( in_array( $this->details->slug, $settings->get_setting( 'helpdesk' ) ) ){
+
+            add_settings_field(
+                'tls_' . $this->details->slug . '_secret',
+                $this->details->name . ' ' . __('Secret Key', 'tl-support-side'),
+                array($this, 'helpscout_secret_field_render'),
+                'TLS_plugin_options',
+                'tls_options_section'
+            );
+
+            add_settings_field(
+                'tls_' . $this->details->slug . '_url',
+                $this->details->name . ' ' . __('Webhook URL', 'tl-support-side'),
+                array($this, 'helpscout_url_field_render'),
+                'TLS_plugin_options',
+                'tls_options_section'
+            );
+
+        }
 
     }
 
