@@ -149,13 +149,36 @@ class TL_HelpScout
 
         $email = sanitize_email( $data_obj->customer->email );
 
-        if ( $this->is_edd_store() && ! empty( $email ) ) {
+        if ( false === ( $licenses = get_transient( 'trustedlogin_licenses_'.md5( $email ) ) ) ){
 
-            if ( $this->has_edd_licensing() ) {
-                $licenses = $this->edd_get_licenses( $email );
+            if ( $this->is_edd_store() && ! empty( $email ) ) {
+
+                if ( $this->has_edd_licensing() ) {
+                    $licenses = $this->edd_get_licenses( $email );
+                }
+
+            }
+
+            if ( $licenses ){
+                set_transient( 'trustedlogin_licenses_'.md5( $email ), $licenses, DAY_IN_SECONDS );
             }
 
         }
+
+        /**
+         * Filter: allow for other addons to generate the licenses array
+         *
+         * @since 0.6.0
+         * @param array $licenses [
+         *   @var  object  $license [
+         *     @var  string  status  The status of the license.
+         *     @var  string  key     The license key.
+         *   ]
+         * ]
+         * @param string $email
+         * @return array
+         **/
+        $licenses = apply_filters( 'trusted_login_get_licenses', $licenses, $email );
 
         $account_id = $this->settings->get_setting( 'tls_account_id' );
         $saas_auth  = $this->settings->get_setting( 'tls_account_key' );
