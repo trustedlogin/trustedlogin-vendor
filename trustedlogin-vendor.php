@@ -81,7 +81,7 @@ class TrustedLogin_Support_Side {
 			$this->settings->admin_init();
 		}
 
-		add_action( 'plugins_loaded', array( $this, 'init_helpdesk_integration' ) );
+		add_action( 'wp', array( $this, 'init_helpdesk_integration' ) );
 	}
 
 	/*
@@ -106,8 +106,14 @@ class TrustedLogin_Support_Side {
 
 }
 
-$init_tl = new TrustedLogin_Support_Side();
-$init_tl->setup();
+function init_tl_vendor(){
+
+	$init_tl = new TrustedLogin_Support_Side();
+	$init_tl->setup();
+
+}
+
+add_action( 'wp_loaded', 'init_tl_vendor' );
 
 register_deactivation_hook( __FILE__, 'trustedlogin_supportside_deactivate' );
 
