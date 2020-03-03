@@ -182,7 +182,7 @@ class TL_API_Handler {
 			);
 		}
 
-		$url 	  = $this->api_url . '/accounts/' . $account_id ;
+		$url 	  = $this->api_url . 'accounts/' . $account_id ;
         $method   = 'GET';
         $body     = null;
         $headers  = $this->get_additional_headers();
