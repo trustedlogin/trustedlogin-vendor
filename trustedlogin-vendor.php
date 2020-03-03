@@ -81,7 +81,7 @@ class TrustedLogin_Support_Side {
 			$this->settings->admin_init();
 		}
 
-		add_action( 'wp', array( $this, 'init_helpdesk_integration' ) );
+		add_action( 'init', array( $this, 'init_helpdesk_integration' ) );
 	}
 
 	/*
@@ -113,7 +113,7 @@ function init_tl_vendor(){
 
 }
 
-add_action( 'wp_loaded', 'init_tl_vendor' );
+add_action( 'after_setup_theme', 'init_tl_vendor' );
 
 register_deactivation_hook( __FILE__, 'trustedlogin_supportside_deactivate' );
 

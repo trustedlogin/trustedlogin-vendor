@@ -58,8 +58,6 @@ class TL_HelpScout
         add_action('wp_ajax_' . $this->details->slug . '_webhook', array($this, 'webhook_endpoint'));
         add_action('wp_ajax_nopriv_' . $this->details->slug . '_webhook', array($this, 'webhook_endpoint'));
 
-        $this->dlog( 'Initalized '. $this->details->slug, __METHOD__ );
-
     }
 
     /**
