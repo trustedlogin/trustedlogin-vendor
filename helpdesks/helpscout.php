@@ -214,62 +214,46 @@ class TL_HelpScout
         $no_items_template = '<li class="c-sb-list-item">%1$s</li>';
         $url_endpoint = apply_filters( 'trustedlogin_redirect_endpoint', 'trustedlogin' );
 
-        /**
-         * Filter: allow for other addons to generate the licenses array
-         *
-         * @since 0.6.0
-         * @param array $licenses [
-         *   @var  object  $license [
-         *     @var  string  status  The status of the license.
-         *     @var  string  key     The license key.
-         *   ]
-         * ]
-         * @param string $email
-         * @return array
-         **/
-        $licenses = apply_filters( 'trusted_login_get_licenses', $licenses, $email );
+        $endpoint = '/accounts/' . $account_id . '/sites/';
+        $method   = 'GET';
+        $data     = array( 'accessKeys' => array() );
+
+        $statuses = array();
 
         foreach ( $licenses as $license ) {
 
-            // check licenses for TrustedLogin Sites via SaaS app.
-
-            $endpoint = '/accounts/' . $account_id . '/sites/' . $license->key;
-            $method   = 'GET';
-            $body     = null;
-
-            /**
-             * Expected result
-             *
-             * @var $response [
-             *   String $secretId - the id of the secret in Key Store
-             *   String $siteURL - the site the secret was generated on
-             *   String $accountNamespace - the namepsace of the Vendor in TL SaaS
-             *   String $deleteKey - the token to use to Revoke Site from SaaS
-             * ]
-             **/
-            $response = $saas_api->call( $endpoint, $data, $method );
-
-            $this->dlog( "Response: " . print_r( $response, true ), __METHOD__ );
-
-            if ( $response ) {
-                if ( isset( $response->secretId ) && isset( $response->accountNamespace ) ) {
-                    $trustedlogin_sessions[] = (array) $response;
-                }
-            }
+            $data['accessKeys'][] = $license->key;
+            $statuses[ $license->key ] = $license->status;
 
         } // foreach($licenses)
 
-        if ( ! empty( $trustedlogin_sessions ) ) {
-            foreach ( $trustedlogin_sessions as $trustedlogin_session ) {
-                $item_html .= sprintf(
-                    $item_template,
-                    esc_url( site_url( '/' . $url_endpoint . '/' . $trustedlogin_session['secretId'] ) ),
-                    __( 'TrustedLogin for ', 'tl-support-side' ),
-                    $license->key,
-                    $license->status
-                );
+        /**
+         * Expected result
+         *
+         * @var $response [
+         *   "<license_key>" => [ <secrets> ]
+         * ]
+         **/
+        $response = $saas_api->call( $endpoint, $data, $method );
+
+        $this->dlog( "Response: " . print_r( $response, true ), __METHOD__ );
+
+
+        if ( ! empty( $response ) ){
+            foreach ( $response as $key => $secrets ){
+                foreach ( $secrets as $secret ){
+                     $item_html .= sprintf(
+                        $item_template,
+                        esc_url( site_url( '/' . $url_endpoint . '/' . $secret ) ),
+                        __( 'TrustedLogin for ', 'tl-support-side' ),
+                        $key,
+                        $statuses[ $key ]
+                    );
+                }
             }
         }
+
+        $this->dlog( "item_html: ". $item_html, __METHOD__ );
 
         if ( empty ( $item_html ) ) {
             $item_html = sprintf(
