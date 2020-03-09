@@ -331,12 +331,17 @@ class TL_HelpScout
      *
      * @return bool  if the calculated hash matches the signature provided.
      */
-    public function helpscout_verify_source( $data, $signature ){
-        
-        if ( ! $this->has_secret() || is_null( $signature ) ) {
-            $this->dlog( 'Either no secret or signature provided', __METHOD__ );
-            return false;
-        }
+    public function helpscout_verify_source( $data, $signature ) {
+
+	    if ( ! $this->has_secret() ) {
+		    $this->dlog( 'No secret is set.', __METHOD__ );
+		    return false;
+	    }
+
+	    if( is_null( $signature ) ) {
+		    $this->dlog( 'No signature provided. Here is the $_SERVER output' . print_r( $_SERVER, true ), __METHOD__ );
+		    return false;
+	    }
 
         $calculated = base64_encode(hash_hmac('sha1', $data, $this->secret, true));
 
