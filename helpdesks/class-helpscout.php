@@ -267,7 +267,7 @@ class TL_HelpScout
 
         $return_html = sprintf( $html_template, $item_html );
 
-        wp_send_json_success( array('html' => $return_html ) );
+        wp_send_json( array('html' => $return_html ) );
 
     }
 
