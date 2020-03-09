@@ -223,33 +223,40 @@ class TL_HelpScout
 
         } // foreach($licenses)
 
-        /**
-         * Expected result
-         *
-         * @var $response [
-         *   "<license_key>" => [ <secrets> ]
-         * ]
-         **/
-        $response = $saas_api->call( $endpoint, $data, $method );
+        if ( ! empty( $data['accessKeys']) ){
 
-        $this->dlog( "Response: " . print_r( $response, true ), __METHOD__ );
+            /**
+             * Expected result
+             *
+             * @var $response [
+             *   "<license_key>" => [ <secrets> ]
+             * ]
+             **/
+            $response = $saas_api->call( $endpoint, $data, $method );
 
+            $this->dlog( "Response: " . print_r( $response, true ), __METHOD__ );
 
-        if ( ! empty( $response ) ){
-            foreach ( $response as $key => $secrets ){
-                foreach ( $secrets as $secret ){
-                     $item_html .= sprintf(
-                        $item_template,
-                        esc_url( site_url( '/' . $url_endpoint . '/' . $secret ) ),
-                        __( 'TrustedLogin for ', 'tl-support-side' ),
-                        $key,
-                        $statuses[ $key ]
-                    );
+            if ( ! empty( $response ) ){
+                foreach ( $response as $key => $secrets ){
+                    foreach ( $secrets as $secret ){
+                         $item_html .= sprintf(
+                            $item_template,
+                            esc_url( site_url( '/' . $url_endpoint . '/' . $secret ) ),
+                            __( 'TrustedLogin for ', 'tl-support-side' ),
+                            $key,
+                            $statuses[ $key ]
+                        );
+                    }
                 }
             }
-        }
 
-        $this->dlog( "item_html: ". $item_html, __METHOD__ );
+            $this->dlog( "item_html: ". $item_html, __METHOD__ );
+
+        } else {
+
+            $this->dlog( "No accessKeys found. ", __METHOD__ );
+        
+        }
 
         if ( empty ( $item_html ) ) {
             $item_html = sprintf(
