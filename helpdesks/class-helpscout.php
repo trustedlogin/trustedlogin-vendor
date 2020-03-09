@@ -41,22 +41,22 @@ class TL_HelpScout
      **/
     private $details;
 
-    public function __construct(){
+    public function __construct() {
 
-        $this->details = (object) array(
-            'slug' => 'helpscout',
-            'version' => '0.1.0',
-        );
+	    $this->details = (object) array(
 		    'name'    => __( 'Help Scout', 'tl-support-side' ),
+		    'slug'    => 'helpscout',
+		    'version' => '0.1.0',
+	    );
 
-        $this->settings   = new TrustedLogin_Settings();
-        $this->secret     = $this->settings->get_setting( 'tls_' . $this->details->slug . '_secret' );
-        $this->debug_mode = $this->settings->debug_mode_enabled();
+	    $this->settings   = new TrustedLogin_Settings();
+	    $this->secret     = $this->settings->get_setting( 'tls_' . $this->details->slug . '_secret' );
+	    $this->debug_mode = $this->settings->debug_mode_enabled();
 
-        add_action('admin_init', array($this, 'add_extra_settings'));
+	    add_action( 'admin_init', array( $this, 'add_extra_settings' ) );
 
-        add_action('wp_ajax_' . $this->details->slug . '_webhook', array($this, 'webhook_endpoint'));
-        add_action('wp_ajax_nopriv_' . $this->details->slug . '_webhook', array($this, 'webhook_endpoint'));
+	    add_action( 'wp_ajax_' . $this->details->slug . '_webhook', array( $this, 'webhook_endpoint' ) );
+	    add_action( 'wp_ajax_nopriv_' . $this->details->slug . '_webhook', array( $this, 'webhook_endpoint' ) );
 
     }
 
