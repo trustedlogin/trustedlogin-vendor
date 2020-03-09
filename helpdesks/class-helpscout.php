@@ -151,7 +151,9 @@ class TL_HelpScout
         $data = file_get_contents( 'php://input' );
 
         if ( ! $this->helpscout_verify_source( $data, $signature ) ) {
-            wp_send_json_error( array( 'message' => 'Unauthorized' ), 401 );
+            wp_send_json( array(
+            	'html' => '<p class="red">Unauthorized.</p><p>Verify your site\'s TrustedLogin Settings match the Help Scout widget settings.</p>'
+            ), 401 );
         }
 
         $licenses = array();
@@ -267,7 +269,7 @@ class TL_HelpScout
 
         $return_html = sprintf( $html_template, $item_html );
 
-        wp_send_json( array('html' => $return_html ) );
+        wp_send_json( array('html' => $return_html ), 200 );
 
     }
 
