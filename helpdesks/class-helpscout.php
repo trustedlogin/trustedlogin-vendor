@@ -139,7 +139,15 @@ class TL_HelpScout
      */
     public function webhook_endpoint(){
 
+        
+
         $signature = ( isset( $_SERVER['X-HELPSCOUT-SIGNATURE']) ) ? $_SERVER['X-HELPSCOUT-SIGNATURE'] : null;
+
+        $headers = apache_request_headers();
+        if ( is_null( $signature ) && array_key_exists( 'X-HelpScout-Signature', $headers ) ){
+            $signature = $headers['X-HelpScout-Signature'];
+        }
+
         $data = file_get_contents( 'php://input' );
 
         if ( ! $this->helpscout_verify_source( $data, $signature ) ) {
