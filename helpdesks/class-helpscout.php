@@ -151,17 +151,12 @@ class TL_HelpScout
         $data = file_get_contents( 'php://input' );
 
         if ( ! $this->helpscout_verify_source( $data, $signature ) ) {
-
             wp_send_json_error( array( 'message' => 'Unauthorized' ), 401 );
         }
 
         $licenses = array();
-
-        $this->dlog( "data: $data", __METHOD__ );
-
         $data_obj = json_decode( $data, false );
-
-        $email = sanitize_email( $data_obj->customer->email );
+        $email    = sanitize_email( $data_obj->customer->email );
 
         if ( false === ( $licenses = get_transient( 'trustedlogin_licenses_'.md5( $email ) ) ) ){
 
@@ -326,11 +321,12 @@ class TL_HelpScout
     public function helpscout_verify_source( $data, $signature ){
         
         if ( ! $this->has_secret() || is_null( $signature ) ) {
+            $this->dlog( 'Either no secret or signature provided', __METHOD__ );
             return false;
         }
 
         $calculated = base64_encode(hash_hmac('sha1', $data, $this->secret, true));
-        
+
         return $signature == $calculated;
     }
 
