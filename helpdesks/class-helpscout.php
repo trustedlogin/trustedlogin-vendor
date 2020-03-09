@@ -139,14 +139,18 @@ class TL_HelpScout
      */
     public function webhook_endpoint(){
 
-        
+	    $signature = null;
 
-        $signature = ( isset( $_SERVER['X-HELPSCOUT-SIGNATURE']) ) ? $_SERVER['X-HELPSCOUT-SIGNATURE'] : null;
-
-        $headers = apache_request_headers();
-        if ( is_null( $signature ) && array_key_exists( 'X-HelpScout-Signature', $headers ) ){
-            $signature = $headers['X-HelpScout-Signature'];
-        }
+	    if ( isset( $_SERVER['X-HELPSCOUT-SIGNATURE'] ) ) {
+		    $signature = $_SERVER['X-HELPSCOUT-SIGNATURE'];
+	    } elseif ( isset( $_SERVER['HTTP_X_HELPSCOUT_SIGNATURE'] ) ) {
+		    $signature = $_SERVER['HTTP_X_HELPSCOUT_SIGNATURE'];
+	    } elseif ( function_exists( 'apache_request_headers' ) ) {
+		    $headers = apache_request_headers();
+		    if ( isset( $headers['X-HelpScout-Signature'] ) ) {
+			    $signature = $headers['X-HelpScout-Signature'];
+		    }
+	    }
 
         $data = file_get_contents( 'php://input' );
 
