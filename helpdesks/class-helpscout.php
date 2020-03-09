@@ -210,7 +210,7 @@ class TL_HelpScout
         $no_items_template = '<li class="c-sb-list-item">%1$s</li>';
         $url_endpoint = apply_filters( 'trustedlogin_redirect_endpoint', 'trustedlogin' );
 
-        $endpoint = '/accounts/' . $account_id . '/sites/';
+        $endpoint = 'accounts/' . $account_id . '/sites/';
         $method   = 'GET';
         $data     = array( 'accessKeys' => array() );
 
