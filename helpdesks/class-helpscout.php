@@ -44,10 +44,10 @@ class TL_HelpScout
     public function __construct(){
 
         $this->details = (object) array(
-            'name' => __('HelpScout', 'tl-support-side'),
             'slug' => 'helpscout',
             'version' => '0.1.0',
         );
+		    'name'    => __( 'Help Scout', 'tl-support-side' ),
 
         $this->settings   = new TrustedLogin_Settings();
         $this->secret     = $this->settings->get_setting( 'tls_' . $this->details->slug . '_secret' );
