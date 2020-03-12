@@ -9,21 +9,21 @@
 class TrustedLogin_Settings {
 
 	/**
+	 * @var Boolean - whether or not to save a local text log
 	 * @since 0.1.0
-	 **@var Boolean - whether or not to save a local text log
-	 */
+	 **/
 	protected $debug_mode;
 
 	/**
+	 * @var Array - the default settings for our plugin
 	 * @since 0.1.0
-	 **@var Array - the default settings for our plugin
-	 */
+	 **/
 	private $default_options;
 
 	/**
+	 * @var String - where the TrustedLogin settings should sit in menu.
 	 * @since 0.1.0
 	 **@see Filter: trustedlogin_menu_location
-	 * @var String - where the TrustedLogin settings should sit in menu.
 	 */
 	private $menu_location;
 
@@ -34,9 +34,9 @@ class TrustedLogin_Settings {
 	private $options;
 
 	/**
+	 * @var String - the x.x.x value of the current plugin version. Used for versioning of settings page assets.
 	 * @since 0.1.0
-	 **@var String - the x.x.x value of the current plugin version. Used for versioning of settings page assets.
-	 */
+	 **/
 	private $plugin_version;
 
 	public function __construct( $plugin_version = null ) {
@@ -114,7 +114,12 @@ class TrustedLogin_Settings {
 
 	public function tls_settings_init() {
 
-		register_setting( 'TLS_plugin_options', 'tls_settings', ['sanitize_callback' => [ $this, 'verify_api_details'] ] );
+		register_setting( 'TLS_plugin_options', 'tls_settings', [
+			'sanitize_callback' => [
+				$this,
+				'verify_api_details'
+			]
+		] );
 
 		add_settings_section(
 			'tls_options_section',
@@ -125,7 +130,7 @@ class TrustedLogin_Settings {
 
 		add_settings_field(
 			'tls_account_id',
-			__( 'TrustedLogin Account ID ', 'tl-support-side' ),
+			__( 'TrustedLogin Account ID', 'tl-support-side' ),
 			array( $this, 'tls_settings_account_id_field_render' ),
 			'TLS_plugin_options',
 			'tls_options_section'
@@ -133,7 +138,7 @@ class TrustedLogin_Settings {
 
 		add_settings_field(
 			'tls_account_key',
-			__( 'TrustedLogin API Key ', 'tl-support-side' ),
+			__( 'TrustedLogin API Key', 'tl-support-side' ),
 			array( $this, 'tls_settings_account_key_field_render' ),
 			'TLS_plugin_options',
 			'tls_options_section'
@@ -141,7 +146,7 @@ class TrustedLogin_Settings {
 
 		add_settings_field(
 			'tls_public_key',
-			__( 'TrustedLogin Public Key ', 'tl-support-side' ),
+			__( 'TrustedLogin Public Key', 'tl-support-side' ),
 			array( $this, 'tls_settings_public_key_field_render' ),
 			'TLS_plugin_options',
 			'tls_options_section'
@@ -186,17 +191,17 @@ class TrustedLogin_Settings {
 	 *
 	 * Note: Although hooked up to `sanitize_callback`, this function does NOT sanitize data provided.
 	 *
-	 * @uses `add_settings_error()` to set an alert for verification failures/errors and success message when API creds verified.
-	 *
 	 * @since 0.9.1
+	 *
+	 * @uses `add_settings_error()` to set an alert for verification failures/errors and success message when API creds verified.
 	 *
 	 * @param Array $input Data saved on Settings page.
 	 *
 	 * @return Array Output of sanitized data.
 	 */
-	public function verify_api_details( $input ){
+	public function verify_api_details( $input ) {
 
-		if ( ! isset( $_POST) || ! isset( $_POST['tls_settings'] ) ){
+		if ( ! isset( $_POST ) || ! isset( $_POST['tls_settings'] ) ) {
 			return $input;
 		}
 
@@ -205,14 +210,14 @@ class TrustedLogin_Settings {
 		try {
 
 			$checks = array(
-				'tls_account_key' => __('Private Key', 'trustedlogin'),
-				'tls_account_id'  => __('Account ID', 'trustedlogin'),
-				'tls_public_key'  => __('Public Key', 'trustedlogin'),
+				'tls_account_key' => __( 'Private Key', 'trustedlogin' ),
+				'tls_account_id'  => __( 'Account ID', 'trustedlogin' ),
+				'tls_public_key'  => __( 'Public Key', 'trustedlogin' ),
 			);
 
-			foreach ( $checks as $key => $title ){
-				if ( !isset( $_POST['tls_settings'][$key] ) ){
-					throw new Exception( sprintf( __('No %s provided.', 'trustedlogin'), $title ) );
+			foreach ( $checks as $key => $title ) {
+				if ( ! isset( $_POST['tls_settings'][ $key ] ) ) {
+					throw new Exception( sprintf( __( 'No %s provided.', 'trustedlogin' ), $title ) );
 				}
 			}
 
@@ -223,51 +228,51 @@ class TrustedLogin_Settings {
 
 			$saas_attr = (object) array( 'type' => 'saas', 'auth' => $saas_auth, 'debug_mode' => $debug_mode );
 
-			$saas_api  = new TL_API_Handler( $saas_attr );
+			$saas_api = new TL_API_Handler( $saas_attr );
 
 			/**
-	        * @var String  $saas_token  Additional SaaS Token for authenticating API queries.
-	        * @see https://github.com/trustedlogin/trustedlogin-ecommerce/blob/master/docs/user-remote-authentication.md
-	        **/
-	        $saas_token  = hash( 'sha256', $public_key . $saas_auth );
-	        $token_added = $saas_api->set_additional_header( 'X-TL-TOKEN', $saas_token );
+			 * @var String $saas_token Additional SaaS Token for authenticating API queries.
+			 * @see https://github.com/trustedlogin/trustedlogin-ecommerce/blob/master/docs/user-remote-authentication.md
+			 **/
+			$saas_token  = hash( 'sha256', $public_key . $saas_auth );
+			$token_added = $saas_api->set_additional_header( 'X-TL-TOKEN', $saas_token );
 
-	        if ( ! $token_added ){
-	            $error = __( 'Error setting X-TL-TOKEN header', 'tl-support-side' );
-	            $this->dlog( $error , __METHOD__ );
-	            throw new Exception( $error );
-	        }
+			if ( ! $token_added ) {
+				$error = __( 'Error setting X-TL-TOKEN header', 'tl-support-side' );
+				$this->dlog( $error, __METHOD__ );
+				throw new Exception( $error );
+			}
 
-	        $verified = $saas_api->verify( $account_id );
+			$verified = $saas_api->verify( $account_id );
 
-	        if ( is_wp_error( $verified ) ){
-	        	throw new Exception( $verified->get_error_message() );
-	        }
+			if ( is_wp_error( $verified ) ) {
+				throw new Exception( $verified->get_error_message() );
+			}
 
-	        $api_creds_verified = true;
+			$api_creds_verified = true;
 
-		} catch ( Exception $e ){
+		} catch ( Exception $e ) {
 
 			$error = sprintf(
-				__('Could not verify TrustedLogin credentials. %s', 'trustedlogin'),
+				__( 'Could not verify TrustedLogin credentials. %s', 'trustedlogin' ),
 				esc_html__( $e->getMessage() )
 			);
 
 			add_settings_error(
-	            'TLS_plugin_options',
-	            'trustedlogin_auth',
-	            $error,
-	            'error'
-	        );
+				'TLS_plugin_options',
+				'trustedlogin_auth',
+				$error,
+				'error'
+			);
 		}
 
-		if ( $api_creds_verified ){
+		if ( $api_creds_verified ) {
 			add_settings_error(
-	            'TLS_plugin_options',
-	            'trustedlogin_auth',
-	            __( 'TrustedLogin API credentials verified.', 'trustedlogin' ),
-	            'updated'
-	        );
+				'TLS_plugin_options',
+				'trustedlogin_auth',
+				__( 'TrustedLogin API credentials verified.', 'trustedlogin' ),
+				'updated'
+			);
 		}
 
 		return $input;

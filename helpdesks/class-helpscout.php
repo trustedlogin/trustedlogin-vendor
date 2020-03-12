@@ -80,30 +80,29 @@ class TL_HelpScout
      *
      * @since 0.1.0
      */
-    public function add_extra_settings(){
+    public function add_extra_settings() {
 
-        $settings = new TrustedLogin_Settings();
+	    $settings = new TrustedLogin_Settings();
 
-        if ( in_array( $this->details->slug, $settings->get_setting( 'helpdesk' ) ) ){
+	    if ( in_array( $this->details->slug, $settings->get_setting( 'helpdesk' ) ) ) {
 
-            add_settings_field(
-                'tls_' . $this->details->slug . '_secret',
-                $this->details->name . ' ' . __('Secret Key', 'tl-support-side'),
-                array($this, 'helpscout_secret_field_render'),
-                'TLS_plugin_options',
-                'tls_options_section'
-            );
+		    add_settings_field(
+			    'tls_' . $this->details->slug . '_secret',
+			    $this->details->name . ' ' . __( 'Secret Key', 'tl-support-side' ),
+			    array( $this, 'helpscout_secret_field_render' ),
+			    'TLS_plugin_options',
+			    'tls_options_section'
+		    );
 
-            add_settings_field(
-                'tls_' . $this->details->slug . '_url',
-                $this->details->name . ' ' . __('Webhook URL', 'tl-support-side'),
-                array($this, 'helpscout_url_field_render'),
-                'TLS_plugin_options',
-                'tls_options_section'
-            );
+		    add_settings_field(
+			    'tls_' . $this->details->slug . '_url',
+			    $this->details->name . ' ' . __( 'Callback URL', 'tl-support-side' ),
+			    array( $this, 'helpscout_url_field_render' ),
+			    'TLS_plugin_options',
+			    'tls_options_section'
+		    );
 
-        }
-
+	    }
     }
 
     /**
@@ -127,14 +126,14 @@ class TL_HelpScout
 
     /**
      * Generates the output for the helpscout widget.
-     * 
+     *
      * Checks the `$_SERVER` array for the signature and verifies the source before checking for licenses matching to users email.
      *
      * @uses self::helpscout_verify_source()
      *
      * @since 0.1.0
      * @since 0.9.2 - added the status of licenses to output
-     * 
+     *
      * @return a JSON response back to an Ajax request.
      */
     public function webhook_endpoint(){
@@ -261,7 +260,7 @@ class TL_HelpScout
         } else {
 
             $this->dlog( "No accessKeys found. ", __METHOD__ );
-        
+
         }
 
         if ( empty ( $item_html ) ) {
@@ -281,7 +280,7 @@ class TL_HelpScout
      * Checks if Easy Digital Downloads Licensing is enabled.
      *
      * @since 0.1.0
-     * 
+     *
      * @return bool  Whether the `edd_software_licensing` function exists.
      */
     public function has_edd_licensing(){
@@ -290,9 +289,9 @@ class TL_HelpScout
 
     /**
      * Gets any EDD licenses attached to an email address
-     * 
+     *
      * @since 0.1.0
-     * 
+     *
      * @param  string  $email  The email to check for EDD licenses
      *
      * @return EDD_SL_License[]|false  Array of licenses or false if none are found.
@@ -343,9 +342,9 @@ class TL_HelpScout
 		    return false;
 	    }
 
-        $calculated = base64_encode(hash_hmac('sha1', $data, $this->secret, true));
+	    $calculated = base64_encode( hash_hmac( 'sha1', $data, $this->secret, true ) );
 
-        return $signature == $calculated;
+	    return $signature == $calculated;
     }
 
     /**
