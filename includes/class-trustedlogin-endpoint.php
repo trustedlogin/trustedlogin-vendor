@@ -98,7 +98,7 @@ class Endpoint {
 	public function public_key_callback( WP_REST_Request $request ) {
 
 		$response                = new WP_REST_Response();
-		$trustedlogin_encryption = new TrustedLogin_Encryption();
+		$trustedlogin_encryption = new Encryption();
 		$public_key              = $trustedlogin_encryption->get_public_key();
 
 		if ( is_wp_error( $public_key ) ) {
@@ -148,7 +148,7 @@ class Endpoint {
 
 			$data = array();
 
-			$trustedlogin_encryption = new TrustedLogin_Encryption();
+			$trustedlogin_encryption = new Encryption();
 			$public_key              = $trustedlogin_encryption->get_public_key();
 
 			if ( ! is_wp_error( $public_key ) ) {
@@ -256,7 +256,7 @@ class Endpoint {
 	 * Helper: If all checks pass, redirect support agent to client site's admin panel
 	 *
 	 * @since 0.4.0
-	 * @since 0.8.0 Added `TrustedLogin_Encryption->decrypt()` to decrypt envelope from Vault.
+	 * @since 0.8.0 Added `Encryption->decrypt()` to decrypt envelope from Vault.
 	 *
 	 * @see endpoint_maybe_redirect()
 	 *
@@ -346,7 +346,7 @@ class Endpoint {
 		}
 
 		// Then let's get the identity verification pair to confirm the site is the one sending the request.
-		$trustedlogin_encryption = new TrustedLogin_Encryption();
+		$trustedlogin_encryption = new Encryption();
 		$data['auth']            = $trustedlogin_encryption->create_identity_nonce();
 
 		if ( is_wp_error( $data['auth'] ) ) {
@@ -429,7 +429,7 @@ class Endpoint {
 			return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly' );
 		}
 
-		$trustedlogin_encryption = new TrustedLogin_Encryption();
+		$trustedlogin_encryption = new Encryption();
 
 		$parts = array(
 			'siteurl'    => $trustedlogin_encryption->decrypt( $envelope['siteurl'] ),

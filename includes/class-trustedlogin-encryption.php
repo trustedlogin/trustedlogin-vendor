@@ -10,7 +10,7 @@ namespace TrustedLogin\Vendor;
  * @package trustedlogin-vendor
  * @version 0.1.0
  */
-class TrustedLogin_Encryption {
+class Encryption {
 
 	use Debug_Logging;
 
@@ -24,7 +24,7 @@ class TrustedLogin_Encryption {
 		 *
 		 * @since 0.8.0
 		 *
-		 * @param TrustedLogin_Encryption $this
+		 * @param Encryption $this
 		 * @param string
 		 */
 		$this->key_option_name = apply_filters( 'trustedlogin/encryption/keys-option', 'trustedlogin_keys', $this );
@@ -52,7 +52,7 @@ class TrustedLogin_Encryption {
 		 * Filter allows site admins to change where the key is fetched from.
 		 *
 		 * @param stdClass $keys
-		 * @param TrustedLogin_Encryption $this
+		 * @param Encryption $this
 		 */
 		return apply_filters( 'trustedlogin/encryption/get-keys', $keys, $this );
 	}
@@ -97,7 +97,7 @@ class TrustedLogin_Encryption {
 	 *
 	 * @since 0.8.0
 	 *
-	 * @see TrustedLogin_Encryption::create_keys()
+	 * @see Encryption::create_keys()
 	 *
 	 * @param stdClass  The keys to save.
 	 *
