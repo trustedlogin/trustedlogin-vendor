@@ -122,7 +122,11 @@ class Encryption {
 		);
 
 		if( $update ) {
+			$updated = $this->update_keys( $keys );
 
+			if ( is_wp_error( $updated ) ) {
+				return $updated;;
+			}
 		}
 
 		return $keys;
@@ -141,24 +145,23 @@ class Encryption {
 	 */
 	private function update_keys( $keys ) {
 
-			$keys_db_ready = json_encode( $keys );
+		$keys_db_ready = json_encode( $keys );
 
-			if ( ! $keys_db_ready ) {
-				return new WP_Error( 'json_error', 'Could not encode keys to JSON.', $keys );
-			}
-
-			// Instead of update_site_option(), which can return false if value didn't change, success is much clearer
-			// when deleting and checking whether adding worked
-			delete_site_option( $this->key_option_name );
-
-			$saved = add_site_option( $this->key_option_name, $keys_db_ready );
-
-			if ( ! $saved ) {
-				return new WP_Error( 'db_error', 'Could not save keys to database.' );
-			}
+		if ( ! $keys_db_ready ) {
+			return new WP_Error( 'json_error', 'Could not encode keys to JSON.', $keys );
 		}
 
-		return $keys;
+		// Instead of update_site_option(), which can return false if value didn't change, success is much clearer
+		// when deleting and checking whether adding worked
+		delete_site_option( $this->key_option_name );
+
+		$saved = add_site_option( $this->key_option_name, $keys_db_ready );
+
+		if ( ! $saved ) {
+			return new WP_Error( 'db_error', 'Could not save keys to database.' );
+		}
+
+		return true;
 	}
 
 	/**
