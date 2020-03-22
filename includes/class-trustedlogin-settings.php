@@ -8,6 +8,8 @@
 
 namespace TrustedLogin\Vendor;
 
+use \WP_Error;
+use \Exception;
 use const TRUSTEDLOGIN_PLUGIN_VERSION;
 use function selected;
 
@@ -62,20 +64,15 @@ class Settings {
 
 	public function add_hooks() {
 
-		/**
-		 * Filter: Where in the menu the TrustedLogin Options should go.
-		 * Added to allow devs to move options item under 'Settings' menu item in wp-admin to keep things neat.
-		 *
-		 * @since 0.1.0
-		 *
-		 * @param String either 'main' or 'submenu'
-		 **/
-		$this->menu_location = apply_filters( 'trustedlogin_menu_location', 'main' );
+		if( did_action( 'trustedlogin/vendor/add_hooks/after' ) ) {
+			return;
+		}
 
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts' ) );
 
+		do_action( 'trustedlogin/vendor/add_hooks/after' );
 	}
 
 	public function debug_mode_enabled() {
@@ -86,11 +83,21 @@ class Settings {
 
 	public function set_defaults() {
 
-		$this->default_options = apply_filters( 'trustedlogin_default_settings', $this->default_options );
+		$this->default_options = apply_filters( 'trustedlogin/vendor/settings/default', $this->default_options );
 
 		$this->options = get_option( 'trustedlogin_vendor', $this->default_options );
 
 		$this->debug_mode = $this->setting_is_toggled( 'debug_enabled' );
+
+		/**
+		 * Filter: Where in the menu the TrustedLogin Options should go.
+		 * Added to allow devs to move options item under 'Settings' menu item in wp-admin to keep things neat.
+		 *
+		 * @since 0.1.0
+		 *
+		 * @param String either 'main' or 'submenu'
+		 **/
+		$this->menu_location = apply_filters( 'trustedlogin_menu_location', 'main' );
 	}
 
 	public function add_admin_menu() {
@@ -191,40 +198,30 @@ class Settings {
 	 *
 	 * @uses `add_settings_error()` to set an alert for verification failures/errors and success message when API creds verified.
 	 *
-	 * @param Array $input Data saved on Settings page.
+	 * @param array $input Data saved on Settings page.
 	 *
 	 * @return Array Output of sanitized data.
 	 */
 	public function verify_api_details( $input ) {
 
-		if ( ! isset( $_POST ) || ! isset( $_POST['trustedlogin_vendor'] ) ) {
+		if ( ! isset( $input['account_id'] ) ) {
 			return $input;
 		}
 
 		$api_creds_verified = false;
 
 		try {
+			$account_id = intval( $input['account_id'] );
+			$saas_auth  = sanitize_text_field( $input['account_key'] );
+			$public_key = sanitize_text_field( $input['public_key'] );
+			$debug_mode = isset( $input['debug_enabled'] );
 
-			$checks = array(
-				'account_key' => __( 'Private Key', 'trustedlogin' ),
-				'account_id'  => __( 'Account ID', 'trustedlogin' ),
-				'public_key'  => __( 'Public Key', 'trustedlogin' ),
+			$saas_attr = array(
+				'auth' => $saas_auth,
+				'debug_mode' => $debug_mode
 			);
 
-			foreach ( $checks as $key => $title ) {
-				if ( ! isset( $_POST['tls_settings'][ $key ] ) ) {
-					throw new Exception( sprintf( __( 'No %s provided.', 'trustedlogin' ), $title ) );
-				}
-			}
-
-			$account_id = intval( $_POST['trustedlogin_vendor']['tls_account_id'] );
-			$saas_auth  = sanitize_text_field( $_POST['trustedlogin_vendor']['account_key'] );
-			$debug_mode = ( isset( $_POST['trustedlogin_vendor']['debug_enabled'] ) ) ? true : false;
-			$public_key = sanitize_text_field( $_POST['trustedlogin_vendor']['public_key'] );
-
-			$saas_attr = (object) array( 'type' => 'saas', 'auth' => $saas_auth, 'debug_mode' => $debug_mode );
-
-			$saas_api = new TL_API_Handler( $saas_attr );
+			$saas_api = new API_Handler( $saas_attr );
 
 			/**
 			 * @var string $saas_token Additional SaaS Token for authenticating API queries.
@@ -250,7 +247,7 @@ class Settings {
 		} catch ( Exception $e ) {
 
 			$error = sprintf(
-				__( 'Could not verify TrustedLogin credentials. %s', 'trustedlogin' ),
+				esc_html__( 'Could not verify TrustedLogin credentials: %s', 'trustedlogin-vendor' ),
 				esc_html__( $e->getMessage() )
 			);
 
@@ -266,7 +263,7 @@ class Settings {
 			add_settings_error(
 				'trustedlogin_vendor_options',
 				'trustedlogin_auth',
-				__( 'TrustedLogin API credentials verified.', 'trustedlogin' ),
+				__( 'TrustedLogin API credentials verified.', 'trustedlogin-vendor' ),
 				'updated'
 			);
 		}
@@ -276,18 +273,18 @@ class Settings {
 
 	public function account_key_field_render() {
 
-		$this->render_input_field( 'trustedlogin_vendor_account_key', 'password', true );
+		$this->render_input_field( 'account_key', 'password', true );
 
 	}
 
 	public function public_key_field_render() {
 
-		$this->render_input_field( 'trustedlogin_vendor_public_key', 'text', true );
+		$this->render_input_field( 'public_key', 'text', true );
 
 	}
 
 	public function account_id_field_render() {
-		$this->render_input_field( 'trustedlogin_vendor_account_id', 'text', true );
+		$this->render_input_field( 'account_id', 'text', true );
 	}
 
 	public function render_input_field( $setting, $type = 'text', $required = false ) {
@@ -378,13 +375,13 @@ class Settings {
 
 	public function debug_enabled_field_render() {
 
-		$this->settings_output_toggle( 'trustedlogin_vendor_debug_enabled' );
+		$this->settings_output_toggle( 'debug_enabled' );
 
 	}
 
 	public function output_audit_log_field_render() {
 
-		$this->settings_output_toggle( 'trustedlogin_vendor_output_audit_log' );
+		$this->settings_output_toggle( 'output_audit_log' );
 
 	}
 
@@ -473,7 +470,7 @@ class Settings {
 	public function get_setting( $setting_name ) {
 
 		if ( empty( $setting_name ) ) {
-			return new WP_Error( 'input-error', __( 'Cannot fetch empty setting name', 'trustedlogin' ) );
+			return new WP_Error( 'input-error', __( 'Cannot fetch empty setting name', 'trustedlogin-vendor' ) );
 		}
 
 		switch ( $setting_name ) {
