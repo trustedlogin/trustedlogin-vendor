@@ -1,4 +1,8 @@
 <?php
+/**
+ * Audit Log functionality
+ * @package TrustedLogin\Vendor
+ */
 namespace TrustedLogin\Vendor;
 
 if ( ! defined('ABSPATH') ) {
@@ -13,16 +17,23 @@ class TrustedLogin_Audit_Log {
 	/**
 	 * Version of the Audit Log DB schema
 	 */
-	const db_version = '0.1.3';
+	const DB_VERSION = '0.1.3';
 
-	const db_table_name = 'tl_audit_log';
+	const DB_TABLE_NAME = 'tl_audit_log';
 
 	/**
-	 * @since 0.9.0
+	 * The settings for the Vendor plugin, which include whether to enable logging
+	 *
 	 * @var TrustedLogin_Settings
+	 * @since 0.9.0
 	 */
 	private $settings;
 
+	/**
+	 * TrustedLogin_Audit_Log constructor.
+	 *
+	 * @param Settings $settings_instance
+	 */
 	public function __construct( Settings $settings_instance ) {
 
 		$this->settings = $settings_instance;
@@ -34,10 +45,15 @@ class TrustedLogin_Audit_Log {
 		add_action( 'trustedlogin_after_settings_form', array( $this, 'maybe_output_log' ), 10 );
 	}
 
+	/**
+	 * Returns the wp-prefixed table name for the audit log
+	 *
+	 * @return string
+	 */
 	protected function get_db_table_name() {
 		global $wpdb;
 
-		return $wpdb->prefix . self::db_table_name;
+		return $wpdb->prefix . self::DB_TABLE_NAME;
 	}
 
 	/**
@@ -47,7 +63,7 @@ class TrustedLogin_Audit_Log {
 	 */
 	public function maybe_update_schema() {
 
-		if ( version_compare( get_site_option( 'tl_db_version' ), self::db_version, '<' ) ) {
+		if ( version_compare( get_site_option( 'tl_db_version' ), self::DB_VERSION, '<' ) ) {
 			$this->init();
 		}
 	}
@@ -62,7 +78,7 @@ class TrustedLogin_Audit_Log {
 
 		$charset_collate = $wpdb->get_charset_collate();
 
-		$sql = "CREATE TABLE " . $this->get_db_table_name() . " (
+		$sql = 'CREATE TABLE ' . $this->get_db_table_name() . " (
 				  id mediumint(9) NOT NULL AUTO_INCREMENT,
 				  user_id bigint(20) NOT NULL,
 				  time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
@@ -75,9 +91,16 @@ class TrustedLogin_Audit_Log {
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta( $sql );
 
-		add_option( 'tl_db_version', self::db_version );
+		add_option( 'tl_db_version', self::DB_VERSION );
 	}
 
+	/**
+	 * Renders HTML output of audit log entries, if enabled
+	 *
+	 * @uses TrustedLogin_Audit_Log::build_output()
+	 *
+	 * @return void
+	 */
 	public function maybe_output_log() {
 
 		$audit_log_enabled = $this->settings->setting_is_toggled( 'tls_output_audit_log' );
@@ -96,15 +119,16 @@ class TrustedLogin_Audit_Log {
 		if ( 0 < count( $entries ) ) {
 			echo $this->build_output( $entries );
 		} else {
-
-			echo __( "No Audit Log items to show yet.", 'trustedlogin-vendor' );
+			esc_html_e( "No Audit Log items to show yet.", 'trustedlogin-vendor' );
 		}
 	}
 
 	/**
+	 * Generates audit log HTML output
+	 *
 	 * @todo Convert to WP_Table_List
 	 *
-	 * @param $log_array
+	 * @param stdClass[] $log_array Array of audit log items to render with id, display_name, tl_site_id, time, action, notes
 	 *
 	 * @return string
 	 */
@@ -136,13 +160,7 @@ class TrustedLogin_Audit_Log {
 		}
 
 		$ret .= '</tbody>';
-
-		// $ret .= '<tfoot>';
-		// $ret .= '<tr class="subtotal"><td>Monthly Total</td><td id="scr-total">' . $sales_rows['total'] . '</td></tr>';
-		// $ret .= '</tfoot>';
-
 		$ret .= '</table>';
-
 		$ret .= '</div>';
 
 		return $ret;
@@ -194,15 +212,15 @@ class TrustedLogin_Audit_Log {
 	}
 
 	/**
-	 * Helper Function: Get recent audit entries
+	 * Get recent audit entries
 	 *
 	 * @since 0.1.0
 	 *
-	 * @param Int $limit
+	 * @param int $limit Number of log entries to retrieve
 	 *
 	 * @return Array
 	 */
-	public function get_log_entries( $limit = 10 ) {
+	public function get_log_entries( $limit = 25 ) {
 		global $wpdb;
 
 		// TODO: Add custom capabilities
@@ -210,11 +228,10 @@ class TrustedLogin_Audit_Log {
 			return new WP_Error( 'unauthorized', 'You must have manage_options capability to view audit log entries' );
 		}
 
-		$query = "
-            SELECT *
-            FROM `" . $this->get_db_table_name() . "`
+		$query = $wpdb->prepare( 'SELECT *
+			FROM `' . $this->get_db_table_name() . '`
             ORDER BY `id` DESC
-            LIMIT " . (int) $limit;
+            LIMIT %d', $limit );
 
 		return $wpdb->get_results( $query );
 	}

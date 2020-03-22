@@ -9,7 +9,7 @@ trait Licensing {
 
 	public function edd_get_licenses( $email ) {
 
-		$keys = array();
+		$licenses = array();
 		$_u   = get_user_by( 'email', $email );
 
 		if ( $_u ) {
@@ -20,15 +20,15 @@ trait Licensing {
 				$children = edd_software_licensing()->get_child_licenses( $license->ID );
 				if ( $children ) {
 					foreach ( $children as $child ) {
-						$keys[] = edd_software_licensing()->get_license_key( $child->ID );
+						$licenses[] = edd_software_licensing()->get_license( $child->ID );
 					}
 				}
 
-				$keys[] = edd_software_licensing()->get_license_key( $license->ID );
+				$licenses[] = edd_software_licensing()->get_license( $license->ID );
 			}
 		}
 
-		return ( ! empty( $keys ) ) ? $keys : false;
+		return ( ! empty( $licenses ) ) ? $licenses : false;
 	}
 
 	public function edd_verify_license( $key ) {

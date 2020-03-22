@@ -4,13 +4,13 @@
  * Plugin URI: https://www.trustedlogin.com
  * Description: Authenticate support team members to securely log them in to client sites via TrustedLogin
  * Version: 0.9.0
- * Author: trustedlogin.com
+ * Requires PHP: 5.4
+ * Author: Katz Web Services, Inc.
  * Author URI: https://www.trustedlogin.com
  * Text Domain: tl-support-side
- *
- * Copyright: © 2019 TrustedLogin
- * License: GNU General Public License v3.0
- * License URI: http://www.gnu.org/licenses/gpl-3.0.html
+ * License: GPL v2
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Copyright: © 2020 Katz Web Services, Inc.
  */
 
 if (!defined('ABSPATH')) {
@@ -60,11 +60,35 @@ class TrustedLogin_Support_Side {
 
 		$this->plugin_version = TRUSTEDLOGIN_PLUGIN_VERSION;
 
+		/*
+		 * Filter allows site admins to override SSL check on dev/testing servers.
+		 * This should NEVER be used on production environments.
+		 */
+		if ( ! is_ssl() && ! defined( 'DOING_TL_VENDOR_TESTS') ) {
+
+			// If SSL not enabled, show alert and don't load the plugin.
+			add_action( 'admin_notices', array( $this, 'ssl_admin_notice' ) );
+
+			return false;
+		}
+
 		$this->settings = new TrustedLogin\Vendor\Settings();
 
 		$this->endpoint = new TrustedLogin\Vendor\Endpoint( $this->settings );
 
-		add_action( 'plugins_loaded', array( $this, 'init_helpdesk_integration' ) );
+		add_action( 'init', array( $this, 'init_helpdesk_integration' ) );
+	}
+
+	/*
+	 * Alerts the user that this TrustedLogin plugin can only run on sites with SSL enabled.
+	 *
+	 * @since 0.9.1
+	 */
+	public function ssl_admin_notice() {
+	    $class = 'notice notice-error';
+	    $message = __( 'TrustedLogin plugin NOT enabled. SSL required to securely interact with TrustedLogin servers.', 'trustedlogin' );
+
+	    printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
 	}
 
 	public function init_helpdesk_integration() {
@@ -79,10 +103,16 @@ class TrustedLogin_Support_Side {
 
 }
 
-$init_tl = new TrustedLogin_Support_Side();
-$init_tl->setup();
+function init_tl_vendor(){
 
-register_deactivation_hook(__FILE__, 'trustedlogin_supportside_deactivate' );
+	$init_tl = new TrustedLogin_Support_Side();
+	$init_tl->setup();
+
+}
+
+add_action( 'after_setup_theme', 'init_tl_vendor' );
+
+register_deactivation_hook( __FILE__, 'trustedlogin_supportside_deactivate' );
 
 function trustedlogin_supportside_deactivate() {
     delete_option('tl_permalinks_flushed');

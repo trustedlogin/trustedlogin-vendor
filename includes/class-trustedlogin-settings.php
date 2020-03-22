@@ -14,14 +14,14 @@ use function selected;
 class Settings {
 
 	/**
+	 * @var boolean $debug_mode Whether or not to save a local text log
 	 * @since 0.1.0
-	 * @var boolean Whether or not to save a local text log
 	 */
 	protected $debug_mode;
 
 	/**
+	 * @var array $default_options The default settings for our plugin
 	 * @since 0.1.0
-	 * @var array The default settings for our plugin
 	 */
 	private $default_options = array(
 		'account_id'       => '',
@@ -34,9 +34,8 @@ class Settings {
 	);
 
 	/**
-	 * @since 0.1.0
+	 * @var string $menu_location Where the TrustedLogin settings should sit in menu. Options: 'main', or 'submenu' to add under Setting tab
 	 * @see Filter: trustedlogin_menu_location
-	 * @var string Where the TrustedLogin settings should sit in menu. Options: 'main', or 'submenu' to add under Setting tab
 	 */
 	private $menu_location = 'main';
 
@@ -47,8 +46,8 @@ class Settings {
 	private $options;
 
 	/**
+	 * @var string $plugin_version Used for versioning of settings page assets.
 	 * @since 0.1.0
-	 * @var string The x.x.x value of the current plugin version. Used for versioning of settings page assets.
 	 */
 	private $plugin_version;
 
@@ -116,7 +115,7 @@ class Settings {
 
 	public function admin_init() {
 
-		register_setting( 'trustedlogin_vendor_options', 'trustedlogin_vendor' );
+		register_setting( 'trustedlogin_vendor_options', 'trustedlogin_vendor', array( 'sanitize_callback' => array( $this, 'verify_api_details' ) ) );
 
 		add_settings_section(
 			'trustedlogin_vendor_options_section',
@@ -181,6 +180,98 @@ class Settings {
 			'trustedlogin_vendor_options_section'
 		);
 
+	}
+
+	/**
+	 * Hooks into settings sanitization to verify API details
+	 *
+	 * Note: Although hooked up to `sanitize_callback`, this function does NOT sanitize data provided.
+	 *
+	 * @since 0.9.1
+	 *
+	 * @uses `add_settings_error()` to set an alert for verification failures/errors and success message when API creds verified.
+	 *
+	 * @param Array $input Data saved on Settings page.
+	 *
+	 * @return Array Output of sanitized data.
+	 */
+	public function verify_api_details( $input ) {
+
+		if ( ! isset( $_POST ) || ! isset( $_POST['trustedlogin_vendor'] ) ) {
+			return $input;
+		}
+
+		$api_creds_verified = false;
+
+		try {
+
+			$checks = array(
+				'account_key' => __( 'Private Key', 'trustedlogin' ),
+				'account_id'  => __( 'Account ID', 'trustedlogin' ),
+				'public_key'  => __( 'Public Key', 'trustedlogin' ),
+			);
+
+			foreach ( $checks as $key => $title ) {
+				if ( ! isset( $_POST['tls_settings'][ $key ] ) ) {
+					throw new Exception( sprintf( __( 'No %s provided.', 'trustedlogin' ), $title ) );
+				}
+			}
+
+			$account_id = intval( $_POST['trustedlogin_vendor']['tls_account_id'] );
+			$saas_auth  = sanitize_text_field( $_POST['trustedlogin_vendor']['account_key'] );
+			$debug_mode = ( isset( $_POST['trustedlogin_vendor']['debug_enabled'] ) ) ? true : false;
+			$public_key = sanitize_text_field( $_POST['trustedlogin_vendor']['public_key'] );
+
+			$saas_attr = (object) array( 'type' => 'saas', 'auth' => $saas_auth, 'debug_mode' => $debug_mode );
+
+			$saas_api = new TL_API_Handler( $saas_attr );
+
+			/**
+			 * @var string $saas_token Additional SaaS Token for authenticating API queries.
+			 * @see https://github.com/trustedlogin/trustedlogin-ecommerce/blob/master/docs/user-remote-authentication.md
+			 **/
+			$saas_token  = hash( 'sha256', $public_key . $saas_auth );
+			$token_added = $saas_api->set_additional_header( 'X-TL-TOKEN', $saas_token );
+
+			if ( ! $token_added ) {
+				$error = __( 'Error setting X-TL-TOKEN header', 'tl-support-side' );
+				$this->dlog( $error, __METHOD__ );
+				throw new Exception( $error );
+			}
+
+			$verified = $saas_api->verify( $account_id );
+
+			if ( is_wp_error( $verified ) ) {
+				throw new Exception( $verified->get_error_message() );
+			}
+
+			$api_creds_verified = true;
+
+		} catch ( Exception $e ) {
+
+			$error = sprintf(
+				__( 'Could not verify TrustedLogin credentials. %s', 'trustedlogin' ),
+				esc_html__( $e->getMessage() )
+			);
+
+			add_settings_error(
+				'trustedlogin_vendor_options',
+				'trustedlogin_auth',
+				$error,
+				'error'
+			);
+		}
+
+		if ( $api_creds_verified ) {
+			add_settings_error(
+				'trustedlogin_vendor_options',
+				'trustedlogin_auth',
+				__( 'TrustedLogin API credentials verified.', 'trustedlogin' ),
+				'updated'
+			);
+		}
+
+		return $input;
 	}
 
 	public function account_key_field_render() {
@@ -323,6 +414,8 @@ class Settings {
 		echo '<form method="post" action="options.php">';
 
 		echo sprintf( '<h1>%1$s</h1>', __( 'TrustedLogin Settings', 'trustedlogin-vendor' ) );
+
+		settings_errors( 'trustedlogin_vendor_options' );
 
 		do_action( 'trustedlogin_before_settings_sections' );
 

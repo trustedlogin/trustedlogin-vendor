@@ -12,18 +12,22 @@ class EndpointsTest extends WP_UnitTestCase {
 
 	/** @var TrustedLogin_Support_Side */
 	private $TL;
-	
+
 	private $endpoint;
 
-	
+
 	/**
 	 * AuditLogTest constructor.
 	 */
 	public function __construct() {
 		$this->TL = new TrustedLogin_Support_Side;
 		$this->TL->setup();
-		
-		$this->endpoint = new TrustedLogin_Endpoint();
+
+		$settings = new ReflectionProperty( $this->TL, 'settings' );
+		$settings->setAccessible( true );
+		$settings_value = $settings->getValue( $this->TL );
+
+		$this->endpoint = new TrustedLogin_Endpoint( $settings_value );
 	}
 
 	/**
@@ -43,12 +47,12 @@ class EndpointsTest extends WP_UnitTestCase {
 	function test_endpoint_add_var() {
 		global $wp;
 
-		$this->assertNotContains( $this->endpoint::redirect_endpoint, $wp->public_query_vars );
+		$this->assertNotContains( TrustedLogin_Endpoint::redirect_endpoint, $wp->public_query_vars );
 
 		// Triggers parse_request, which contains public_query_vars
 		$wp->main();
 
-		$this->assertContains( $this->endpoint::redirect_endpoint, $wp->public_query_vars );
+		$this->assertContains( TrustedLogin_Endpoint::redirect_endpoint, $wp->public_query_vars );
 
 		_cleanup_query_vars();
 	}
@@ -61,9 +65,9 @@ class EndpointsTest extends WP_UnitTestCase {
 		$this->assertTrue( $this->endpoint->validate_callback( 'EDD' ) );
 
 		$this->assertTrue( $this->endpoint->validate_callback( 'WooCommerce' ) );
-		
+
 		$this->assertFalse( $this->endpoint->validate_callback( 'New Licensing Thingy' ) );
-		
+
 		add_filter( 'trustedlogin_api_ecom_types', $filter = function( $types = array() ) {
 			$types[] = 'New Licensing Thingy';
 

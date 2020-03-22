@@ -17,14 +17,14 @@ class Endpoint {
 	use Licensing;
 
 	/**
-	 * @since 0.3.0
 	 * @var String - the endpoint used to redirect Support Agents to Client WP admin panels
+	 * @since 0.3.0
 	 */
 	const redirect_endpoint = 'trustedlogin';
 
 	/**
-	 * @since 0.7.0
 	 * @var string
+	 * @since 0.7.0
 	 */
 	const rest_endpoint = 'trustedlogin/v1';
 
@@ -35,8 +35,8 @@ class Endpoint {
 	private $settings;
 
 	/**
-	 * @since 0.9.0
 	 * @var TrustedLogin_Audit_Log
+	 * @since 0.9.0
 	 */
 	private $audit_log;
 
@@ -53,6 +53,13 @@ class Endpoint {
 		add_action( 'template_redirect', array( $this, 'maybe_endpoint_redirect' ), 99 );
 		add_filter( 'query_vars', array( $this, 'endpoint_add_var' ) );
 		add_action( 'rest_api_init', array( $this, 'register_endpoints' ) );
+	}
+
+	/**
+	 * @return TrustedLogin_Audit_Log
+	 */
+	public function get_audit_log() {
+		return $this->audit_log;
 	}
 
 	public function register_endpoints() {
@@ -87,32 +94,26 @@ class Endpoint {
 	/**
 	 * Returns the Public Key for this specific vendor/plugin.
 	 *
-	 * Requires URL parameter `?key={public key}`
-	 *
 	 * @since 0.8.0
 	 *
-	 * @param WP_REST_Request $request
+	 * @param \WP_REST_Request $request
 	 *
 	 * @return \WP_REST_Response
 	 */
-	public function public_key_callback( WP_REST_Request $request ) {
+	public function public_key_callback( \WP_REST_Request $request ) {
 
-		$response                = new WP_REST_Response();
 		$trustedlogin_encryption = new Encryption();
 		$public_key              = $trustedlogin_encryption->get_public_key();
 
-		if ( is_wp_error( $public_key ) ) {
+		$response = new \WP_REST_Response();
+
+		if ( ! is_wp_error( $public_key ) ) {
+			$data = array( 'publicKey' => $public_key );
+			$response->set_data( $data );
+			$response->set_status( 200 );
+		} else {
 			$response->set_status( 204 );
-
-			return $response;
 		}
-
-		$data = array(
-			'publicKey' => $public_key,
-		);
-
-		$response->set_data( $data );
-		$response->set_status( 200 );
 
 		return $response;
 
@@ -124,9 +125,9 @@ class Endpoint {
 	 * @since 0.3.0 Initial build
 	 * @since 0.8.0 Added `TrustedLogin_Encryption->get_public_key()` data to response.
 	 *
-	 * @param WP_REST_Request $request
+	 * @param \WP_REST_Request $request
 	 *
-	 * @return WP_REST_Response
+	 * @return \WP_REST_Response
 	 */
 	public function verify_callback( \WP_REST_Request $request ) {
 
@@ -169,7 +170,7 @@ class Endpoint {
 	 * @since 0.8.0
 	 *
 	 * @param string $param - The parameter value being validated
-	 * @param WP_REST_Request $request
+	 * @param \WP_REST_Request $request
 	 * @param int $key
 	 *
 	 * @return bool
@@ -234,21 +235,19 @@ class Endpoint {
 	}
 
 	/**
-	 * Hooked Action: Check if the endpoint is hit and has a valid identifier before automatically logging in support agent
+	 * Hooked Action: Check if the endpoint is hit and has a valid secret_id before automatically logging in support agent
 	 *
 	 * @since 0.3.0
-	 *
-	 * @return void
 	 */
 	public function maybe_endpoint_redirect() {
 
-		$identifier = get_query_var( self::redirect_endpoint, false );
+		$secret_id = get_query_var( self::redirect_endpoint, false );
 
-		if ( empty( $identifier ) ) {
+		if ( empty( $secret_id ) ) {
 			return;
 		}
 
-		$this->maybe_redirect_support( $identifier );
+		$this->maybe_redirect_support( $secret_id );
 	}
 
 
@@ -260,13 +259,13 @@ class Endpoint {
 	 *
 	 * @see endpoint_maybe_redirect()
 	 *
-	 * @param string $identifier collected via endpoint
+	 * @param string $secret_id collected via endpoint
 	 *
-	 * @return void
+	 * @return null
 	 */
-	public function maybe_redirect_support( $identifier ) {
+	public function maybe_redirect_support( $secret_id ) {
 
-		$this->dlog( "Got here. ID: $identifier", __METHOD__ );
+		$this->dlog( "Got here. ID: $secret_id", __METHOD__ );
 
 		// first check if user can be redirected.
 		if ( ! $this->auth_verify_user() ) {
@@ -276,11 +275,11 @@ class Endpoint {
 		}
 
 		// then get the envelope
-		$envelope = $this->api_get_envelope( $identifier );
+		$envelope = $this->api_get_envelope( $secret_id );
 
 		if ( is_wp_error( $envelope ) ) {
 			$this->dlog( 'Error: ' . $envelope->get_error_message(), __METHOD__ );
-			$this->audit_log->insert( $identifier, 'failed', $envelope->get_error_message() );
+			$this->audit_log->insert( $secret_id, 'failed', $envelope->get_error_message() );
 			wp_redirect( get_site_url(), 302 );
 			exit;
 		}
@@ -290,14 +289,14 @@ class Endpoint {
 		global $init_tl;
 
 		if ( is_wp_error( $url ) ) {
-			$this->audit_log->insert( $identifier, 'failed', $url->get_error_message() );
+			$this->audit_log->insert( $secret_id, 'failed', $url->get_error_message() );
 			wp_redirect( get_site_url(), 302 );
 			exit;
 		}
 
 		if ( $url ) {
 			// then redirect
-			$init_tl->audit_log->insert( $identifier, 'redirected', __( 'Succcessful', 'trustedlogin-vendor' ) );
+			$this->audit_log->insert( $secret_id, 'redirected', __( 'Succcessful', 'trustedlogin-vendor' ) );
 			wp_redirect( $url, 302 );
 			exit;
 		}
@@ -310,21 +309,20 @@ class Endpoint {
 	 *
 	 * @since 0.2.0
 	 *
-	 * @param string $site_id - unique identifier of a site
+	 * @param string $site_id - unique secret_id of a site
 	 *
 	 * @return array|false
 	 */
-	public function api_get_envelope( $site_id ) {
-
-		if ( empty( $site_id ) ) {
-			$this->dlog( 'Error: site_id cannot be empty.', __METHOD__ );
+	public function api_get_envelope( $secret_id ) {
+		if ( empty( $secret_id ) ) {
+			$this->dlog( 'Error: secret_id cannot be empty.', __METHOD__ );
 
 			return new WP_Error( 'data-error', __( 'Site ID cannot be empty', 'trustedlogin-vendor' ) );
 		}
 
 		/**
 		 * @var The data array that will be sent to TrustedLogin to request a site's envelope
-		 **/
+		 */
 		$data = array();
 
 		// Let's grab the user details. Logged in status already confirmed in maybe_redirect_support();
@@ -347,15 +345,18 @@ class Endpoint {
 
 		// Then let's get the identity verification pair to confirm the site is the one sending the request.
 		$trustedlogin_encryption = new Encryption();
-		$data['auth']            = $trustedlogin_encryption->create_identity_nonce();
+		$auth_nonce              = $trustedlogin_encryption->create_identity_nonce();
 
-		if ( is_wp_error( $data['auth'] ) ) {
-			return $data['auth'];
+		if ( is_wp_error( $auth_nonce ) ) {
+			return $auth_nonce;
 		}
 
-		$this->audit_log->insert( $site_id, 'requested' );
+		$data['nonce']       = $auth_nonce['nonce'];
+		$data['signedNonce'] = $auth_nonce['signed'];
 
-		$endpoint = 'sites/' . $site_id . '/get-envelope';
+		$this->audit_log->insert( $secret_id, 'requested' );
+
+		$endpoint = 'sites/' . $secret_id . '/get-envelope';
 
 
 		$saas_attr = array(
@@ -382,17 +383,17 @@ class Endpoint {
 
 		/**
 		 * @var array $envelope (
-		 *   String $siteurl        The site url. Double encrypted.
-		 *   String $identifier    The support-agent unique ID. Double encrypted.
-		 *   String $endpoint        The unique endpoint for auto-login. Double encrypted.
-		 *   Int $expiry - the time() of when this Support User will decay
+		 * @type string $siteurl The site url. Double encrypted.
+		 * @type string $identifier The support-agent unique ID. Double encrypted.
+		 * @type string $endpoint The unique endpoint for auto-login. Double encrypted.
+		 * @type int $expiry The time() of when this Support User will decay
 		 * )
-		 **/
+		 */
 		$envelope = $saas_api->call( $endpoint, $data, 'GET' );
 
 		$success = ( ! is_wp_error( $envelope ) ) ? __( 'Succcessful', 'trustedlogin-vendor' ) : __( 'Failed', 'trustedlogin-vendor' );
 
-		$this->audit_log->insert( $site_id, 'received', $success );
+		$this->audit_log->insert( $secret_id, 'received', $success );
 
 		return $envelope;
 
@@ -431,16 +432,16 @@ class Endpoint {
 
 		$trustedlogin_encryption = new Encryption();
 
-		$parts = array(
-			'siteurl'    => $trustedlogin_encryption->decrypt( $envelope['siteurl'] ),
-			'identifier' => $trustedlogin_encryption->decrypt( $envelope['identifier'] ),
-		);
+		try {
+			$parts = array(
+				'siteurl'    => $trustedlogin_encryption->decrypt( $envelope['siteurl'] ),
+				'identifier' => $trustedlogin_encryption->decrypt( $envelope['identifier'] ),
+			);
 
-		if ( is_wp_error( $parts['siteurl'] ) || is_wp_error( $parts['identifier'] ) ) {
-			$this->dlog( "Error decrypting siteurl: " . $parts['siteurl']->get_error_message(), __METHOD__ );
-			$this->dlog( "Error decrypting identifier: " . $parts['identifier']->get_error_message(), __METHOD__ );
+		} catch ( Exception $e ) {
 
-			return new WP_Error( 'decryption_failed', 'Could not decrypt siteurl or identifier' );
+			return new WP_Error( $e->getCode(), $e->getMessage() );
+
 		}
 
 		$parts['endpoint'] = md5( $parts['siteurl'] . $parts['identifier'] );
@@ -448,13 +449,13 @@ class Endpoint {
 		$url = $parts['siteurl'] . '/' . $parts['endpoint'] . '/' . $parts['identifier'];
 
 		return $url;
+
 	}
 
 	/**
 	 * Helper: Check if the current user can be redirected to the client site
 	 *
 	 * @since 0.4.0
-	 *
 	 * @return bool
 	 */
 	public function auth_verify_user() {
