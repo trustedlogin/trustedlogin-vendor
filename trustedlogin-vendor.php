@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: TrustedLogin Support Plugin
- * Plugin URI: https://trustedlogin.com
+ * Plugin URI: https://www.trustedlogin.com
  * Description: Authenticate support team members to securely log them in to client sites via TrustedLogin
  * Version: 0.9.0
  * Author: trustedlogin.com
- * Author URI: https://trustedlogin.com
+ * Author URI: https://www.trustedlogin.com
  * Text Domain: tl-support-side
  *
  * Copyright: © 2019 TrustedLogin
@@ -34,7 +34,7 @@ require_once $path . 'includes/class-trustedlogin-encryption.php';
 
 class TrustedLogin_Support_Side {
 
-	use TrustedLogin\Vendor\Debug_Logging;
+	use \TrustedLogin\Vendor\Debug_Logging;
 	use \TrustedLogin\Vendor\Licensing;
 
 	/**
@@ -44,7 +44,7 @@ class TrustedLogin_Support_Side {
 	private $plugin_version;
 
 	/**
-	 * @var TrustedLogin\Vendor\Endpoint
+	 * @var \TrustedLogin\Vendor\Endpoint
 	 */
 	private $endpoint;
 
@@ -63,11 +63,6 @@ class TrustedLogin_Support_Side {
 		$this->settings = new TrustedLogin\Vendor\Settings();
 
 		$this->endpoint = new TrustedLogin\Vendor\Endpoint( $this->settings );
-
-		// Setup the Plugin Settings
-		if ( is_admin() ) {
-			$this->settings->admin_init();
-		}
 
 		add_action( 'plugins_loaded', array( $this, 'init_helpdesk_integration' ) );
 	}

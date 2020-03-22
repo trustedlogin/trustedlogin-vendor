@@ -80,7 +80,7 @@ class TrustedLogin_Audit_Log {
 
 	public function maybe_output_log() {
 
-		$audit_log_enabled = $this->settings->tls_settings_is_toggled( 'tls_output_audit_log' );
+		$audit_log_enabled = $this->settings->setting_is_toggled( 'tls_output_audit_log' );
 
 		if ( ! $audit_log_enabled ) {
 			return;
@@ -97,7 +97,7 @@ class TrustedLogin_Audit_Log {
 			echo $this->build_output( $entries );
 		} else {
 
-			echo __( "No Audit Log items to show yet.", 'tl-support-side' );
+			echo __( "No Audit Log items to show yet.", 'trustedlogin-vendor' );
 		}
 	}
 

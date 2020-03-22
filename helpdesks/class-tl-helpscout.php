@@ -31,7 +31,7 @@ class HelpScout extends HelpDesk {
 
 		add_settings_field(
 			'tls_' . self::slug . '_secret',
-			self::name . ' ' . __( 'Secret Key', 'tl-support-side' ),
+			self::name . ' ' . __( 'Secret Key', 'trustedlogin-vendor' ),
 			array( $this, 'secret_field_render' ),
 			'TLS_plugin_options',
 			'tls_options_section'
@@ -39,7 +39,7 @@ class HelpScout extends HelpDesk {
 
 		add_settings_field(
 			'tls_' . self::slug . '_url',
-			self::name . ' ' . __( 'Webhook URL', 'tl-support-side' ),
+			self::name . ' ' . __( 'Webhook URL', 'trustedlogin-vendor' ),
 			array( $this, 'url_field_render' ),
 			'TLS_plugin_options',
 			'tls_options_section'
@@ -87,7 +87,7 @@ class HelpScout extends HelpDesk {
         $saas_auth = $this->tls_settings_get_value('tls_account_key');
 
         if ( ! $saas_auth ) {
-	        $error = __( 'Please make sure the TrustedLogin API Key setting is entered.', 'tl-support-side' );
+	        $error = __( 'Please make sure the TrustedLogin API Key setting is entered.', 'trustedlogin-vendor' );
 	        $this->dlog( $error, __METHOD__ );
 	        wp_send_json_error( array( 'message' => $error ) );
         }
@@ -155,7 +155,7 @@ class HelpScout extends HelpDesk {
                 $item_html .= sprintf(
                     $item_template,
                     esc_url(site_url('/' . Endpoint::redirect_endpoint . '/' . $vault_set['keyStoreID'])),
-                    __('TrustedLogin to', 'tl-support-side'),
+                    __('TrustedLogin to', 'trustedlogin-vendor'),
                     esc_url($vault_set['siteURL'])
                 );
             }
@@ -164,7 +164,7 @@ class HelpScout extends HelpDesk {
         if (empty($item_html)) {
             $item_html = sprintf(
                 $no_items_template,
-                __('No TrustedLogin sessions authorized for this user.', 'tl-support-side')
+                __('No TrustedLogin sessions authorized for this user.', 'trustedlogin-vendor')
             );
         }
 

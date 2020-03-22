@@ -297,7 +297,7 @@ class Endpoint {
 
 		if ( $url ) {
 			// then redirect
-			$init_tl->audit_log->insert( $identifier, 'redirected', __( 'Succcessful', 'tl-support-side' ) );
+			$init_tl->audit_log->insert( $identifier, 'redirected', __( 'Succcessful', 'trustedlogin-vendor' ) );
 			wp_redirect( $url, 302 );
 			exit;
 		}
@@ -319,7 +319,7 @@ class Endpoint {
 		if ( empty( $site_id ) ) {
 			$this->dlog( 'Error: site_id cannot be empty.', __METHOD__ );
 
-			return new WP_Error( 'data-error', __( 'Site ID cannot be empty', 'tl-support-side' ) );
+			return new WP_Error( 'data-error', __( 'Site ID cannot be empty', 'trustedlogin-vendor' ) );
 		}
 
 		/**
@@ -330,7 +330,7 @@ class Endpoint {
 		// Let's grab the user details. Logged in status already confirmed in maybe_redirect_support();
 		$current_user = wp_get_current_user();
 		if ( 0 == $current_user->ID ) {
-			return new WP_Error( 'auth-error', __( 'User not logged in.', 'tl-support-side' ) );
+			return new WP_Error( 'auth-error', __( 'User not logged in.', 'trustedlogin-vendor' ) );
 		}
 		$data['user'] = array( 'id' => $current_user->ID, 'name' => $current_user->display_name );
 
@@ -342,7 +342,7 @@ class Endpoint {
 		if ( empty( $saas_auth ) || empty( $account_id ) || empty( $public_key ) ) {
 			$this->dlog( "no api_key, public_key or account_id provided", __METHOD__ );
 
-			return new WP_Error( 'setup-error', __( 'No auth, public key or account_id data found', 'tl-support-side' ) );
+			return new WP_Error( 'setup-error', __( 'No auth, public key or account_id data found', 'trustedlogin-vendor' ) );
 		}
 
 		// Then let's get the identity verification pair to confirm the site is the one sending the request.
@@ -374,7 +374,7 @@ class Endpoint {
 		$token_added = $saas_api->set_additional_header( 'X-TL-TOKEN', $saas_token );
 
 		if ( ! $token_added ) {
-			$error = __( 'Error setting X-TL-TOKEN header', 'tl-support-side' );
+			$error = __( 'Error setting X-TL-TOKEN header', 'trustedlogin-vendor' );
 			$this->dlog( $error, __METHOD__ );
 
 			return new WP_Error( 'x-tl-token-error', $error );
@@ -390,7 +390,7 @@ class Endpoint {
 		 **/
 		$envelope = $saas_api->call( $endpoint, $data, 'GET' );
 
-		$success = ( ! is_wp_error( $envelope ) ) ? __( 'Succcessful', 'tl-support-side' ) : __( 'Failed', 'tl-support-side' );
+		$success = ( ! is_wp_error( $envelope ) ) ? __( 'Succcessful', 'trustedlogin-vendor' ) : __( 'Failed', 'trustedlogin-vendor' );
 
 		$this->audit_log->insert( $site_id, 'received', $success );
 

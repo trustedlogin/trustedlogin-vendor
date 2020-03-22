@@ -100,8 +100,8 @@ class Settings {
 
 		$args = array(
 			'submenu_page' => 'options-general.php',
-			'menu_title'   => __( 'TrustedLogin Settings', 'tl-support-side' ),
-			'page_title'   => __( 'TrustedLogin', 'tl-support-side' ),
+			'menu_title'   => __( 'TrustedLogin Settings', 'trustedlogin-vendor' ),
+			'page_title'   => __( 'TrustedLogin', 'trustedlogin-vendor' ),
 			'capabilities' => 'manage_options',
 			'slug'         => 'tls_settings',
 			'callback'     => array( $this, 'tls_settings_options_page' ),
@@ -122,65 +122,65 @@ class Settings {
 
 		add_settings_section(
 			'tls_options_section',
-			__( 'Settings for how your site and support agents are connected to TrustedLogin', 'tl-support-side' ),
 			array( $this, 'tls_settings_section_callback' ),
 			'TLS_plugin_options'
+			__( 'Settings for how your site and support agents are connected to TrustedLogin', 'trustedlogin-vendor' ),
 		);
 
 		add_settings_field(
 			'tls_account_id',
-			__( 'TrustedLogin Account ID ', 'tl-support-side' ),
 			array( $this, 'tls_settings_account_id_field_render' ),
 			'TLS_plugin_options',
 			'tls_options_section'
+			__( 'TrustedLogin Account ID ', 'trustedlogin-vendor' ),
 		);
 
 		add_settings_field(
 			'tls_account_key',
-			__( 'TrustedLogin API Key ', 'tl-support-side' ),
 			array( $this, 'tls_settings_account_key_field_render' ),
 			'TLS_plugin_options',
 			'tls_options_section'
+			__( 'TrustedLogin API Key ', 'trustedlogin-vendor' ),
 		);
 
 		add_settings_field(
 			'tls_public_key',
-			__( 'TrustedLogin Public Key ', 'tl-support-side' ),
 			array( $this, 'tls_settings_public_key_field_render' ),
 			'TLS_plugin_options',
 			'tls_options_section'
+			__( 'TrustedLogin Public Key ', 'trustedlogin-vendor' ),
 		);
 
 		add_settings_field(
 			'tls_approved_roles',
-			__( 'Which WP roles can automatically be logged into customer sites?', 'tl-support-side' ),
 			array( $this, 'tls_settings_approved_roles_field_render' ),
 			'TLS_plugin_options',
 			'tls_options_section'
+			__( 'Which WP roles can automatically be logged into customer sites?', 'trustedlogin-vendor' ),
 		);
 
 		add_settings_field(
 			'tls_helpdesk',
-			__( 'Which helpdesk software are you using?', 'tl-support-side' ),
 			array( $this, 'tls_settings_helpdesks_field_render' ),
 			'TLS_plugin_options',
 			'tls_options_section'
+			__( 'Which helpdesk software are you using?', 'trustedlogin-vendor' ),
 		);
 
 		add_settings_field(
 			'tls_debug_enabled',
-			__( 'Enable debug logging?', 'tl-support-side' ),
 			array( $this, 'tls_settings_debug_enabled_field_render' ),
 			'TLS_plugin_options',
 			'tls_options_section'
+			__( 'Enable debug logging?', 'trustedlogin-vendor' ),
 		);
 
 		add_settings_field(
 			'tls_output_audit_log',
-			__( 'Display Audit Log below?', 'tl-support-side' ),
 			array( $this, 'tls_settings_output_audit_log_field_render' ),
 			'TLS_plugin_options',
 			'tls_options_section'
+			__( 'Display Audit Log below?', 'trustedlogin-vendor' ),
 		);
 
 	}
@@ -328,7 +328,7 @@ class Settings {
 
 		echo '<form method="post" action="options.php">';
 
-		echo sprintf( '<h1>%1$s</h1>', __( 'TrustedLogin Settings', 'tl-support-side' ) );
+		echo sprintf( '<h1>%1$s</h1>', __( 'TrustedLogin Settings', 'trustedlogin-vendor' ) );
 
 		do_action( 'trustedlogin_before_settings_sections' );
 
