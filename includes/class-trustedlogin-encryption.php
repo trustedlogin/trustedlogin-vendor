@@ -1,4 +1,7 @@
 <?php
+
+namespace TrustedLogin\Vendor;
+
 /**
  * Class: TrustedLogin Encryption
  *
@@ -9,7 +12,7 @@
  */
 class TrustedLogin_Encryption {
 
-	use TL_Debug_Logging;
+	use Debug_Logging;
 
 	private $key_option_name;
 

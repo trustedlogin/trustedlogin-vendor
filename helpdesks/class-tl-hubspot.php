@@ -1,5 +1,5 @@
 <?php
-namespace TrustedLogin;
+namespace TrustedLogin\Vendor;
 
 /**
  * Class: TrustedLogin - HubSpot Integration

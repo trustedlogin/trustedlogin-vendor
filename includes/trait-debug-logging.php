@@ -1,8 +1,9 @@
 <?php
+namespace TrustedLogin\Vendor;
 
 // v2.0.0
 
-trait TL_Debug_Logging {
+trait Debug_Logging {
 
 	/**
 	 * Helper that checks if debugging is enabled in current and deprecated formats.

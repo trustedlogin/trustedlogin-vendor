@@ -1,4 +1,5 @@
 <?php
+namespace TrustedLogin\Vendor;
 
 if ( ! defined('ABSPATH') ) {
     exit;
@@ -7,7 +8,7 @@ if ( ! defined('ABSPATH') ) {
 
 class TrustedLogin_Audit_Log {
 
-	use TL_Debug_Logging;
+	use Debug_Logging;
 
 	/**
 	 * Version of the Audit Log DB schema
@@ -22,7 +23,7 @@ class TrustedLogin_Audit_Log {
 	 */
 	private $settings;
 
-	public function __construct( TrustedLogin_Settings $settings_instance ) {
+	public function __construct( Settings $settings_instance ) {
 
 		$this->settings = $settings_instance;
 

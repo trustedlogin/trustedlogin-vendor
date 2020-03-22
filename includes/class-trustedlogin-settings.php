@@ -6,7 +6,11 @@
  * @version 0.2.0
  **/
 
-class TrustedLogin_Settings {
+namespace TrustedLogin\Vendor;
+
+use const TRUSTEDLOGIN_PLUGIN_VERSION;
+
+class Settings {
 
 	/**
 	 * @since 0.1.0
@@ -39,11 +43,11 @@ class TrustedLogin_Settings {
 	 */
 	private $plugin_version;
 
-	public function __construct( $plugin_version = null ) {
+	public function __construct() {
 
 		$this->set_defaults();
 
-		$this->plugin_version = ( is_null( $plugin_version ) ) ? '0.0.0' : $plugin_version;
+		$this->plugin_version = TRUSTEDLOGIN_PLUGIN_VERSION;
 
 	}
 

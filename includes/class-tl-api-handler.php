@@ -1,4 +1,5 @@
 <?php
+namespace TrustedLogin\Vendor;
 
 /**
  * Class: TrustedLogin API Handler
@@ -6,7 +7,7 @@
  * @package tl-support-side
  * @version 0.1.0
  */
-class TL_API_Handler {
+class API_Handler {
 
 	/**
 	 * @since 0.1.0
@@ -62,7 +63,7 @@ class TL_API_Handler {
      **/
     private $debug_mode = false;
 
-    use TL_Debug_Logging;
+    use Debug_Logging;
 
     public function __construct( $data )
     {

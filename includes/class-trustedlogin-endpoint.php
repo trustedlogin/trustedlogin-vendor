@@ -1,6 +1,9 @@
 <?php
 
-namespace TrustedLogin;
+namespace TrustedLogin\Vendor;
+
+use \WP_REST_Request;
+use \WP_REST_Response;
 
 /**
  * Class: TrustedLogin API Handler
@@ -10,9 +13,8 @@ namespace TrustedLogin;
  */
 class Endpoint {
 
-	use \TL_Debug_Logging;
-	use \TL_Options;
-	use \TL_Licensing;
+	use Debug_Logging;
+	use Licensing;
 
 	/**
 	 * @since 0.3.0
@@ -28,7 +30,7 @@ class Endpoint {
 
 	/**
 	 * @since 0.9.0
-	 * @var TrustedLogin_Settings
+	 * @var Settings
 	 */
 	private $settings;
 
@@ -41,7 +43,7 @@ class Endpoint {
 	/**
 	 * TrustedLogin_Endpoint constructor.
 	 */
-	public function __construct( TrustedLogin_Settings $settings_instance ) {
+	public function __construct( Settings $settings_instance ) {
 
 		$this->settings = $settings_instance;
 
@@ -76,7 +78,7 @@ class Endpoint {
 		) );
 
 		register_rest_route( self::rest_endpoint, '/public_key', array(
-			'methods'  => WP_REST_Server::READABLE,
+			'methods'  => \WP_REST_Server::READABLE,
 			'callback' => array( $this, 'public_key_callback' ),
 		) );
 
@@ -91,7 +93,7 @@ class Endpoint {
 	 *
 	 * @param WP_REST_Request $request
 	 *
-	 * @return WP_REST_Response
+	 * @return \WP_REST_Response
 	 */
 	public function public_key_callback( WP_REST_Request $request ) {
 
@@ -480,5 +482,3 @@ class Endpoint {
 	}
 
 }
-
-new Endpoint();

@@ -1,5 +1,5 @@
 <?php
-namespace TrustedLogin;
+namespace TrustedLogin\Vendor;
 
 /**
  * Class: TrustedLogin - HelpScout Integration
@@ -24,7 +24,7 @@ class HelpScout extends HelpDesk {
 	public function __construct() {
 		parent::__construct();
 
-		$this->secret = $this->tls_settings_get_value('tls_' . self::slug . '_secret');
+		$this->secret = '';//$this->tls_settings_get_value('tls_' . self::slug . '_secret');
 	}
 
 	public function add_extra_settings() {
@@ -46,7 +46,7 @@ class HelpScout extends HelpDesk {
 		);
 
 	}
-	
+
 	public function secret_field_render()
     {
 
@@ -95,7 +95,7 @@ class HelpScout extends HelpDesk {
 
         $saas_attr = array('type' => 'saas', 'auth' => $saas_auth, 'debug_mode' => $this->debug_mode);
         $saas_api = new \TL_API_Handler($saas_attr);
-        
+
 	    // Get licenses
 	    $license_generator = License_Generators::get_active();
 

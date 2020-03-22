@@ -1,5 +1,5 @@
 <?php
-namespace TrustedLogin;
+namespace TrustedLogin\Vendor;
 
 /**
  * Class: TrustedLogin - HelpScout Integration
@@ -9,23 +9,22 @@ namespace TrustedLogin;
  **/
 abstract class HelpDesk {
 
-	use \TL_Options;
-	use \TL_Debug_Logging;
+	use Debug_Logging;
 
 	/**
-	 * @var String - the secret to verify requests from HelpScout
+	 * @var string The secret to verify requests from HelpScout
 	 * @since 0.1.0
 	 **/
 	private $secret;
 
 	/**
-	 * @var Boolean - whether our debug logging is activated
+	 * @var bool Whether our debug logging is activated
 	 * @since 0.1.0
 	 **/
 	private $debug_mode;
 
 	/**
-	 * @var Array - the current TrustedLogin settings
+	 * @var array The current TrustedLogin settings
 	 * @since 0.1.0
 	 **/
 	private $options;
@@ -38,11 +37,9 @@ abstract class HelpDesk {
 
 	public function __construct() {
 
-		$this->tls_settings_set_defaults();
+		$this->secret = '';//$this->tls_settings_get_value( 'tls_' . static::slug . '_secret' );
 
-		$this->secret = $this->tls_settings_get_value( 'tls_' . static::slug . '_secret' );
-
-		$this->debug_mode = $this->tls_settings_is_toggled( 'tls_debug_enabled' );
+		$this->debug_mode = '';//$this->tls_settings_is_toggled( 'tls_debug_enabled' );
 
 		add_filter( 'trustedlogin_supported_helpdesks', array( $this, 'add_supported_helpdesk' ) );
 
@@ -59,7 +56,7 @@ abstract class HelpDesk {
 
 	public function is_active() {
 
-		$active_helpdesk = $this->tls_settings_get_selected_helpdesk();
+		$active_helpdesk = array();//$this->tls_settings_get_selected_helpdesk();
 
 		return in_array( static::slug, $active_helpdesk, true );
 	}

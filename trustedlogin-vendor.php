@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
 }
 // Exit if accessed directly
 
-define( 'TRUSTEDLOGIN_PLUGIN_VERSION', '0.9.0' );
+define( 'TRUSTEDLOGIN_PLUGIN_VERSION', '0.9.0-refactor' );
 
 /** @define "$path" "./" */
 $path = plugin_dir_path(__FILE__);
@@ -34,8 +34,8 @@ require_once $path . 'includes/class-trustedlogin-encryption.php';
 
 class TrustedLogin_Support_Side {
 
-	use TL_Debug_Logging;
-	use TL_Licensing;
+	use TrustedLogin\Vendor\Debug_Logging;
+	use \TrustedLogin\Vendor\Licensing;
 
 	/**
 	 * @since 0.1.0
@@ -44,12 +44,12 @@ class TrustedLogin_Support_Side {
 	private $plugin_version;
 
 	/**
-	 * @var TrustedLogin_Endpoint
+	 * @var TrustedLogin\Vendor\Endpoint
 	 */
 	private $endpoint;
 
 	/**
-	 * @var TrustedLogin_Settings
+	 * @var \TrustedLogin\Vendor\Settings
 	 */
 	private $settings;
 
@@ -60,9 +60,9 @@ class TrustedLogin_Support_Side {
 
 		$this->plugin_version = TRUSTEDLOGIN_PLUGIN_VERSION;
 
-		$this->settings = new TrustedLogin_Settings( $this->plugin_version );
+		$this->settings = new TrustedLogin\Vendor\Settings();
 
-		$this->endpoint = new TrustedLogin_Endpoint( $this->settings );
+		$this->endpoint = new TrustedLogin\Vendor\Endpoint( $this->settings );
 
 		// Setup the Plugin Settings
 		if ( is_admin() ) {
@@ -73,6 +73,8 @@ class TrustedLogin_Support_Side {
 	}
 
 	public function init_helpdesk_integration() {
+
+		include_once plugin_dir_path( __FILE__ ) . 'helpdesks/abstract-tl-helpdesk.php';
 
 		// Load all field files automatically
 		foreach ( glob( plugin_dir_path( __FILE__ ) . 'helpdesks/class-*.php' ) as $helpdesk ) {
