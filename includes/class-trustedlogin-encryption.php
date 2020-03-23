@@ -65,8 +65,6 @@ class Encryption {
 		 *
 		 * @param stdClass|\WP_Error $keys
 		 * @param Encryption $this
-		 * @param stdClass|WP_Error $keys
-		 * @param TrustedLogin_Encryption $this
 		 */
 		return apply_filters( 'trustedlogin/encryption/get-keys', $keys, $this );
 	}
@@ -125,7 +123,7 @@ class Encryption {
 			$updated = $this->update_keys( $keys );
 
 			if ( is_wp_error( $updated ) ) {
-				return $updated;;
+				return $updated;
 			}
 		}
 
@@ -139,9 +137,9 @@ class Encryption {
 	 *
 	 * @see Encryption::create_keys()
 	 *
-	 * @param stdClass  The keys to save.
+	 * @param stdClass $keys The keys to save.
 	 *
-	 * @return  mixed  True if keys saved. WP_Error if not.
+	 * @return true|WP_Error True if keys saved. WP_Error if not.
 	 */
 	private function update_keys( $keys ) {
 
@@ -203,7 +201,7 @@ class Encryption {
 
 		$keys = $this->get_keys();
 
-		if ( ! $keys || ! property_exists( $keys, 'private_key' ) ) {
+		if ( ! $keys || ! isset( $keys->private_key ) ) {
 			return new WP_Error( 'key_error', 'Cannot get keys from the local DB.' );
 		}
 
