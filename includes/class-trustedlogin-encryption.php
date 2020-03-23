@@ -2,6 +2,8 @@
 
 namespace TrustedLogin\Vendor;
 
+use WP_Error;
+
 /**
  * Class: TrustedLogin Encryption
  *
@@ -63,7 +65,7 @@ class Encryption {
 		/**
 		 * Filter allows site admins to change where the key is fetched from.
 		 *
-		 * @param stdClass|\WP_Error $keys
+		 * @param stdClass|WP_Error $keys
 		 * @param Encryption $this
 		 */
 		return apply_filters( 'trustedlogin/encryption/get-keys', $keys, $this );
@@ -85,8 +87,8 @@ class Encryption {
 	 */
 	private function generate_keys( $update = true ) {
 
-		if ( ! class_exists( '\Sodium\crypto_box_keypair' ) ) {
-			return new WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
+		if ( ! class_exists( 'Sodium' ) && ! class_exists( 'ParagonIE_Sodium_Crypto' ) ) {
+			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
 		}
 
 		// Keeping named $bob_{name} for clarity while implementing:
