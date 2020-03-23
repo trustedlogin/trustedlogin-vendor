@@ -160,11 +160,11 @@ class Encryption {
 			return $keys;
 		}
 
-		if ( $keys && is_object( $keys ) && isset( $keys->public_key ) ) {
-			return $keys->public_key;
+		if ( ! $keys || ! is_object( $keys ) || ! isset( $keys->public_key ) ) {
+			return new WP_Error( 'get_keys_failed', 'Could not get public get_keys stored invalid JSON.' );
 		}
 
-		return new WP_Error( 'get_keys_failed', 'Could not get public get_keys stored invalid JSON.');
+		return $keys->public_key;
 	}
 
 	/**
