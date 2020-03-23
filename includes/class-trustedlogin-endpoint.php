@@ -112,7 +112,7 @@ class Endpoint {
 			$response->set_data( $data );
 			$response->set_status( 200 );
 		} else {
-			$response->set_status( 204 );
+			$response->set_status( 501 );
 		}
 
 		return $response;
