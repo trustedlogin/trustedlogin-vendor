@@ -96,8 +96,8 @@ class Encryption {
 		$bob_box_publickey = \Sodium\crypto_box_publickey( $bob_box_kp );
 
 		$keys = (object) array(
-			'private_key' => $bob_box_secretkey,
-			'public_key' => $bob_box_publickey,
+			'private_key' => bin2hex( $bob_box_secretkey ),
+			'public_key' => bin2hex( $bob_box_publickey ),
 		);
 
 		if( $update ) {
