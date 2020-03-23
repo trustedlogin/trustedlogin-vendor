@@ -85,38 +85,19 @@ class Encryption {
 	 */
 	private function generate_keys( $update = true ) {
 
-		$config = array(
-			'digest_alg'       => 'sha512',
-			'private_key_bits' => 4096,
-			'private_key_type' => OPENSSL_KEYTYPE_RSA,
-		);
-
-		// Create the private and public key
-		$res = openssl_pkey_new( $config );
-
-		if ( ! $res ) {
-			return new WP_Error( 'openssl_error_privatekey', 'Could not generate a private key using OpenSSL.' );
+		if ( ! class_exists( '\Sodium\crypto_box_keypair' ) ) {
+			return new WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
 		}
 
-		// Extract the private key from $res to $private_key
-		$private_key_success = openssl_pkey_export( $res, $private_key );
-
-		if ( ! $private_key_success || empty( $private_key ) ) {
-			return new WP_Error( 'openssl_error_privatekey_export', 'Could not extract a private key using OpenSSL.' );
-		}
-
-		// Extract the public key from $res to $public_key
-		$public_key = openssl_pkey_get_details( $res );
-
-		if( ! $public_key || ! isset( $public_key['key'] ) ) {
-			return new WP_Error( 'openssl_error_publickey', 'Could not get public key details using OpenSSL.' );
-		}
-
-		$public_key = $public_key['key'];
+		// Keeping named $bob_{name} for clarity while implementing:
+		// https://paragonie.com/book/pecl-libsodium/read/05-publickey-crypto.md
+		$bob_box_kp = \Sodium\crypto_box_keypair();
+		$bob_box_secretkey = \Sodium\crypto_box_secretkey( $bob_box_kp );
+		$bob_box_publickey = \Sodium\crypto_box_publickey( $bob_box_kp );
 
 		$keys = (object) array(
-			'private_key' => $private_key,
-			'public_key' => $public_key
+			'private_key' => $bob_box_secretkey,
+			'public_key' => $bob_box_publickey,
 		);
 
 		if( $update ) {
