@@ -89,6 +89,11 @@ class Endpoint {
 			'callback' => array( $this, 'public_key_callback' ),
 		) );
 
+		register_rest_route( self::rest_endpoint, '/signature_key', array(
+			'methods'  => \WP_REST_Server::READABLE,
+			'callback' => array( $this, 'sign_public_key_callback' ),
+		) );
+
 	}
 
 	/**
@@ -109,6 +114,35 @@ class Endpoint {
 
 		if ( ! is_wp_error( $public_key ) ) {
 			$data = array( 'publicKey' => $public_key );
+			$response->set_data( $data );
+			$response->set_status( 200 );
+		} else {
+			$response->set_status( 501 );
+		}
+
+		return $response;
+
+	}
+
+
+	/**
+	 * Returns the Signature Public Key for this specific vendor/plugin.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param \WP_REST_Request $request
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function sign_public_key_callback( \WP_REST_Request $request ) {
+
+		$trustedlogin_encryption = new Encryption();
+		$sign_public_key         = $trustedlogin_encryption->get_key( 'sign_public_key' );
+
+		$response = new \WP_REST_Response();
+
+		if ( ! is_wp_error( $sign_public_key ) ) {
+			$data = array( 'signatureKey' => $sign_public_key );
 			$response->set_data( $data );
 			$response->set_status( 200 );
 		} else {
