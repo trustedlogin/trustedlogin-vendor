@@ -311,54 +311,7 @@ class Encryption {
 	}
 
 	/**
-	 * Encrypts a string using the Public Key provided by the plugin/theme developers' server.
-	 *
-	 * @since 0.8.0
-	 *
-	 * @uses `openssl_public_encrypt()` for encryption.
-	 *
-	 * @param string $data Data to encrypt.
-	 * @param string $key Key to use to encrypt the data.
-	 *
-	 * @return string|WP_Error  Encrypted envelope or WP_Error on failure.
-	 */
-	private function encrypt( $data, $key ) {
-
-		if ( empty( $data ) || empty( $key ) ) {
-			return new \WP_Error( 'no_data', 'No data provided.' );
-		}
-
-		/**
-		 * Note about encryption padding:
-		 *
-		 * Public Key Encryption (ie that can only be decrypted with a secret private_key) uses `OPENSSL_PKCS1_OAEP_PADDING`.
-		 * Private Key Signing (ie verified by decrypting with known public_key) uses `OPENSSL_PKCS1_PADDING`
-		 */
-		openssl_public_encrypt( $data, $encrypted, $key, OPENSSL_PKCS1_OAEP_PADDING );
-
-		if ( empty( $encrypted ) ) {
-
-			$error_string = '';
-			while ( $msg = openssl_error_string() ) {
-				$error_string .= "\n" . $msg;
-			}
-
-			return new \WP_Error (
-				'encryption_failed',
-				sprintf(
-					'Could not encrypt envelope. Errors from openssl: %1$s',
-					$error_string
-				)
-			);
-		}
-
-		$encrypted = base64_encode( $encrypted );
-
-		return $encrypted;
-	}
-
-	/**
-	 * Encrypts a string using the Private Key provided by the plugin/theme developers' server.
+	 * Signs a string using the Signature Private Key provided by the plugin/theme developers' server.
 	 *
 	 * @since 0.8.0
 	 * @since 1.0.0
