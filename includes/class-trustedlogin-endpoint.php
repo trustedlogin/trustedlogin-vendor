@@ -424,18 +424,22 @@ class Endpoint {
 			return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly' );
 		}
 
-		if ( ! array_key_exists( 'identifier', $envelope ) || ! array_key_exists( 'siteurl', $envelope ) ) {
-			$this->dlog( 'Error: malformed envelope. e:' . print_r( $envelope, true ), __METHOD__ );
+		$required_keys = array( 'identifier', 'siteUrl', 'publicKey', 'nonce' );
 
-			return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly' );
+		foreach ( $required_keys as $required_key ){
+			if ( ! array_key_exists( $required_key, $envelope ) ){
+				$this->dlog( 'Error: malformed envelope. e:' . print_r( $envelope, true ), __METHOD__ );
+
+				return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly' );
+			}
 		}
 
 		$trustedlogin_encryption = new Encryption();
 
 		try {
 			$parts = array(
-				'siteurl'    => $trustedlogin_encryption->decrypt( $envelope['siteurl'] ),
-				'identifier' => $trustedlogin_encryption->decrypt( $envelope['identifier'] ),
+				'siteurl'    => $trustedlogin_encryption->decrypt( $envelope['siteurl'], $envelope['nonce'], $envelope['publicKey'] ),
+				'identifier' => $trustedlogin_encryption->decrypt( $envelope['identifier'], $envelope['nonce'], $envelope['publicKey'] ),
 			);
 
 		} catch ( Exception $e ) {
