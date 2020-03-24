@@ -78,12 +78,13 @@ class Encryption {
 	 *
 	 * @param bool $update Whether to update the database with the new keys. Default: true
 	 *
-	 * @return stdClass|WP_Error $keys {
-	 *   The keys to save.
-	 *
-	 *   @type string $private_key The private key used for decrypting.
-	 *   @type string $public_key The public key used for encrypting.
-	 * } or WP_Error
+	 * @return  stdClass|WP_Error  $keys or WP_Error if any issues
+	 *    $keys = [
+	 *        'private_key' 	 => (string)  The private key used for encrypt/decrypt.
+	 *        'public_key' 		 => (string)  The public key used for encrypt/decrypt.
+	 *        'sign_public_key'  => (string)  The public key used for signing/verifying.
+	 *        'sign_private_key' => (string)  The private key used for signing/verifying.
+	 *    ]
 	 */
 	private function generate_keys( $update = true ) {
 
@@ -174,6 +175,9 @@ class Encryption {
 	 *
 	 * @since 0.8.0
 	 * @since 1.0.0 - Added $nonce and $client_public_key params
+	 *
+	 * @uses \Sodium\crypto_box_keypair_from_secretkey_and_publickey()
+	 * @uses \Sodium\crypto_box_open()
 	 *
 	 * @param string $encrypted_payload Base 64 encoded string that needs to be decrypted.
 	 * @param string $nonce Single use nonce for a specific Client.
