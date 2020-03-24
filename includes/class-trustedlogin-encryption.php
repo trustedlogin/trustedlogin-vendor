@@ -173,12 +173,15 @@ class Encryption {
 	 * Decrypts an encrypted payload.
 	 *
 	 * @since 0.8.0
+	 * @since 1.0.0 - Added $nonce and $client_public_key params
 	 *
 	 * @param string $encrypted_payload Base 64 encoded string that needs to be decrypted.
+	 * @param string $nonce Single use nonce for a specific Client.
+	 * @param string $client_public_key The public key from the Client plugin that generated the envelope.
 	 *
 	 * @return string|WP_Error If successful the decrypted string (could be a JSON string), otherwise WP_Error.
 	 */
-	public function decrypt( $encrypted_payload ) {
+	public function decrypt( $encrypted_payload, $nonce, $client_public_key ) {
 
 		$decrypted_payload = '';
 
@@ -199,15 +202,15 @@ class Encryption {
 			return new WP_Error( 'data_malformated', 'Encrypted data needed to be base64 encoded.' );
 		}
 
-		/**
-		 * Note about encryption padding:
-		 *
-		 * Public Key Encryption (ie that can only be decrypted with a secret private_key) uses `OPENSSL_PKCS1_OAEP_PADDING`.
-		 * Private Key Signing (ie verified by decrypting with known public_key) uses `OPENSSL_PKCS1_PADDING`
-		 */
-		openssl_private_decrypt( $encrypted_payload, $decrypted_payload, $keys->private_key, OPENSSL_PKCS1_OAEP_PADDING );
+		if ( ! class_exists( 'Sodium' ) && ! class_exists( 'ParagonIE_Sodium_Crypto' ) ) {
+			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
+		}
 
-		if ( empty( $decrypted_payload ) ) {
+		$decryption_key = \Sodium\crypto_box_keypair_from_secretkey_and_publickey( $keys->private_key, $client_public_key );
+
+		$decrypted_payload = \Sodium\crypto_box_open( $encrypted_payload, $nonce, $decryption_key );
+
+		if ( empty( $decrypted_payload ) || $decrypted_payload == false ) {
 			return new WP_Error( 'decryption_failed', 'Decryption failed.' );
 		}
 
