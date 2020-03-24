@@ -129,7 +129,7 @@ class Encryption {
 		$keys_db_ready = json_encode( $keys );
 
 		if ( ! $keys_db_ready ) {
-			return new WP_Error( 'json_error', 'Could not encode keys to JSON.', $keys );
+			return new \WP_Error( 'json_error', 'Could not encode keys to JSON.', $keys );
 		}
 
 		// Instead of update_site_option(), which can return false if value didn't change, success is much clearer
@@ -139,7 +139,7 @@ class Encryption {
 		$saved = add_site_option( $this->key_option_name, $keys_db_ready );
 
 		if ( ! $saved ) {
-			return new WP_Error( 'db_error', 'Could not save keys to database.' );
+			return new \WP_Error( 'db_error', 'Could not save keys to database.' );
 		}
 
 		return true;
@@ -163,7 +163,7 @@ class Encryption {
 		}
 
 		if ( ! $keys || ! is_object( $keys ) || ! isset( $keys->public_key ) ) {
-			return new WP_Error( 'get_keys_failed', 'Could not get public get_keys stored invalid JSON.' );
+			return new \WP_Error( 'get_keys_failed', 'Could not get public get_keys stored invalid JSON.' );
 		}
 
 		return $keys->public_key;
@@ -188,18 +188,18 @@ class Encryption {
 		$keys = $this->get_keys();
 
 		if ( ! $keys || ! isset( $keys->private_key ) ) {
-			return new WP_Error( 'key_error', 'Cannot get keys from the local DB.' );
+			return new \WP_Error( 'key_error', 'Cannot get keys from the local DB.' );
 		}
 
 		if ( empty( $encrypted_payload ) ) {
-			return new WP_Error( 'data_empty', 'Will not decrypt an empty payload.' );
+			return new \WP_Error( 'data_empty', 'Will not decrypt an empty payload.' );
 		}
 
 		$encrypted_payload = base64_decode( $encrypted_payload );
 
 		if ( false == $encrypted_payload ) {
 			// Data was not successfully base64_decode'd
-			return new WP_Error( 'data_malformated', 'Encrypted data needed to be base64 encoded.' );
+			return new \WP_Error( 'data_malformated', 'Encrypted data needed to be base64 encoded.' );
 		}
 
 		if ( ! class_exists( 'Sodium' ) && ! class_exists( 'ParagonIE_Sodium_Crypto' ) ) {
@@ -211,7 +211,7 @@ class Encryption {
 		$decrypted_payload = \Sodium\crypto_box_open( $encrypted_payload, $nonce, $decryption_key );
 
 		if ( empty( $decrypted_payload ) || $decrypted_payload == false ) {
-			return new WP_Error( 'decryption_failed', 'Decryption failed.' );
+			return new \WP_Error( 'decryption_failed', 'Decryption failed.' );
 		}
 
 		return $decrypted_payload;
@@ -268,7 +268,7 @@ class Encryption {
 	private function encrypt( $data, $key ) {
 
 		if ( empty( $data ) || empty( $key ) ) {
-			return new WP_Error( 'no_data', 'No data provided.' );
+			return new \WP_Error( 'no_data', 'No data provided.' );
 		}
 
 		/**
@@ -286,7 +286,7 @@ class Encryption {
 				$error_string .= "\n" . $msg;
 			}
 
-			return new WP_Error (
+			return new \WP_Error (
 				'encryption_failed',
 				sprintf(
 					'Could not encrypt envelope. Errors from openssl: %1$s',
@@ -333,7 +333,7 @@ class Encryption {
 				$error_string .= "\n" . $msg;
 			}
 
-			return new WP_Error (
+			return new \WP_Error (
 				'encryption_failed',
 				sprintf(
 					'Could not sign data. Errors from openssl: %1$s',
