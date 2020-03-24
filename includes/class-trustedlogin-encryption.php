@@ -170,7 +170,7 @@ class Encryption {
 		}
 
 		if ( ! in_array( $key_slug, array( 'public_key', 'sign_public_key' ) ) ){
-			return new \WP_Error( 'not_public_key', 'This function can only return public keys' ) );
+			return new \WP_Error( 'not_public_key', 'This function can only return public keys' );
 		}
 
 		if ( ! $keys || ! is_object( $keys ) || ! property_exists( $keys, $key_slug ) ) {
