@@ -49,9 +49,7 @@ class Endpoint {
 
 		$this->audit_log = new TrustedLogin_Audit_Log( $this->settings );
 
-		add_action( 'init', array( $this, 'maybe_add_rewrite_rule' ) );
-		add_action( 'template_redirect', array( $this, 'maybe_endpoint_redirect' ), 99 );
-		add_filter( 'query_vars', array( $this, 'endpoint_add_var' ) );
+		add_action( 'template_redirect', array( $this, 'maybe_action_redirect' ), 99 );
 		add_action( 'rest_api_init', array( $this, 'register_endpoints' ) );
 	}
 
@@ -216,72 +214,40 @@ class Endpoint {
 		return in_array( $param, $types, true );
 	}
 
-	/**
-	 * Hooked Action: Add a specified endpoint to WP when plugin is active
-	 *
-	 * @since 0.3.0
-	 */
-	public function maybe_add_rewrite_rule() {
 
-		if ( get_option( 'tl_permalinks_flushed' ) ) {
+	/**
+	 * Hooked Action: Checks if the specified attributes are set has a valid access_key before checking if we can redirect support agent.
+	 *
+	 * @since 1.0.0
+	 */
+	public function maybe_action_redirect() {
+
+		if ( !isset( $_REQUEST['trustedlogin'] ) ){
 			return;
 		}
 
-		$endpoint_regex = '^' . self::redirect_endpoint . '/([^/]+)/?$'; // ^p/(d+)/?$
+		$required_args = array( 'action', 'provider', 'ak' );
 
-		$this->dlog( "Endpoint Regex: $endpoint_regex", __METHOD__ );
-
-		add_rewrite_rule(
-			$endpoint_regex,
-			'index.php?' . self::redirect_endpoint . '=$matches[1]',
-			'top' );
-
-		$this->dlog( "Endpoint " . self::redirect_endpoint . " added.", __METHOD__ );
-
-		flush_rewrite_rules( false );
-
-		$this->dlog( "Rewrite rules flushed.", __METHOD__ );
-
-		update_option( 'tl_permalinks_flushed', 1 );
-	}
-
-	/**
-	 * Filter: Add our custom variable to endpoint queries to hold the identifier
-	 *
-	 * @since 0.3.0
-	 *
-	 * @param array $vars
-	 *
-	 * @return array
-	 */
-	public function endpoint_add_var( $vars = array() ) {
-
-		// Only add once
-		if ( in_array( self::redirect_endpoint, $vars, true ) ) {
-			return $vars;
+		foreach( $required_args as $required_arg ){
+			if ( ! isset( $_REQUEST[ $required_arg ] ) ){
+				$this->dlog( 'Required arg '. $required_arg. ' missing.', __METHOD__ );
+				return;
+			}
 		}
 
-		$vars[] = self::redirect_endpoint;
+		switch ( $_REQUEST['action'] ){
+			case 'support_redirect':
 
-		$this->dlog( "Endpoint var " . self::redirect_endpoint . " added", __METHOD__ );
+			$access_key = $_REQUEST['ak'];
+			$this->maybe_redirect_support( $access_key );
 
-		return $vars;
-	}
+			break;
+			default:
 
-	/**
-	 * Hooked Action: Check if the endpoint is hit and has a valid secret_id before automatically logging in support agent
-	 *
-	 * @since 0.3.0
-	 */
-	public function maybe_endpoint_redirect() {
-
-		$secret_id = get_query_var( self::redirect_endpoint, false );
-
-		if ( empty( $secret_id ) ) {
-			return;
 		}
 
-		$this->maybe_redirect_support( $secret_id );
+		return;
+		
 	}
 
 

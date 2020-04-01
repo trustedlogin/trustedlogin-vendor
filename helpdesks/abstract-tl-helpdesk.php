@@ -78,4 +78,35 @@ abstract class HelpDesk {
 
 	}
 
+	/**
+	 * Builds a URL for helpdesk request and redirect actions.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $action  What action the link should do. eg 'support_redirect'.
+	 * @param string $access_key  (Optional) The key for the access being requested.
+	 *
+	 * @return string The url with GET variables.
+	 */
+	public function build_action_url( $action, $access_key = '' ){
+
+		if ( empty( $action ) ){
+			return new \WP_Error( 'variable-missing', 'Cannot build helpdesk action URL without a specified action' );
+		}
+
+		$args = array(
+			'trustedlogin' => 1,
+			'action'   	   => $action,
+			'provider'     => static::slug,
+		);
+
+		if ( $access_key ){
+			$args['ak'] = $access_key;
+		}
+
+		$url = add_query_arg( $args, site_url() );
+
+		return esc_url( $url );
+	}
+
 }
