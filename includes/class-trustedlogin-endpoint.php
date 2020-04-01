@@ -222,7 +222,14 @@ class Endpoint {
 	 */
 	public function maybe_action_redirect() {
 
-		if ( !isset( $_REQUEST['trustedlogin'] ) ){
+		if ( ! isset( $_REQUEST['trustedlogin'] ) ){
+			return;
+		}
+
+		if ( 1 !== intval( $_REQUEST['trustedlogin'] ) ){
+			$this->dlog( 
+				'Incorrect parameter for trustedlogin provided: '. sanitize_text_field( $_REQUEST['trustedlogin'] ), 
+				__METHOD__ );
 			return;
 		}
 
