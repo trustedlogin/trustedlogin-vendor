@@ -4,6 +4,7 @@ namespace TrustedLogin\Vendor;
 
 use \WP_REST_Request;
 use \WP_REST_Response;
+use \WP_Error;
 
 /**
  * Class: TrustedLogin API Handler
@@ -371,7 +372,7 @@ class Endpoint {
 			'auth'       => $saas_auth,
 			'debug_mode' => $this->settings->debug_mode_enabled()
 		);
-		$saas_api  = new TL_API_Handler( $saas_attr );
+		$saas_api  = new API_Handler( $saas_attr );
 
 
 		/**

@@ -212,7 +212,7 @@ class HelpScout extends HelpDesk {
         }
 
         $saas_attr = (object) array( 'type' => 'saas', 'auth' => $saas_auth, 'debug_mode' => $this->debug_mode );
-        $saas_api = new TL_API_Handler($saas_attr);
+        $saas_api = new API_Handler($saas_attr);
 
         $for_vault = array();
         $item_html = '';
