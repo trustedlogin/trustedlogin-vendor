@@ -104,7 +104,7 @@ class Settings {
 
 		$args = array(
 			'submenu_page' => 'options-general.php',
-			'menu_title'   => __( 'TrustedLogin Settings', 'trustedlogin-vendor' ),
+			'menu_title'   => __( 'Settings', 'trustedlogin-vendor' ),
 			'page_title'   => __( 'TrustedLogin', 'trustedlogin-vendor' ),
 			'capabilities' => 'manage_options',
 			'slug'         => 'trustedlogin_vendor',
@@ -115,8 +115,44 @@ class Settings {
 		if ( 'submenu' === $this->menu_location ) {
 			add_submenu_page( $args['submenu_page'], $args['menu_title'], $args['page_title'], $args['capabilities'], $args['slug'], $args['callback'] );
 		} else {
-			add_menu_page( $args['menu_title'], $args['page_title'], $args['capabilities'], $args['slug'], $args['callback'], $args['icon'] );
+			// add_menu_page( $args['menu_title'], $args['page_title'], $args['capabilities'], $args['slug'], $args['callback'], $args['icon'] );
+			add_menu_page(
+                $args['menu_title'], 
+                $args['page_title'], 
+                $args['capabilities'], 
+                $args['slug'], 
+                $args['callback'], 
+                $args['icon']
+            );
+
+             add_submenu_page(
+                $args['slug'],
+                $args['page_title'], 
+                $args['menu_title'], 
+                $args['capabilities'], 
+                $args['slug'], 
+                $args['callback']
+            );
+
 		}
+
+		$access_key_page_args = array(
+			'submenu_page' => 'trustedlogin_vendor',
+			'menu_title'   => __( 'Login via AccessKey', 'trustedlogin-vendor' ),
+			'page_title'   => __( 'TrustedLogin via AccessKey', 'trustedlogin-vendor' ),
+			'capabilities' => 'manage_options',
+			'slug'         => 'trustedlogin_accesskey',
+			'callback'     => array( $this, 'accesskey_page' ),
+		);
+
+		add_submenu_page( 
+			$access_key_page_args['submenu_page'], 
+			$access_key_page_args['page_title'],
+			$access_key_page_args['menu_title'],  
+			$access_key_page_args['capabilities'], 
+			$access_key_page_args['slug'], 
+			$access_key_page_args['callback'] 
+		);
 
 	}
 
