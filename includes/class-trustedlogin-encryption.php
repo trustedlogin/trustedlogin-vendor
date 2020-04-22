@@ -181,6 +181,34 @@ class Encryption {
 	}
 
 	/**
+	 * Gets a specific private cryptographic key.
+	 *
+	 * @since 1.0.0
+	 * 
+	 * @param string $key_slug  The slug of the key to fetch. 
+	 *                          Options are 'public_key' (default), 'sign_public_key'.
+	 *
+	 * @return string|WP_Error  Returns key if found, otherwise WP_Error.
+	 */
+	private function get_private_key( $key_slug = 'private_key' ){
+		$keys = $this->get_keys();
+
+		if ( is_wp_error( $keys ) ) {
+			return $keys;
+		}
+
+		if ( ! in_array( $key_slug, array( 'private_key', 'sign_private_key' ) ) ){
+			return new \WP_Error( 'not_public_key', 'This function can only return private keys' );
+		}
+
+		if ( ! $keys || ! is_object( $keys ) || ! property_exists( $keys, $key_slug ) ) {
+			return new \WP_Error( 'get_key_failed', __sprintf('Could not get %s from get_key.', $key_slug ) );
+		}
+
+		return $keys->{$key_slug};
+	}
+
+	/**
 	 * Returns a public key for encryption.
 	 *
 	 * Used for sending to client-side plugin (via SaaS) to encrypt envelopes with before sending to Vault.
@@ -279,7 +307,11 @@ class Encryption {
 			return $unsigned_nonce;
 		}
 
-		$key = $this->get_key( 'signed_private_key' );
+		$key = $this->get_private_key( 'sign_private_key' );
+
+		if ( is_wp_error( $key ) ){
+			return $key;
+		}
 
 		$identity['nonce']  = base64_encode( $unsigned_nonce );
 		$identity['signed'] = base64_encode( $this->sign( $unsigned_nonce, $key ) );
