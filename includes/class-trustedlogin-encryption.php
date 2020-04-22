@@ -88,19 +88,19 @@ class Encryption {
 	 */
 	private function generate_keys( $update = true ) {
 
-		if ( ! class_exists( 'Sodium' ) && ! class_exists( 'ParagonIE_Sodium_Crypto' ) ) {
+		if ( ! extension_loaded( 'sodium' ) ) {
 			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
 		}
 
 		// Keeping named $bob_{name} for clarity while implementing:
 		// https://paragonie.com/book/pecl-libsodium/read/05-publickey-crypto.md
-		$bob_box_kp 	    = \Sodium\crypto_box_keypair();
-		$bob_box_secretkey  = \Sodium\crypto_box_secretkey( $bob_box_kp );
-		$bob_box_publickey  = \Sodium\crypto_box_publickey( $bob_box_kp );
+		$bob_box_kp 	    = \sodium_crypto_box_keypair();
+		$bob_box_secretkey  = \sodium_crypto_box_secretkey( $bob_box_kp );
+		$bob_box_publickey  = \sodium_crypto_box_publickey( $bob_box_kp );
 
-		$bob_sign_kp 		= \Sodium\crypto_sign_keypair();
-		$bob_sign_publickey = \Sodium\crypto_sign_publickey( $bob_sign_kp );
-		$bob_sign_secretkey = \Sodium\crypto_sign_secretkey( $bob_sign_kp );
+		$bob_sign_kp 		= \sodium_crypto_sign_keypair();
+		$bob_sign_publickey = \sodium_crypto_sign_publickey( $bob_sign_kp );
+		$bob_sign_secretkey = \sodium_crypto_sign_secretkey( $bob_sign_kp );
 
 		$keys = (object) array(
 			'private_key' 	   => bin2hex( $bob_box_secretkey ),
@@ -210,8 +210,8 @@ class Encryption {
 	 * @since 0.8.0
 	 * @since 1.0.0 - Added $nonce and $client_public_key params
 	 *
-	 * @uses \Sodium\crypto_box_keypair_from_secretkey_and_publickey()
-	 * @uses \Sodium\crypto_box_open()
+	 * @uses \sodium_crypto_box_keypair_from_secretkey_and_publickey()
+	 * @uses \sodium_crypto_box_open()
 	 *
 	 * @param string $encrypted_payload Base 64 encoded string that needs to be decrypted.
 	 * @param string $nonce Single use nonce for a specific Client.
@@ -240,13 +240,13 @@ class Encryption {
 			return new \WP_Error( 'data_malformated', 'Encrypted data needed to be base64 encoded.' );
 		}
 
-		if ( ! class_exists( 'Sodium' ) && ! class_exists( 'ParagonIE_Sodium_Crypto' ) ) {
+		if ( ! extension_loaded( 'sodium' ) ) {
 			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
 		}
 
-		$decryption_key = \Sodium\crypto_box_keypair_from_secretkey_and_publickey( $keys->private_key, $client_public_key );
+		$decryption_key = \sodium_crypto_box_keypair_from_secretkey_and_publickey( $keys->private_key, $client_public_key );
 
-		$decrypted_payload = \Sodium\crypto_box_open( $encrypted_payload, $nonce, $decryption_key );
+		$decrypted_payload = \sodium_crypto_box_open( $encrypted_payload, $nonce, $decryption_key );
 
 		if ( empty( $decrypted_payload ) || $decrypted_payload == false ) {
 			return new \WP_Error( 'decryption_failed', 'Decryption failed.' );
@@ -296,17 +296,17 @@ class Encryption {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @uses \Sodium\random_bytes()
+	 * @uses \random_bytes()
 	 *
 	 * @return string|WP_Error  If generated, a nonce. Otherwise a WP_Error.
 	 */
 	private function generate_nonce(){
 
-		if ( ! class_exists( 'Sodium' ) && ! class_exists( 'ParagonIE_Sodium_Crypto' ) ) {
+		if ( ! extension_loaded( 'sodium' ) ) {
 			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
 		}
 
-		return \Sodium\random_bytes(SODIUM_CRYPTO_BOX_NONCEBYTES);
+		return \random_bytes(SODIUM_CRYPTO_BOX_NONCEBYTES);
 
 	}
 
@@ -316,7 +316,7 @@ class Encryption {
 	 * @since 0.8.0
 	 * @since 1.0.0
 	 *
-	 * @uses \Sodium\crypto_sign_detached for signing.
+	 * @uses \sodium_crypto_sign_detached for signing.
 	 *
 	 * @param string $data Data to encrypt.
 	 * @param string $key Key to use to encrypt the data.
@@ -329,12 +329,12 @@ class Encryption {
 			return new \WP_Error( 'no_data', 'No data provided.' );
 		}
 
-		if ( ! class_exists( 'Sodium' ) && ! class_exists( 'ParagonIE_Sodium_Crypto' ) ) {
+		if ( ! extension_loaded( 'sodium' ) ) {
 			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
 		}
 
-		$signed = \Sodium\crypto_sign_detached($data, $key);
+		$signed = \sodium_crypto_sign_detached($data, hex2bin($key));
 
-		return $encrypted;
+		return $signed;
 	}
 }
