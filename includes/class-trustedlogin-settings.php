@@ -466,6 +466,64 @@ class Settings {
 
 	}
 
+	/**
+	 * Settings page output for logging into a customer's site via an AccessKey
+	 *
+	 * @since 1.0.0
+	 */
+	public function accesskey_page(){
+
+		wp_enqueue_script( 'chosen' );
+		wp_enqueue_style( 'chosen' );
+		wp_enqueue_script( 'trustedlogin-settings' );
+		wp_enqueue_style( 'trustedlogin-settings' );
+
+		$endpoint = new Endpoint( $this );
+
+		if ( $endpoint->auth_verify_user() ){
+			$output = sprintf(
+				'<div class="trustedlogin-dialog accesskey">
+				  <form method="GET">
+					  <input type="text" name="ak" id="trustedlogin-access-key" placeholder="%1$s" />
+					  <button type="submit" id="trustedlogin-go" class="trustedlogin-proceed">%2$s</button>
+					  <input type="hidden" name="action" value="ak-redirect" />
+					  <input type="hidden" name="page" value="%3$s" />
+				  </form>
+				</div>',
+				/* %1$s */ __('Paste AccessKey received from customer', 'trustedlogin-vendor'),
+				/* %2$s */ __('Login to Site', 'trustedlogin-vendor'),
+				/* $3$s */ esc_attr( \sanitize_title( $_GET['page'] ) )
+			);
+		} else {
+			$output = sprintf(
+				'<div class="trustedlogin-dialog error">%1$s</div>',
+				__('You do not have permissions to use TrustedLogin AccessKeys.', 'trustedlogin-vendor')
+			);
+		}
+		echo $output;
+	}
+
+	public function maybe_handle_accesskey(){
+
+		if ( ! isset( $_REQUEST['page'] ) || $_REQUEST['page'] !== 'trustedlogin_accesskey' ){
+			return;
+		}
+
+		if ( ! isset( $_REQUEST['ak'] ) ){
+			return;
+		}
+
+		$access_key = sanitize_text_field( $_REQUEST['ak'] );
+
+		if ( empty( $access_key ) ){
+			return;
+		}
+
+		$endpoint = new namespace\Endpoint( $this );
+		$endpoint->maybe_redirect_support( $access_key );
+
+	}
+
 	public function register_scripts() {
 
 		wp_register_style(

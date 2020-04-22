@@ -102,3 +102,29 @@
 	-moz-transition: All 0.3s ease;
 	-o-transition: All 0.3s ease;
 }
+
+/* Access Key Page
+========================== */
+
+.trustedlogin-dialog {
+	width: 600px;
+	max-width: 100%;
+	padding: 20px;
+	margin-top: 3%;
+	margin-right: auto;
+	margin-left: auto;
+	display: block;
+	background: #fff;
+	text-align: center;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+}
+
+#trustedlogin-access-key {
+	width: 75%;
+	line-height: 35px;
+}
+
+#trustedlogin-go {
+	line-height: 32px;
+}
