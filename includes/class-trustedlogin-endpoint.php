@@ -275,6 +275,12 @@ class Endpoint {
 
 		$this->dlog( "Got here. ID: $secret_id", __METHOD__ );
 
+		if ( ! is_admin() ){
+			$redirect_url = get_site_url();
+		} else {
+			$redirect_url = add_query_arg( 'page', sanitize_text_field( $_GET['page'] ), admin_url('admin.php') );
+		}
+
 		// first check if user can be redirected.
 		if ( ! $this->auth_verify_user() ) {
 			$this->dlog( "User cannot be redirected.", __METHOD__ );
@@ -288,7 +294,7 @@ class Endpoint {
 		if ( is_wp_error( $envelope ) ) {
 			$this->dlog( 'Error: ' . $envelope->get_error_message(), __METHOD__ );
 			$this->audit_log->insert( $secret_id, 'failed', $envelope->get_error_message() );
-			wp_redirect( get_site_url(), 302 );
+			wp_redirect( $redirect_url, 302 );
 			exit;
 		}
 
@@ -298,7 +304,7 @@ class Endpoint {
 
 		if ( is_wp_error( $url ) ) {
 			$this->audit_log->insert( $secret_id, 'failed', $url->get_error_message() );
-			wp_redirect( get_site_url(), 302 );
+			wp_redirect( $redirect_url, 302 );
 			exit;
 		}
 
