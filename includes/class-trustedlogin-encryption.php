@@ -27,10 +27,10 @@ class Encryption {
 		 * @todo Validate string is short enough to be stored in database
 		 * @since 0.8.0
 		 *
-		 * @param Encryption $this
 		 * @param string
+		 * @param Encryption $this
 		 */
-		$this->key_option_name = apply_filters( 'trustedlogin/encryption/keys-option', $this->key_option_name, $this );
+		$this->key_option_name = apply_filters( 'trustedlogin/vendor/encryption/keys-option', $this->key_option_name, $this );
 
 	}
 
@@ -66,7 +66,7 @@ class Encryption {
 		 * @param stdClass|WP_Error $keys
 		 * @param Encryption $this
 		 */
-		return apply_filters( 'trustedlogin/encryption/get-keys', $keys, $this );
+		return apply_filters( 'trustedlogin/vendor/encryption/get-keys', $keys, $this );
 	}
 
 	/**

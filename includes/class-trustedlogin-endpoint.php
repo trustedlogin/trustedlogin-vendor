@@ -210,7 +210,7 @@ class Endpoint {
 	 */
 	public function validate_callback( $param, $request = null, $key = null ) {
 
-		$types = apply_filters( 'trustedlogin_api_ecom_types', array( 'EDD', 'WooCommerce' ) );
+		$types = apply_filters( 'trustedlogin/vendor/endpoint/ecommerce-types', array( 'EDD', 'WooCommerce' ) );
 
 		return in_array( $param, $types, true );
 	}

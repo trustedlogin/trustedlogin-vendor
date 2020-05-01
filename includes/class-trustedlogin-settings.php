@@ -84,6 +84,16 @@ class Settings {
 
 	public function set_defaults() {
 
+
+		/**
+		 * Filter: Manipulate default options 
+		 *
+		 * @since 1.0.0
+		 *
+		 * @see   `default_options` private variable. 
+		 *
+		 * @param array 
+		 **/
 		$this->default_options = apply_filters( 'trustedlogin/vendor/settings/default', $this->default_options );
 
 		$this->options = get_option( 'trustedlogin_vendor', $this->default_options );
@@ -94,11 +104,11 @@ class Settings {
 		 * Filter: Where in the menu the TrustedLogin Options should go.
 		 * Added to allow devs to move options item under 'Settings' menu item in wp-admin to keep things neat.
 		 *
-		 * @since 0.1.0
+		 * @since 1.0.0
 		 *
 		 * @param String either 'main' or 'submenu'
 		 **/
-		$this->menu_location = apply_filters( 'trustedlogin_menu_location', 'main' );
+		$this->menu_location = apply_filters( 'trustedlogin/vendor/settings/menu-location', 'main' );
 	}
 
 	public function add_admin_menu() {
@@ -369,9 +379,14 @@ class Settings {
 		 *
 		 * @since 0.1.0
 		 *
-		 * @param Array ('slug'=>'Title')
+		 * @param array [
+		 * 		$slug => [					Slug is the identifier of the Helpdesk software, and is the value of the dropdown option.
+		 *			@var string $title,  	Translated title of the Helpdesk software, and title of dropdown option.
+		 *			@var bool   $active,	If false, the Helpdesks Solution is not shown in the dropdown options for selection.
+		 * 		],
+		 * ]
 		 **/
-		$helpdesks = apply_filters( 'trustedlogin_supported_helpdesks', array(
+		$helpdesks = apply_filters( 'trustedlogin/vendor/settings/helpdesks', array(
 			''          => array(
 				'title'  => __( 'Select Your Helpdesk Software', 'trustedlogin-vendor' ),
 				'active' => false
@@ -435,7 +450,7 @@ class Settings {
 	}
 
 	public function section_callback() {
-		do_action( 'trustedlogin_section_callback' );
+		do_action( 'trustedlogin/vendor/settings/section-callback' );
 	}
 
 	public function settings_options_page() {
@@ -451,19 +466,19 @@ class Settings {
 
 		settings_errors( 'trustedlogin_vendor_options' );
 
-		do_action( 'trustedlogin_before_settings_sections' );
+		do_action( 'trustedlogin/vendor/settings/sections/before' );
 
 		settings_fields( 'trustedlogin_vendor_options' );
 
 		do_settings_sections( 'trustedlogin_vendor_options' );
 
-		do_action( 'trustedlogin_after_settings_sections' );
+		do_action( 'trustedlogin/vendor/settings/sections/after' );
 
 		submit_button();
 
 		echo '</form>';
 
-		do_action( 'trustedlogin_after_settings_form' );
+		do_action( 'trustedlogin/vendor/settings/form/after' );
 
 	}
 

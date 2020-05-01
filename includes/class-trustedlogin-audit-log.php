@@ -42,7 +42,7 @@ class TrustedLogin_Audit_Log {
 
 		add_action( 'plugins_loaded', array( $this, 'maybe_update_schema' ) );
 
-		add_action( 'trustedlogin_after_settings_form', array( $this, 'maybe_output_log' ), 10 );
+		add_action( 'trustedlogin/vendor/settings/form/after', array( $this, 'maybe_output_log' ), 10 );
 	}
 
 	/**

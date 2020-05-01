@@ -199,7 +199,7 @@ class HelpScout extends HelpDesk {
          * @param string $email
          * @return array
          **/
-        $licenses = apply_filters( 'trusted_login_get_licenses', $licenses, $email );
+        $licenses = apply_filters( 'trustedlogin/vendor/customers/licenses', $licenses, $email );
 
         $account_id = $this->settings->get_setting( 'account_id' );
         $saas_auth  = $this->settings->get_setting( 'account_key' );
@@ -217,10 +217,36 @@ class HelpScout extends HelpDesk {
         $for_vault = array();
         $item_html = '';
 
-        $html_template = '<ul class="c-sb-list c-sb-list--two-line">%1$s</ul>';
-        $item_template = '<li class="c-sb-list-item"><a href="%1$s">%2$s %3$s</a> (%4$s)</li>';
-        $no_items_template = '<li class="c-sb-list-item">%1$s</li>';
-        $url_endpoint = apply_filters( 'trustedlogin_redirect_endpoint', 'trustedlogin' );
+
+        /**
+         * Filter: Allows for changing the html output of the wrapper html elements.
+         *
+         * @param string  $html
+         */
+        $html_template = apply_filters( 
+            'trustedlogin/vendor/helpdesk/'. self::slug. '/template/wrapper', 
+            '<ul class="c-sb-list c-sb-list--two-line">%1$s</ul>'
+        );
+
+        /**
+         * Filter: Allows for changing the html output of the individual items html elements.
+         *
+         * @param string  $html
+         */
+        $item_template = apply_filters( 
+            'trustedlogin/vendor/helpdesk/'. self::slug. '/template/item', 
+            '<li class="c-sb-list-item"><a href="%1$s">%2$s %3$s</a> (%4$s)</li>'
+        );
+
+        /**
+         * Filter: Allows for changing the html output of the html elements when no items found.
+         *
+         * @param string  $html
+         */
+        $no_items_template = apply_filters( 
+            'trustedlogin/vendor/helpdesk/'. self::slug. '/template/no-items', 
+            '<li class="c-sb-list-item">%1$s</li>'
+        );
 
         $endpoint = 'accounts/' . $account_id . '/sites/';
         $method   = 'GET';
