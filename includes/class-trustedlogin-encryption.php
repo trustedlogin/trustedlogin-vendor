@@ -60,8 +60,6 @@ class Encryption {
 			$keys = $this->generate_keys( true );
 		}
 
-		$this->dlog( "Keys: " . print_r( $keys, true ), __METHOD__ );
-
 		/**
 		 * Filter allows site admins to change where the key is fetched from.
 		 *
