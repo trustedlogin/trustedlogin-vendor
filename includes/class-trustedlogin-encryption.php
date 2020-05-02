@@ -172,7 +172,7 @@ class Encryption {
 		}
 
 		if ( ! $keys || ! is_object( $keys ) || ! property_exists( $keys, $key_slug ) ) {
-			return new \WP_Error( 'get_key_failed', __sprintf('Could not get %s from get_key.', $key_slug ) );
+			return new \WP_Error( 'get_key_failed', \sprintf('Could not get %s from get_key.', $key_slug ) );
 		}
 
 		return $keys->{$key_slug};
@@ -200,7 +200,7 @@ class Encryption {
 		}
 
 		if ( ! $keys || ! is_object( $keys ) || ! property_exists( $keys, $key_slug ) ) {
-			return new \WP_Error( 'get_key_failed', __sprintf('Could not get %s from get_key.', $key_slug ) );
+			return new \WP_Error( 'get_key_failed', \sprintf('Could not get %s from get_key.', $key_slug ) );
 		}
 
 		return $keys->{$key_slug};
