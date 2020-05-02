@@ -61,6 +61,7 @@ class API_Handler {
 	    $defaults = array(
 		    'auth' => null,
 		    'debug_mode' => false,
+		    'type' => 'saas',
 	    );
 
     	$atts = wp_parse_args( $data, $defaults );
