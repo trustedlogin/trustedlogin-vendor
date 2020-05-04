@@ -396,6 +396,7 @@ class Encryption {
 
 		try {
 
+			return bin2hex( \random_bytes(SODIUM_CRYPTO_BOX_NONCEBYTES) );
 
 		} catch ( \SodiumException $e ) {
 		    return new WP_Error('sodium-error', $e->getMessage() );
