@@ -347,7 +347,7 @@ class Endpoint {
 		$data['user'] = array( 'id' => $current_user->ID, 'name' => $current_user->display_name );
 
 		// make sure we have the auth details from the settings page before continuing.
-		$saas_auth  = $this->settings->get_setting( 'account_key' );
+		$saas_auth  = $this->settings->get_setting( 'private_key' );
 		$account_id = $this->settings->get_setting( 'account_id' );
 		$public_key = $this->settings->get_setting( 'public_key' );
 

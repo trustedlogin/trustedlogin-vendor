@@ -202,7 +202,7 @@ class HelpScout extends HelpDesk {
         $licenses = apply_filters( 'trusted_login_get_licenses', $licenses, $email );
 
         $account_id = $this->settings->get_setting( 'account_id' );
-        $saas_auth  = $this->settings->get_setting( 'account_key' );
+        $saas_auth  = $this->settings->get_setting( 'private_key' );
         $public_key = $this->settings->get_setting( 'public_key' );
 
         if ( ! $saas_auth || ! $public_key ) {
