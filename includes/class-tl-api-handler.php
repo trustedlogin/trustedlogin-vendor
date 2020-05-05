@@ -140,7 +140,7 @@ class API_Handler {
 		$url = $this->api_url . $endpoint;
 
 		if ( ! empty( $this->auth_key ) ) {
-			$additional_headers[ $this->auth_header_type ] = $this->auth_key;
+			$additional_headers[ $this->auth_header_type ] = 'Bearer ' . $this->auth_key;
 		}
 
 		if ( $this->auth_required && empty( $additional_headers ) ) {
