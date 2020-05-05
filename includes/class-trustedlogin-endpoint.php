@@ -246,7 +246,7 @@ class Endpoint {
 		switch ( $_REQUEST['action'] ){
 			case 'support_redirect':
 
-			$access_key = $_REQUEST['ak'];
+			$access_key = sanitize_text_field( $_REQUEST['ak'] );
 			$this->maybe_redirect_support( $access_key );
 
 			break;
