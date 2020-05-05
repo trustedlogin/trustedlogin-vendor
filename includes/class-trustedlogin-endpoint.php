@@ -403,7 +403,7 @@ class Endpoint {
 		 * @type int $expiry The time() of when this Support User will decay
 		 * )
 		 */
-		$envelope = $saas_api->call( $endpoint, $data, 'GET' );
+		$envelope = $saas_api->call( $endpoint, $data, 'POST' );
 
 		$success = ( ! is_wp_error( $envelope ) ) ? __( 'Succcessful', 'trustedlogin-vendor' ) : __( 'Failed', 'trustedlogin-vendor' );
 

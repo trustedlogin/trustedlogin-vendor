@@ -223,7 +223,7 @@ class HelpScout extends HelpDesk {
         $url_endpoint = apply_filters( 'trustedlogin_redirect_endpoint', 'trustedlogin' );
 
         $endpoint = 'accounts/' . $account_id . '/sites/';
-        $method   = 'GET';
+        $method   = 'POST';
         $data     = array( 'accessKeys' => array() );
 
         $statuses = array();
