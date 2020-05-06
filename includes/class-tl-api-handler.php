@@ -176,8 +176,10 @@ class API_Handler {
 		}
 
 		$url 	  = $this->api_url . 'accounts/' . $account_id ;
-        $method   = 'GET';
-        $body     = null;
+        $method   = 'POST';
+        $body     = array( 
+        	'api_endpoint' => get_rest_url(),
+         );
         $headers  = $this->get_additional_headers();
 
         $verification = $this->api_send( $url, $body, $method, $headers );
