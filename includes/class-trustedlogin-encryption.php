@@ -282,7 +282,7 @@ class Encryption {
 
 			$decrypted_payload = \sodium_crypto_box_open( $encrypted_payload, $nonce, $decryption_key );
 
-			if ( empty( $decrypted_payload ) || $decrypted_payload == false ) {
+			if ( empty( $decrypted_payload ) ) {
 				return new \WP_Error( 'decryption_failed', 'Decryption failed.' );
 			}
 
