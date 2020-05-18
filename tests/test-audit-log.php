@@ -5,6 +5,10 @@
  * @package Tl_Support_Side
  */
 
+use TrustedLogin\Vendor\Plugin;
+use TrustedLogin\Vendor\Endpoint;
+use TrustedLogin\Vendor\TrustedLogin_Audit_Log;
+
 /**
  * Tests for Audit Logging
  */
@@ -13,7 +17,7 @@ class AuditLogTest extends WP_UnitTestCase {
 	/** @var TrustedLogin_Support_Side */
 	private $TL;
 
-	/** @var TrustedLogin_Endpoint */
+	/** @var Endpoint */
 	private $Endpoint;
 
 	/** @var TrustedLogin_Audit_Log */
@@ -26,15 +30,15 @@ class AuditLogTest extends WP_UnitTestCase {
 	/**
 	 * AuditLogTest constructor.
 	 */
-	public function __construct() {
-		$this->TL = new TrustedLogin\Vendor\Plugin();
+	public function setUp() {
+		$this->TL = new Plugin();
 		$this->TL->setup();
 
 		$settings = new ReflectionProperty( $this->TL, 'settings' );
 		$settings->setAccessible( true );
 		$settings_value = $settings->getValue( $this->TL );
 
-		$this->Endpoint = new TrustedLogin\Vendor\Endpoint( $settings_value );
+		$this->Endpoint = new Endpoint( $settings_value );
 
 		$audit_log = new ReflectionProperty( $this->Endpoint, 'audit_log' );
 		$audit_log->setAccessible( true );
@@ -45,6 +49,21 @@ class AuditLogTest extends WP_UnitTestCase {
 		$this->user_factory = new WP_UnitTest_Factory_For_User();
 
 		$this->setup_users();
+
+		parent::setUp();
+	}
+
+	/**
+	 * Clear the audit logs after each test
+	 */
+	public function tearDown() {
+		global $wpdb;
+
+		$sql = 'TRUNCATE TABLE ' . $this->audit_log->get_db_table_name();
+
+		$wpdb->query( $sql );
+
+		parent::tearDown();
 	}
 
 	function setup_users() {

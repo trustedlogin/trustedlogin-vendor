@@ -19,7 +19,7 @@ class EncryptionTest extends WP_UnitTestCase {
 	/**
 	 * AuditLogTest constructor.
 	 */
-	public function __construct() {
+	public function setUp() {
 		$this->TL = new TrustedLogin\Vendor\Plugin();
 		$this->TL->setup();
 
@@ -37,7 +37,7 @@ class EncryptionTest extends WP_UnitTestCase {
 
 		$this->assertEmpty( get_site_option( $option_name ) );
 
-		$method = new ReflectionMethod( 'TrustedLogin_Encryption', 'generate_keys' );
+		$method = new ReflectionMethod( 'TrustedLogin\Vendor\Encryption', 'generate_keys' );
 		$method->setAccessible( true );
 
 		$keys = $method->invoke( $this->encryption, false );
@@ -77,7 +77,7 @@ class EncryptionTest extends WP_UnitTestCase {
 			return 'should_be_filtered';
 		});
 
-		$Encryption_Class = new TrustedLogin_Encryption();
+		$Encryption_Class = new TrustedLogin\Vendor\Encryption();
 		$property = new ReflectionProperty( $Encryption_Class, 'key_option_name' );
 		$property->setAccessible( true );
 		$setting_name = $property->getValue( $Encryption_Class );
@@ -99,11 +99,11 @@ class EncryptionTest extends WP_UnitTestCase {
 	 */
 	function test_get_keys() {
 
-		$method_generate_keys = new ReflectionMethod( 'TrustedLogin_Encryption', 'generate_keys' );
+		$method_generate_keys = new ReflectionMethod( 'TrustedLogin\Vendor\Encryption', 'generate_keys' );
 		$method_generate_keys->setAccessible( true );
 
 		/** @see TrustedLogin_Encryption::get_keys() */
-		$method_get_keys = new ReflectionMethod( 'TrustedLogin_Encryption', 'get_keys' );
+		$method_get_keys = new ReflectionMethod( 'TrustedLogin\Vendor\Encryption', 'get_keys' );
 		$method_get_keys->setAccessible( true );
 
 		$this->delete_key_option();
@@ -111,7 +111,7 @@ class EncryptionTest extends WP_UnitTestCase {
 		$keys = $method_get_keys->invoke( $this->encryption, false );
 		$this->assertFalse( $keys, 'When $generate_if_not_set is false, there should be no keys' );
 
-		/** @see TrustedLogin_Encryption::generate_keys() */
+		/** @see TrustedLogin\Vendor\Encryption::generate_keys() */
 		$generated_keys = $method_generate_keys->invoke( $this->encryption, true );
 
 		$keys = $method_get_keys->invoke( $this->encryption, false, 'But there should be keys after they have been created.' );
@@ -134,7 +134,7 @@ class EncryptionTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers TrustedLogin_Encryption::get_public_key
+	 * @covers TrustedLogin\Vendor\Encryption::get_public_key
 	 */
 	function test_get_public_key() {
 
@@ -146,7 +146,7 @@ class EncryptionTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers TrustedLogin_Encryption::create_identity_nonce
+	 * @covers TrustedLogin\Vendor\Encryption::create_identity_nonce
 	 */
 	function test_create_identity_nonce() {
 
@@ -161,7 +161,7 @@ class EncryptionTest extends WP_UnitTestCase {
 
 	/**
 	 * Tests to make sure the public key can be used to decrypt the nonce
-	 * @covers TrustedLogin_Encryption::create_identity_nonce
+	 * @covers TrustedLogin\Vendor\Encryption::create_identity_nonce
 	 */
 	function test_decrypt_nonce(){
 
@@ -169,8 +169,8 @@ class EncryptionTest extends WP_UnitTestCase {
 
 		$this->assertNotWPError( $nonces );
 
-		/** @see TrustedLogin_Encryption::get_keys() */
-		$method = new ReflectionMethod( 'TrustedLogin_Encryption', 'get_keys' );
+		/** @see TrustedLogin\Vendor\Encryption::get_keys() */
+		$method = new ReflectionMethod( 'TrustedLogin\Vendor\Encryption', 'get_keys' );
 		$method->setAccessible( true );
 		$keys = $method->invoke( $this->encryption, true );
 

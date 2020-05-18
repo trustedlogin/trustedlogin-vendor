@@ -5,6 +5,8 @@
  * @package Tl_Support_Side
  */
 
+use TrustedLogin\Vendor\API_Handler;
+
 /**
  * Tests for Audit Logging
  */
@@ -16,13 +18,15 @@ class APIHandlerTest extends WP_UnitTestCase {
 	/**
 	 * APIHandlerTest constructor.
 	 */
-	public function __construct() {
+	public function setUp() {
 		$this->TL = new TrustedLogin\Vendor\Plugin();
 		$this->TL->setup();
 	}
 
 	/**
 	 * @covers API_Handler::__construct
+	 * @covers API_Handler::get_api_url
+	 * @covers API_Handler::get_auth_header_type
 	 */
 	public function test_constuct() {
 

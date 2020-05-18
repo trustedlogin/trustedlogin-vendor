@@ -19,7 +19,7 @@ class EndpointsTest extends WP_UnitTestCase {
 	/**
 	 * AuditLogTest constructor.
 	 */
-	public function __construct() {
+	public function setUp() {
 		$this->TL = new TrustedLogin\Vendor\Plugin();
 		$this->TL->setup();
 
@@ -47,12 +47,12 @@ class EndpointsTest extends WP_UnitTestCase {
 	function test_endpoint_add_var() {
 		global $wp;
 
-		$this->assertNotContains( TrustedLogin_Endpoint::redirect_endpoint, $wp->public_query_vars );
+		$this->assertNotContains( \TrustedLogin\Vendor\Endpoint::redirect_endpoint, $wp->public_query_vars );
 
 		// Triggers parse_request, which contains public_query_vars
 		$wp->main();
 
-		$this->assertContains( TrustedLogin_Endpoint::redirect_endpoint, $wp->public_query_vars );
+		$this->assertContains( \TrustedLogin\Vendor\Endpoint::redirect_endpoint, $wp->public_query_vars );
 
 		_cleanup_query_vars();
 	}
