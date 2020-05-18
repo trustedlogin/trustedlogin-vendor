@@ -5,6 +5,8 @@
  * @package Tl_Support_Side
  */
 
+use TrustedLogin\Vendor\Encryption;
+
 /**
  * Tests for Audit Logging
  */
@@ -27,7 +29,7 @@ class EncryptionTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers TrustedLogin_Encryption::generate_keys
+	 * @covers Encryption::generate_keys
 	 */
 	function test_generate_keys() {
 
@@ -131,6 +133,8 @@ class EncryptionTest extends WP_UnitTestCase {
 		$zero = $method_get_keys->invoke( $this->encryption, true );
 
 		$this->assertEquals( 0, $zero, 'trustedlogin/encryption/get-keys filter failed' );
+
+		remove_all_filters( 'trustedlogin/encryption/get-keys' );
 	}
 
 	/**
@@ -142,11 +146,12 @@ class EncryptionTest extends WP_UnitTestCase {
 
 		$this->assertTrue( is_string( $public_key ) );
 
-		$this->assertContains( '-----BEGIN PUBLIC KEY-----', $public_key );
+		$this->assertEquals( 64, strlen( $public_key ) );
 	}
 
 	/**
 	 * @covers TrustedLogin\Vendor\Encryption::create_identity_nonce
+	 * @covers TrustedLogin\Vendor\Encryption::verify_signature()
 	 */
 	function test_create_identity_nonce() {
 
@@ -160,35 +165,33 @@ class EncryptionTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests to make sure the public key can be used to decrypt the nonce
+	 * Tests to make sure the decryption doesn't fail because of sodium issues
+	 *
+	 * @todo Update this test to actually check whether it can decrypt properly...
+	 *
 	 * @covers TrustedLogin\Vendor\Encryption::create_identity_nonce
+	 * @uses \TrustedLogin\Vendor\Encryption::get_keys
 	 */
-	function test_decrypt_nonce(){
+	function test_decrypt_passes_sodium_at_least(){
 
 		$nonces = $this->encryption->create_identity_nonce();
-
-		$this->assertNotWPError( $nonces );
 
 		/** @see TrustedLogin\Vendor\Encryption::get_keys() */
 		$method = new ReflectionMethod( 'TrustedLogin\Vendor\Encryption', 'get_keys' );
 		$method->setAccessible( true );
 		$keys = $method->invoke( $this->encryption, true );
 
-		$did_decrypt = openssl_public_decrypt( base64_decode( $nonces['signed'] ), $decrypted, $keys->public_key, OPENSSL_PKCS1_PADDING );
+		$this->assertObjectHasAttribute( 'public_key', $keys );
 
-		$this->assertTrue( $did_decrypt, 'openssl_public_decrypt failed' );
+		$nonce = \sodium_bin2hex( \random_bytes( SODIUM_CRYPTO_BOX_NONCEBYTES ) );
 
-		$this->assertTrue( is_string( $decrypted ), 'openssl_public_decrypt should return a string' );
+		$decrypted = $this->encryption->decrypt( 'Very encrypted.', $nonce, $keys->public_key );
 
-		$nonce_decoded = base64_decode( $nonces['nonce'] );
+		$this->assertNotEquals( 'sodium-error', $decrypted->get_error_code(), 'The sodium process requires specific parameters that were not met.' );
 
-		$this->assertTrue( is_string( $nonce_decoded ), 'base64_decode( nonces[nonce] ) should return a string' );
+		$this->assertEquals( 'decryption_failed', $decrypted->get_error_code() );
 
-		$this->assertEquals( $decrypted, $nonce_decoded, 'decrypting nonces[signed] should equal nonces[nonce]' );
-
+		// TODO: Actual decryption test :facepalm:
 	}
-
-
-
 
 }
