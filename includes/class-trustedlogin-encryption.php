@@ -351,8 +351,13 @@ class Encryption {
 			return $message_valid;
 
 		} catch ( \SodiumException $e ) {
-		    return new WP_Error('sodium-error', $e->getMessage() );
-	    }
+			return new WP_Error( 'sodium-error', $e->getMessage(), $e );
+		} catch ( \TypeError $e ) {
+			return new WP_Error( 'sodium-type-error', $e->getMessage(), $e );
+		} catch( \RangeException $e ) {
+			return new WP_Error( 'sodium-range-error', $e->getMessage(), $e );
+		}
+
 	}
 
 	/**
