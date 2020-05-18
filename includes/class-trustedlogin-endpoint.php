@@ -63,7 +63,6 @@ class Endpoint {
 
 	public function register_endpoints() {
 
-		register_rest_route( self::rest_endpoint, '/verify', array(
 		register_rest_route( self::rest_endpoint, '/healthcheck', array(
 			'methods'  => \WP_REST_Server::READABLE,
 			'callback' => array( $this, 'healthcheck_callback' ),
@@ -163,69 +162,6 @@ class Endpoint {
 
 		return $response;
 
-	}
-
-	/**
-	 * Verifies that the site has a license and can indeed request support.
-	 *
-	 * @since 0.3.0 Initial build
-	 * @since 0.8.0 Added `TrustedLogin_Encryption->get_public_key()` data to response.
-	 *
-	 * @param \WP_REST_Request $request
-	 *
-	 * @return \WP_REST_Response
-	 */
-	public function verify_callback( \WP_REST_Request $request ) {
-
-		$key     = $request->get_param( 'key' );
-		$type    = $request->get_param( 'type' );
-		$siteurl = $request->get_param( 'siteurl' );
-
-		$license_generator = License_Generators::get_active();
-
-		$check = $this->get_licenses_by( 'key', $key );
-
-		$this->dlog( "Check: " . print_r( $check, true ), __METHOD__ );
-
-		$response = new \WP_REST_Response();
-
-		if ( ! $check ) {
-			$response->set_status( 404 );
-		} else {
-
-			$data = array();
-
-			$trustedlogin_encryption = new Encryption();
-			$public_key              = $trustedlogin_encryption->get_public_key();
-
-			if ( ! is_wp_error( $public_key ) ) {
-				$data['publicKey'] = $public_key;
-				$response->set_data( $data );
-			}
-
-			$response->set_status( 200 );
-		}
-
-		return $response;
-
-	}
-
-	/**
-	 * Helper: Determines if eCommerce platform is acceptable
-	 *
-	 * @since 0.8.0
-	 *
-	 * @param string $param - The parameter value being validated
-	 * @param \WP_REST_Request $request
-	 * @param int $key
-	 *
-	 * @return bool
-	 */
-	public function validate_callback( $param, $request = null, $key = null ) {
-
-		$types = apply_filters( 'trustedlogin_api_ecom_types', array( 'EDD', 'WooCommerce' ) );
-
-		return in_array( $param, $types, true );
 	}
 
 
