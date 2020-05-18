@@ -86,7 +86,7 @@ class Encryption {
 	 */
 	private function generate_keys( $update = true ) {
 
-		if ( ! extension_loaded( 'sodium' ) ) {
+		if ( ! function_exists( 'sodium_crypto_box_keypair' ) ) {
 			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
 		}
 
@@ -254,6 +254,9 @@ class Encryption {
 	public function decrypt( $encrypted_payload, $nonce, $client_public_key ) {
 
 		try {
+		if ( ! function_exists( 'sodium_crypto_box_open' ) ) {
+			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
+		}
 
 			$decrypted_payload = '';
 
@@ -272,10 +275,6 @@ class Encryption {
 			if ( false === $encrypted_payload ) {
 				// Data was not successfully base64_decode'd
 				return new \WP_Error( 'data_malformated', 'Encrypted data must be base64 encoded.' );
-			}
-
-			if ( ! extension_loaded( 'sodium' ) ) {
-				return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
 			}
 
 			$decryption_key = \sodium_crypto_box_keypair_from_secretkey_and_publickey( $keys->private_key, $client_public_key );
@@ -390,7 +389,7 @@ class Encryption {
 	 */
 	private function generate_nonce(){
 
-		if ( ! extension_loaded( 'sodium' ) ) {
+		if ( ! function_exists( 'sodium_bin2hex' ) ) {
 			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
 		}
 
@@ -425,7 +424,7 @@ class Encryption {
 				return new \WP_Error( 'no_data', 'No data provided.' );
 			}
 
-			if ( ! extension_loaded( 'sodium' ) ) {
+			if ( ! function_exists( 'sodium_crypto_sign_detached' ) ) {
 				return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
 			}
 
