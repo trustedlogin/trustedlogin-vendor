@@ -64,23 +64,9 @@ class Endpoint {
 	public function register_endpoints() {
 
 		register_rest_route( self::rest_endpoint, '/verify', array(
+		register_rest_route( self::rest_endpoint, '/healthcheck', array(
 			'methods'  => \WP_REST_Server::READABLE,
-			'callback' => array( $this, 'verify_callback' ),
-			'args'     => array(
-				'key'     => array(
-					'required'          => true,
-					'sanitize_callback' => 'sanitize_text_field',
-				),
-				'type'    => array(
-					'required'          => true,
-					'sanitize_callback' => 'sanitize_title',
-					'validate_callback' => array( $this, 'validate_callback' ),
-				),
-				'siteurl' => array(
-					'required'          => true,
-					'sanitize_callback' => 'esc_url_raw',
-				),
-			),
+			'callback' => array( $this, 'healthcheck_callback' ),
 		) );
 
 		register_rest_route( self::rest_endpoint, '/public_key', array(
@@ -117,6 +103,33 @@ class Endpoint {
 			$response->set_status( 200 );
 		} else {
 			$response->set_status( 501 );
+		}
+
+		return $response;
+
+	}
+
+	/**
+	 * Returns the results of our healthcheck
+	 *
+	 * @since 0.8.0
+	 *
+	 * @param \WP_REST_Request $request
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function healthcheck_callback( \WP_REST_Request $request ) {
+
+		$response 	  = new \WP_REST_Response();
+		$tests_passed = false;
+
+		$healthcheck = new HealthCheck();
+		$checks = $healthcheck->run_checks();
+
+		if ( ! is_wp_error( $checks ) ){
+			$response->set_status( 200 );
+		} else {
+			$response->set_status( 424 );
 		}
 
 		return $response;
