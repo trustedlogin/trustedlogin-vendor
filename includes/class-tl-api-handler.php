@@ -61,6 +61,7 @@ class API_Handler {
 	    $defaults = array(
 		    'auth' => null,
 		    'debug_mode' => false,
+		    'type' => 'saas',
 	    );
 
     	$atts = wp_parse_args( $data, $defaults );
@@ -177,7 +178,7 @@ class API_Handler {
 
 		$url 	  = $this->api_url . 'accounts/' . $account_id ;
         $method   = 'POST';
-        $body     = array( 
+        $body     = array(
         	'api_endpoint' => get_rest_url(),
          );
         $headers  = $this->get_additional_headers();

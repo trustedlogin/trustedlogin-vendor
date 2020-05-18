@@ -42,7 +42,7 @@ class Endpoint {
 	private $audit_log;
 
 	/**
-	 * TrustedLogin_Endpoint constructor.
+	 * Endpoint constructor.
 	 */
 	public function __construct( Settings $settings_instance ) {
 
@@ -177,8 +177,8 @@ class Endpoint {
 		}
 
 		if ( 1 !== intval( $_REQUEST['trustedlogin'] ) ){
-			$this->dlog( 
-				'Incorrect parameter for trustedlogin provided: '. sanitize_text_field( $_REQUEST['trustedlogin'] ), 
+			$this->dlog(
+				'Incorrect parameter for trustedlogin provided: '. sanitize_text_field( $_REQUEST['trustedlogin'] ),
 				__METHOD__ );
 			return;
 		}
@@ -204,7 +204,7 @@ class Endpoint {
 		}
 
 		return;
-		
+
 	}
 
 
