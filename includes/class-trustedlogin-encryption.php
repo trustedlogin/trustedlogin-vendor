@@ -269,9 +269,9 @@ class Encryption {
 
 			$encrypted_payload = base64_decode( $encrypted_payload );
 
-			if ( false == $encrypted_payload ) {
+			if ( false === $encrypted_payload ) {
 				// Data was not successfully base64_decode'd
-				return new \WP_Error( 'data_malformated', 'Encrypted data needed to be base64 encoded.' );
+				return new \WP_Error( 'data_malformated', 'Encrypted data must be base64 encoded.' );
 			}
 
 			if ( ! extension_loaded( 'sodium' ) ) {
