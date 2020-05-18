@@ -136,7 +136,7 @@ class Endpoint {
 	public function sign_public_key_callback( \WP_REST_Request $request ) {
 
 		$trustedlogin_encryption = new Encryption();
-		$sign_public_key         = $trustedlogin_encryption->get_key( 'sign_public_key' );
+		$sign_public_key         = $trustedlogin_encryption->get_public_key( 'sign_public_key' );
 
 		$response = new \WP_REST_Response();
 

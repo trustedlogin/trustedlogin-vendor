@@ -160,13 +160,14 @@ class Encryption {
 	 * Gets a specific public cryptographic key.
 	 *
 	 * @since 1.0.0
-	 * 
-	 * @param string $key_slug  The slug of the key to fetch. 
+	 *
+	 * @param string $key_slug  The slug of the key to fetch.
 	 *                          Options are 'public_key' (default), 'sign_public_key'.
 	 *
 	 * @return string|WP_Error  Returns key if found, otherwise WP_Error.
 	 */
-	public function get_key( $key_slug = 'public_key' ){
+	public function get_public_key( $key_slug = 'public_key' ){
+
 		$keys = $this->get_keys();
 
 		if ( is_wp_error( $keys ) ) {
@@ -188,13 +189,14 @@ class Encryption {
 	 * Gets a specific private cryptographic key.
 	 *
 	 * @since 1.0.0
-	 * 
-	 * @param string $key_slug  The slug of the key to fetch. 
+	 *
+	 * @param string $key_slug  The slug of the key to fetch.
 	 *                          Options are 'public_key' (default), 'sign_public_key'.
 	 *
 	 * @return string|WP_Error  Returns key if found, otherwise WP_Error.
 	 */
 	private function get_private_key( $key_slug = 'private_key' ){
+
 		$keys = $this->get_keys();
 
 		if ( is_wp_error( $keys ) ) {
@@ -213,30 +215,6 @@ class Encryption {
 	}
 
 	/**
-	 * Returns a public key for encryption.
-	 *
-	 * Used for sending to client-side plugin (via SaaS) to encrypt envelopes with before sending to Vault.
-	 *
-	 * @since 0.8.0
-	 *
-	 * @returns string|WP_Error A public key in which to encrypt, or an error
-	 */
-	public function get_public_key() {
-
-		$keys = $this->get_keys();
-
-		if ( is_wp_error( $keys ) ) {
-			return $keys;
-		}
-
-		if ( ! $keys || ! is_object( $keys ) || ! isset( $keys->public_key ) ) {
-			return new \WP_Error( 'get_keys_failed', 'Could not get public get_keys stored invalid JSON.' );
-		}
-
-		return $keys->public_key;
-	}
-
-	/**
 	 * Decrypts an encrypted payload.
 	 *
 	 * @since 0.8.0
@@ -245,7 +223,7 @@ class Encryption {
 	 * @uses \sodium_crypto_box_keypair_from_secretkey_and_publickey()
 	 * @uses \sodium_crypto_box_open()
 	 *
-	 * @param string $encrypted_payload Base 64 encoded string that needs to be decrypted.
+	 * @param string $encrypted_payload Base 64-encoded string that needs to be decrypted.
 	 * @param string $nonce Single use nonce for a specific Client.
 	 * @param string $client_public_key The public key from the Client plugin that generated the envelope.
 	 *
@@ -253,12 +231,11 @@ class Encryption {
 	 */
 	public function decrypt( $encrypted_payload, $nonce, $client_public_key ) {
 
-		try {
 		if ( ! function_exists( 'sodium_crypto_box_open' ) ) {
 			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
 		}
 
-			$decrypted_payload = '';
+		try {
 
 			$private_key = $this->get_private_key();
 
@@ -309,7 +286,7 @@ class Encryption {
 	public function create_identity_nonce() {
 
 		$identity = array();
-		
+
 		$unsigned_nonce = $this->generate_nonce();
 
 		if ( is_wp_error( $unsigned_nonce ) ) {
@@ -344,7 +321,7 @@ class Encryption {
 	* Verifies if signature validates correctly
 	*
 	* @since 1.0.0
-	* 
+	*
 	* @param string $signed_nonce
 	* @param string $unsigned_nonce
 	*
@@ -354,7 +331,7 @@ class Encryption {
 
 		try {
 
-			$sign_public_key = $this->get_key('sign_public_key');
+			$sign_public_key = $this->get_public_key('sign_public_key');
 
 			if ( is_wp_error( $sign_public_key ) ){
 				return $sign_public_key;
