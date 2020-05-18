@@ -10,14 +10,14 @@
  */
 class APIHandlerTest extends WP_UnitTestCase {
 
-	/** @var TrustedLogin_Support_Side */
+	/** @var TrustedLogin\Vendor\Plugin() */
 	private $TL;
 
 	/**
 	 * APIHandlerTest constructor.
 	 */
 	public function __construct() {
-		$this->TL = new TrustedLogin_Support_Side;
+		$this->TL = new TrustedLogin\Vendor\Plugin();
 		$this->TL->setup();
 	}
 

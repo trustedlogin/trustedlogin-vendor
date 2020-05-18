@@ -27,14 +27,14 @@ class AuditLogTest extends WP_UnitTestCase {
 	 * AuditLogTest constructor.
 	 */
 	public function __construct() {
-		$this->TL = new TrustedLogin_Support_Side;
+		$this->TL = new TrustedLogin\Vendor\Plugin();
 		$this->TL->setup();
 
 		$settings = new ReflectionProperty( $this->TL, 'settings' );
 		$settings->setAccessible( true );
 		$settings_value = $settings->getValue( $this->TL );
 
-		$this->Endpoint = new TrustedLogin_Endpoint( $settings_value );
+		$this->Endpoint = new TrustedLogin\Vendor\Endpoint( $settings_value );
 
 		$audit_log = new ReflectionProperty( $this->Endpoint, 'audit_log' );
 		$audit_log->setAccessible( true );

@@ -20,10 +20,10 @@ class EncryptionTest extends WP_UnitTestCase {
 	 * AuditLogTest constructor.
 	 */
 	public function __construct() {
-		$this->TL = new TrustedLogin_Support_Side;
+		$this->TL = new TrustedLogin\Vendor\Plugin();
 		$this->TL->setup();
 
-		$this->encryption = new TrustedLogin_Encryption();
+		$this->encryption = new TrustedLogin\Vendor\Encryption();
 	}
 
 	/**
