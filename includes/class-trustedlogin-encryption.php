@@ -103,10 +103,10 @@ class Encryption {
 			$bob_sign_secretkey = \sodium_crypto_sign_secretkey( $bob_sign_kp );
 
 			$keys = (object) array(
-				'private_key' 	   => bin2hex( $bob_box_secretkey ),
-				'public_key'	   => bin2hex( $bob_box_publickey ),
-				'sign_private_key' => bin2hex( $bob_sign_secretkey),
-				'sign_public_key'  => bin2hex( $bob_sign_publickey)
+				'private_key' 	   => \sodium_bin2hex( $bob_box_secretkey ),
+				'public_key'	   => \sodium_bin2hex( $bob_box_publickey ),
+				'sign_private_key' => \sodium_bin2hex( $bob_sign_secretkey),
+				'sign_public_key'  => \sodium_bin2hex( $bob_sign_publickey)
 			);
 
 			if( $update ) {
@@ -360,10 +360,10 @@ class Encryption {
 				return $sign_public_key;
 			}
 
-			$message_valid = \sodium_crypto_sign_verify_detached( 
-				$signed_nonce, 
-				$unsigned_nonce, 
-				hex2bin( $sign_public_key ) 
+			$message_valid = \sodium_crypto_sign_verify_detached(
+				$signed_nonce,
+				$unsigned_nonce,
+				\sodium_hex2bin( $sign_public_key )
 			);
 			$this->dlog( "message_valid: ". print_r( $message_valid , true ), __METHOD__ );
 
@@ -395,7 +395,7 @@ class Encryption {
 
 		try {
 
-			return bin2hex( \random_bytes(SODIUM_CRYPTO_BOX_NONCEBYTES) );
+			return \sodium_bin2hex( \random_bytes( SODIUM_CRYPTO_BOX_NONCEBYTES ) );
 
 		} catch ( \SodiumException $e ) {
 		    return new WP_Error('sodium-error', $e->getMessage() );
@@ -428,12 +428,12 @@ class Encryption {
 				return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
 			}
 
-			$signed = \sodium_crypto_sign_detached($data, hex2bin($key));
+			$signed = \sodium_crypto_sign_detached( $data, \sodium_hex2bin( $key ) );
 
 			return $signed;
 
 		} catch ( \SodiumException $e ) {
-		    return new WP_Error('sodium-error', $e->getMessage() );
-	    }
+			return new WP_Error( 'sodium-error', $e->getMessage() );
+		}
 	}
 }
