@@ -260,10 +260,10 @@ class Encryption {
 
 			$decrypted_payload = '';
 
-			$keys = $this->get_keys();
+			$private_key = $this->get_private_key();
 
-			if ( ! $keys || ! isset( $keys->private_key ) ) {
-				return new \WP_Error( 'key_error', 'Cannot get keys from the local DB.' );
+			if ( is_wp_error( $private_key ) ) {
+				return new \WP_Error( 'key_error', 'Cannot decrypt: can\'t get private keys from the local DB.', $private_key );
 			}
 
 			if ( empty( $encrypted_payload ) ) {
@@ -277,7 +277,7 @@ class Encryption {
 				return new \WP_Error( 'data_malformated', 'Encrypted data must be base64 encoded.' );
 			}
 
-			$decryption_key = \sodium_crypto_box_keypair_from_secretkey_and_publickey( $keys->private_key, $client_public_key );
+			$decryption_key = \sodium_crypto_box_keypair_from_secretkey_and_publickey( $private_key, $client_public_key );
 
 			$decrypted_payload = \sodium_crypto_box_open( $encrypted_payload, $nonce, $decryption_key );
 
