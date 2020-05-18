@@ -42,8 +42,8 @@ class Endpoint {
 	const REDIRECT_ERROR_STATUS = 303;
 
 	/**
-	 * @since 0.9.0
 	 * @var Settings
+	 * @since 0.9.0
 	 */
 	private $settings;
 
@@ -132,13 +132,11 @@ class Endpoint {
 	 */
 	public function healthcheck_callback( \WP_REST_Request $request ) {
 
-		$response 	  = new \WP_REST_Response();
-		$tests_passed = false;
-
+		$response    = new \WP_REST_Response();
 		$healthcheck = new HealthCheck();
-		$checks = $healthcheck->run_checks();
+		$checks      = $healthcheck->run_checks();
 
-		if ( ! is_wp_error( $checks ) ){
+		if ( ! is_wp_error( $checks ) ) {
 			$response->set_status( self::HEALTH_CHECK_SUCCESS_STATUS );
 		} else {
 			$response->set_status( self::HEALTH_CHECK_ERROR_STATUS );
@@ -176,7 +174,6 @@ class Endpoint {
 		return $response;
 
 	}
-
 
 	/**
 	 * Hooked Action: Checks if the specified attributes are set has a valid access_key before checking if we can redirect support agent.
@@ -242,10 +239,10 @@ class Endpoint {
 
 		$this->dlog( "Got here. ID: $secret_id", __METHOD__ );
 
-		if ( ! is_admin() ){
+		if ( ! is_admin() ) {
 			$redirect_url = get_site_url();
 		} else {
-			$redirect_url = add_query_arg( 'page', sanitize_text_field( $_GET['page'] ), admin_url('admin.php') );
+			$redirect_url = add_query_arg( 'page', sanitize_text_field( $_GET['page'] ), admin_url( 'admin.php' ) );
 		}
 
 		// first check if user can be redirected.
@@ -405,8 +402,8 @@ class Endpoint {
 
 		$required_keys = array( 'identifier', 'siteUrl', 'publicKey', 'nonce' );
 
-		foreach ( $required_keys as $required_key ){
-			if ( ! array_key_exists( $required_key, $envelope ) ){
+		foreach ( $required_keys as $required_key ) {
+			if ( ! array_key_exists( $required_key, $envelope ) ) {
 				$this->dlog( 'Error: malformed envelope. e:' . print_r( $envelope, true ), __METHOD__ );
 
 				return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly' );
