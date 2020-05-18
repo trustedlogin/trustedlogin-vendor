@@ -127,7 +127,7 @@ class Endpoint {
 		$checks = $healthcheck->run_checks();
 
 		if ( ! is_wp_error( $checks ) ){
-			$response->set_status( 200 );
+			$response->set_status( 204 );
 		} else {
 			$response->set_status( 424 );
 		}
