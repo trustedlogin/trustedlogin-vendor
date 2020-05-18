@@ -21,17 +21,29 @@ class Endpoint {
 	 * @var String - the endpoint used to redirect Support Agents to Client WP admin panels
 	 * @since 0.3.0
 	 */
-	const redirect_endpoint = 'trustedlogin';
+	const REDIRECT_ENDPOINT = 'trustedlogin';
 
 	/**
 	 * @var string
 	 * @since 0.7.0
 	 */
-	const rest_endpoint = 'trustedlogin/v1';
+	const REST_ENDPOINT = 'trustedlogin/v1';
+
+	const HEALTH_CHECK_SUCCESS_STATUS = 204;
+
+	const HEALTH_CHECK_ERROR_STATUS = 424;
+
+	const PUBLIC_KEY_SUCCESS_STATUS = 200;
+
+	const PUBLIC_KEY_ERROR_STATUS = 501;
+
+	const REDIRECT_SUCCESS_STATUS = 302;
+
+	const REDIRECT_ERROR_STATUS = 303;
 
 	/**
-	 * @since 0.9.0
 	 * @var Settings
+	 * @since 0.9.0
 	 */
 	private $settings;
 
@@ -63,32 +75,17 @@ class Endpoint {
 
 	public function register_endpoints() {
 
-		register_rest_route( self::rest_endpoint, '/verify', array(
+		register_rest_route( self::REST_ENDPOINT, '/healthcheck', array(
 			'methods'  => \WP_REST_Server::READABLE,
-			'callback' => array( $this, 'verify_callback' ),
-			'args'     => array(
-				'key'     => array(
-					'required'          => true,
-					'sanitize_callback' => 'sanitize_text_field',
-				),
-				'type'    => array(
-					'required'          => true,
-					'sanitize_callback' => 'sanitize_title',
-					'validate_callback' => array( $this, 'validate_callback' ),
-				),
-				'siteurl' => array(
-					'required'          => true,
-					'sanitize_callback' => 'esc_url_raw',
-				),
-			),
+			'callback' => array( $this, 'healthcheck_callback' ),
 		) );
 
-		register_rest_route( self::rest_endpoint, '/public_key', array(
+		register_rest_route( self::REST_ENDPOINT, '/public_key', array(
 			'methods'  => \WP_REST_Server::READABLE,
 			'callback' => array( $this, 'public_key_callback' ),
 		) );
 
-		register_rest_route( self::rest_endpoint, '/signature_key', array(
+		register_rest_route( self::REST_ENDPOINT, '/signature_key', array(
 			'methods'  => \WP_REST_Server::READABLE,
 			'callback' => array( $this, 'sign_public_key_callback' ),
 		) );
@@ -112,11 +109,37 @@ class Endpoint {
 		$response = new \WP_REST_Response();
 
 		if ( ! is_wp_error( $public_key ) ) {
-			$data = array( 'publicKey' => $public_key );
+			$data = array(
+				'publicKey' => $public_key,
+			);
 			$response->set_data( $data );
-			$response->set_status( 200 );
+			$response->set_status( self::PUBLIC_KEY_SUCCESS_STATUS );
 		} else {
-			$response->set_status( 501 );
+			$response->set_status( self::PUBLIC_KEY_ERROR_STATUS );
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Returns the results of our healthcheck
+	 *
+	 * @since 0.8.0
+	 *
+	 * @param \WP_REST_Request $request
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function healthcheck_callback( \WP_REST_Request $request ) {
+
+		$response    = new \WP_REST_Response();
+		$healthcheck = new HealthCheck();
+		$checks      = $healthcheck->run_checks();
+
+		if ( ! is_wp_error( $checks ) ) {
+			$response->set_status( self::HEALTH_CHECK_SUCCESS_STATUS );
+		} else {
+			$response->set_status( self::HEALTH_CHECK_ERROR_STATUS );
 		}
 
 		return $response;
@@ -143,78 +166,14 @@ class Endpoint {
 		if ( ! is_wp_error( $sign_public_key ) ) {
 			$data = array( 'signatureKey' => $sign_public_key );
 			$response->set_data( $data );
-			$response->set_status( 200 );
+			$response->set_status( self::PUBLIC_KEY_SUCCESS_STATUS );
 		} else {
-			$response->set_status( 501 );
+			$response->set_status( self::PUBLIC_KEY_ERROR_STATUS );
 		}
 
 		return $response;
 
 	}
-
-	/**
-	 * Verifies that the site has a license and can indeed request support.
-	 *
-	 * @since 0.3.0 Initial build
-	 * @since 0.8.0 Added `TrustedLogin_Encryption->get_public_key()` data to response.
-	 *
-	 * @param \WP_REST_Request $request
-	 *
-	 * @return \WP_REST_Response
-	 */
-	public function verify_callback( \WP_REST_Request $request ) {
-
-		$key     = $request->get_param( 'key' );
-		$type    = $request->get_param( 'type' );
-		$siteurl = $request->get_param( 'siteurl' );
-
-		$license_generator = License_Generators::get_active();
-
-		$check = $this->get_licenses_by( 'key', $key );
-
-		$this->dlog( "Check: " . print_r( $check, true ), __METHOD__ );
-
-		$response = new \WP_REST_Response();
-
-		if ( ! $check ) {
-			$response->set_status( 404 );
-		} else {
-
-			$data = array();
-
-			$trustedlogin_encryption = new Encryption();
-			$public_key              = $trustedlogin_encryption->get_public_key();
-
-			if ( ! is_wp_error( $public_key ) ) {
-				$data['publicKey'] = $public_key;
-				$response->set_data( $data );
-			}
-
-			$response->set_status( 200 );
-		}
-
-		return $response;
-
-	}
-
-	/**
-	 * Helper: Determines if eCommerce platform is acceptable
-	 *
-	 * @since 0.8.0
-	 *
-	 * @param string $param - The parameter value being validated
-	 * @param \WP_REST_Request $request
-	 * @param int $key
-	 *
-	 * @return bool
-	 */
-	public function validate_callback( $param, $request = null, $key = null ) {
-
-		$types = apply_filters( 'trustedlogin_api_ecom_types', array( 'EDD', 'WooCommerce' ) );
-
-		return in_array( $param, $types, true );
-	}
-
 
 	/**
 	 * Hooked Action: Checks if the specified attributes are set has a valid access_key before checking if we can redirect support agent.
@@ -223,39 +182,44 @@ class Endpoint {
 	 */
 	public function maybe_action_redirect() {
 
-		if ( ! isset( $_REQUEST['trustedlogin'] ) ){
+		if ( ! isset( $_REQUEST[ self::REDIRECT_ENDPOINT ] ) ) {
 			return;
 		}
 
-		if ( 1 !== intval( $_REQUEST['trustedlogin'] ) ){
+		if ( 1 !== intval( $_REQUEST[ self::REDIRECT_ENDPOINT ] ) ) {
 			$this->dlog(
-				'Incorrect parameter for trustedlogin provided: '. sanitize_text_field( $_REQUEST['trustedlogin'] ),
+				'Incorrect parameter for trustedlogin provided: ' . sanitize_text_field( $_REQUEST[ self::REDIRECT_ENDPOINT ] ),
 				__METHOD__ );
+
 			return;
 		}
 
-		$required_args = array( 'action', 'provider', 'ak' );
+		$required_args = array(
+			'action',
+			'provider',
+			'ak', // Access key
+		);
 
-		foreach( $required_args as $required_arg ){
-			if ( ! isset( $_REQUEST[ $required_arg ] ) ){
-				$this->dlog( 'Required arg '. $required_arg. ' missing.', __METHOD__ );
+		foreach ( $required_args as $required_arg ) {
+			if ( ! isset( $_REQUEST[ $required_arg ] ) ) {
+				$this->dlog( 'Required arg ' . $required_arg . ' missing.', __METHOD__ );
+
 				return;
 			}
 		}
 
-		switch ( $_REQUEST['action'] ){
+		switch ( $_REQUEST['action'] ) {
 			case 'support_redirect':
 
-			$access_key = sanitize_text_field( $_REQUEST['ak'] );
-			$this->maybe_redirect_support( $access_key );
+				$access_key = sanitize_text_field( $_REQUEST['ak'] );
+				$this->maybe_redirect_support( $access_key );
 
-			break;
+				break;
 			default:
 
 		}
 
 		return;
-
 	}
 
 
@@ -275,10 +239,10 @@ class Endpoint {
 
 		$this->dlog( "Got here. ID: $secret_id", __METHOD__ );
 
-		if ( ! is_admin() ){
+		if ( ! is_admin() ) {
 			$redirect_url = get_site_url();
 		} else {
-			$redirect_url = add_query_arg( 'page', sanitize_text_field( $_GET['page'] ), admin_url('admin.php') );
+			$redirect_url = add_query_arg( 'page', sanitize_text_field( $_GET['page'] ), admin_url( 'admin.php' ) );
 		}
 
 		// first check if user can be redirected.
@@ -294,24 +258,22 @@ class Endpoint {
 		if ( is_wp_error( $envelope ) ) {
 			$this->dlog( 'Error: ' . $envelope->get_error_message(), __METHOD__ );
 			$this->audit_log->insert( $secret_id, 'failed', $envelope->get_error_message() );
-			wp_redirect( $redirect_url, 302 );
+			wp_redirect( $redirect_url, self::REDIRECT_ERROR_STATUS );
 			exit;
 		}
 
 		$url = ( $envelope ) ? $this->envelope_to_url( $envelope ) : false;
 
-		global $init_tl;
-
 		if ( is_wp_error( $url ) ) {
 			$this->audit_log->insert( $secret_id, 'failed', $url->get_error_message() );
-			wp_redirect( $redirect_url, 302 );
+			wp_redirect( $redirect_url, self::REDIRECT_ERROR_STATUS );
 			exit;
 		}
 
 		if ( $url ) {
 			// then redirect
 			$this->audit_log->insert( $secret_id, 'redirected', __( 'Succcessful', 'trustedlogin-vendor' ) );
-			wp_redirect( $url, 302 );
+			wp_redirect( $url, self::REDIRECT_SUCCESS_STATUS );
 			exit;
 		}
 
@@ -440,8 +402,8 @@ class Endpoint {
 
 		$required_keys = array( 'identifier', 'siteUrl', 'publicKey', 'nonce' );
 
-		foreach ( $required_keys as $required_key ){
-			if ( ! array_key_exists( $required_key, $envelope ) ){
+		foreach ( $required_keys as $required_key ) {
+			if ( ! array_key_exists( $required_key, $envelope ) ) {
 				$this->dlog( 'Error: malformed envelope. e:' . print_r( $envelope, true ), __METHOD__ );
 
 				return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly' );

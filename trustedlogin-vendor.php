@@ -34,6 +34,8 @@ require_once $path . 'includes/class-tl-api-handler.php';
 require_once $path . 'includes/class-trustedlogin-audit-log.php';
 require_once $path . 'includes/class-trustedlogin-encryption.php';
 
+require_once $path . 'includes/class-trustedlogin-healthcheck.php';
+
 class Plugin {
 
 	use \TrustedLogin\Vendor\Debug_Logging;
