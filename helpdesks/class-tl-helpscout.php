@@ -220,7 +220,7 @@ class HelpScout extends HelpDesk {
         $html_template = '<ul class="c-sb-list c-sb-list--two-line">%1$s</ul>';
         $item_template = '<li class="c-sb-list-item"><a href="%1$s">%2$s %3$s</a> (%4$s)</li>';
         $no_items_template = '<li class="c-sb-list-item">%1$s</li>';
-        $url_endpoint = apply_filters( 'trustedlogin_redirect_endpoint', 'trustedlogin' );
+        $url_endpoint = apply_filters( 'trustedlogin_redirect_endpoint', Endpoint::REDIRECT_ENDPOINT );
 
         $endpoint = 'accounts/' . $account_id . '/sites/';
         $method   = 'POST';

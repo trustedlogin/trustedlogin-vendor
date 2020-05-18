@@ -21,13 +21,13 @@ class Endpoint {
 	 * @var String - the endpoint used to redirect Support Agents to Client WP admin panels
 	 * @since 0.3.0
 	 */
-	const redirect_endpoint = 'trustedlogin';
+	const REDIRECT_ENDPOINT = 'trustedlogin';
 
 	/**
 	 * @var string
 	 * @since 0.7.0
 	 */
-	const rest_endpoint = 'trustedlogin/v1';
+	const REST_ENDPOINT = 'trustedlogin/v1';
 
 	/**
 	 * @since 0.9.0
@@ -63,17 +63,17 @@ class Endpoint {
 
 	public function register_endpoints() {
 
-		register_rest_route( self::rest_endpoint, '/healthcheck', array(
+		register_rest_route( self::REST_ENDPOINT, '/healthcheck', array(
 			'methods'  => \WP_REST_Server::READABLE,
 			'callback' => array( $this, 'healthcheck_callback' ),
 		) );
 
-		register_rest_route( self::rest_endpoint, '/public_key', array(
+		register_rest_route( self::REST_ENDPOINT, '/public_key', array(
 			'methods'  => \WP_REST_Server::READABLE,
 			'callback' => array( $this, 'public_key_callback' ),
 		) );
 
-		register_rest_route( self::rest_endpoint, '/signature_key', array(
+		register_rest_route( self::REST_ENDPOINT, '/signature_key', array(
 			'methods'  => \WP_REST_Server::READABLE,
 			'callback' => array( $this, 'sign_public_key_callback' ),
 		) );
@@ -172,13 +172,13 @@ class Endpoint {
 	 */
 	public function maybe_action_redirect() {
 
-		if ( ! isset( $_REQUEST['trustedlogin'] ) ){
+		if ( ! isset( $_REQUEST[ self::REDIRECT_ENDPOINT ] ) ) {
 			return;
 		}
 
-		if ( 1 !== intval( $_REQUEST['trustedlogin'] ) ){
+		if ( 1 !== intval( $_REQUEST[ self::REDIRECT_ENDPOINT ] ) ) {
 			$this->dlog(
-				'Incorrect parameter for trustedlogin provided: '. sanitize_text_field( $_REQUEST['trustedlogin'] ),
+				'Incorrect parameter for trustedlogin provided: ' . sanitize_text_field( $_REQUEST[ self::REDIRECT_ENDPOINT ] ),
 				__METHOD__ );
 			return;
 		}
