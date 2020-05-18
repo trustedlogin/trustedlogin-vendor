@@ -29,6 +29,18 @@ class Endpoint {
 	 */
 	const REST_ENDPOINT = 'trustedlogin/v1';
 
+	const HEALTH_CHECK_SUCCESS_STATUS = 204;
+
+	const HEALTH_CHECK_ERROR_STATUS = 424;
+
+	const PUBLIC_KEY_SUCCESS_STATUS = 200;
+
+	const PUBLIC_KEY_ERROR_STATUS = 501;
+
+	const REDIRECT_SUCCESS_STATUS = 302;
+
+	const REDIRECT_ERROR_STATUS = 303;
+
 	/**
 	 * @since 0.9.0
 	 * @var Settings
@@ -97,15 +109,16 @@ class Endpoint {
 		$response = new \WP_REST_Response();
 
 		if ( ! is_wp_error( $public_key ) ) {
-			$data = array( 'publicKey' => $public_key );
+			$data = array(
+				'publicKey' => $public_key,
+			);
 			$response->set_data( $data );
-			$response->set_status( 200 );
+			$response->set_status( self::PUBLIC_KEY_SUCCESS_STATUS );
 		} else {
-			$response->set_status( 501 );
+			$response->set_status( self::PUBLIC_KEY_ERROR_STATUS );
 		}
 
 		return $response;
-
 	}
 
 	/**
@@ -126,9 +139,9 @@ class Endpoint {
 		$checks = $healthcheck->run_checks();
 
 		if ( ! is_wp_error( $checks ) ){
-			$response->set_status( 204 );
+			$response->set_status( self::HEALTH_CHECK_SUCCESS_STATUS );
 		} else {
-			$response->set_status( 424 );
+			$response->set_status( self::HEALTH_CHECK_ERROR_STATUS );
 		}
 
 		return $response;
@@ -155,9 +168,9 @@ class Endpoint {
 		if ( ! is_wp_error( $sign_public_key ) ) {
 			$data = array( 'signatureKey' => $sign_public_key );
 			$response->set_data( $data );
-			$response->set_status( 200 );
+			$response->set_status( self::PUBLIC_KEY_SUCCESS_STATUS );
 		} else {
-			$response->set_status( 501 );
+			$response->set_status( self::PUBLIC_KEY_ERROR_STATUS );
 		}
 
 		return $response;
@@ -180,31 +193,36 @@ class Endpoint {
 			$this->dlog(
 				'Incorrect parameter for trustedlogin provided: ' . sanitize_text_field( $_REQUEST[ self::REDIRECT_ENDPOINT ] ),
 				__METHOD__ );
+
 			return;
 		}
 
-		$required_args = array( 'action', 'provider', 'ak' );
+		$required_args = array(
+			'action',
+			'provider',
+			'ak', // Access key
+		);
 
-		foreach( $required_args as $required_arg ){
-			if ( ! isset( $_REQUEST[ $required_arg ] ) ){
-				$this->dlog( 'Required arg '. $required_arg. ' missing.', __METHOD__ );
+		foreach ( $required_args as $required_arg ) {
+			if ( ! isset( $_REQUEST[ $required_arg ] ) ) {
+				$this->dlog( 'Required arg ' . $required_arg . ' missing.', __METHOD__ );
+
 				return;
 			}
 		}
 
-		switch ( $_REQUEST['action'] ){
+		switch ( $_REQUEST['action'] ) {
 			case 'support_redirect':
 
-			$access_key = sanitize_text_field( $_REQUEST['ak'] );
-			$this->maybe_redirect_support( $access_key );
+				$access_key = sanitize_text_field( $_REQUEST['ak'] );
+				$this->maybe_redirect_support( $access_key );
 
-			break;
+				break;
 			default:
 
 		}
 
 		return;
-
 	}
 
 
@@ -243,24 +261,22 @@ class Endpoint {
 		if ( is_wp_error( $envelope ) ) {
 			$this->dlog( 'Error: ' . $envelope->get_error_message(), __METHOD__ );
 			$this->audit_log->insert( $secret_id, 'failed', $envelope->get_error_message() );
-			wp_redirect( $redirect_url, 302 );
+			wp_redirect( $redirect_url, self::REDIRECT_ERROR_STATUS );
 			exit;
 		}
 
 		$url = ( $envelope ) ? $this->envelope_to_url( $envelope ) : false;
 
-		global $init_tl;
-
 		if ( is_wp_error( $url ) ) {
 			$this->audit_log->insert( $secret_id, 'failed', $url->get_error_message() );
-			wp_redirect( $redirect_url, 302 );
+			wp_redirect( $redirect_url, self::REDIRECT_ERROR_STATUS );
 			exit;
 		}
 
 		if ( $url ) {
 			// then redirect
 			$this->audit_log->insert( $secret_id, 'redirected', __( 'Succcessful', 'trustedlogin-vendor' ) );
-			wp_redirect( $url, 302 );
+			wp_redirect( $url, self::REDIRECT_SUCCESS_STATUS );
 			exit;
 		}
 
