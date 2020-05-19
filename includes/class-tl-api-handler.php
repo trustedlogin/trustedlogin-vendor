@@ -78,7 +78,7 @@ class API_Handler {
 	 */
 	public function get_api_url() {
 
-		$url = apply_filters( 'trustedlogin/api-url/saas', $this->api_url );
+		$url = apply_filters( 'trustedlogin/vendor/api/url', $this->api_url );
 
 		return $url;
 	}

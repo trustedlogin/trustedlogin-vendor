@@ -176,6 +176,25 @@ class Endpoint {
 	}
 
 	/**
+	 * Helper: Determines if eCommerce platform is acceptable
+	 *
+	 * @since 0.8.0
+	 *
+	 * @param string $param - The parameter value being validated
+	 * @param \WP_REST_Request $request
+	 * @param int $key
+	 *
+	 * @return bool
+	 */
+	public function validate_callback( $param, $request = null, $key = null ) {
+
+		$types = apply_filters( 'trustedlogin/vendor/endpoint/ecommerce-types', array( 'EDD', 'WooCommerce' ) );
+
+		return in_array( $param, $types, true );
+	}
+
+
+	/**
 	 * Hooked Action: Checks if the specified attributes are set has a valid access_key before checking if we can redirect support agent.
 	 *
 	 * @since 1.0.0

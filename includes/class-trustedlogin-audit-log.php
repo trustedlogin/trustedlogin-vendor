@@ -45,7 +45,7 @@ class TrustedLogin_Audit_Log {
 		// Priority should be greater than 10 (needed for unit tests)
 		add_action( 'plugins_loaded', array( $this, 'maybe_update_schema' ), 11 );
 
-		add_action( 'trustedlogin_after_settings_form', array( $this, 'maybe_output_log' ), 10 );
+		add_action( 'trustedlogin/vendor/settings/form/after', array( $this, 'maybe_output_log' ), 10 );
 	}
 
 	/**

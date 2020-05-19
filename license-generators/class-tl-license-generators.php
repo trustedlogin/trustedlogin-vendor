@@ -35,7 +35,7 @@ class License_Generators {
 	
 	static public function get_all() {
 
-		$license_generators = apply_filters( 'trustedlogin_license_generators', array() );
+		$license_generators = apply_filters( 'trustedlogin/vendor/license/generators', array() );
 
 		return $license_generators;
 	}
