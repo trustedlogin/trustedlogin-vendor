@@ -24,8 +24,9 @@ class Encryption {
 		/**
 		 * Filter allows site admins to change the site option key for storing the keys data.
 		 *
-		 * @todo Validate string is short enough to be stored in database
 		 * @since 0.8.0
+		 *
+		 * @todo Validate string is short enough to be stored in database
 		 *
 		 * @param string
 		 * @param Encryption $this
@@ -45,13 +46,13 @@ class Encryption {
 	 */
 	private function get_keys( $generate_if_not_set = true ) {
 
-		$keys = false;
+		$keys  = false;
 		$value = get_site_option( $this->key_option_name );
 
 		if ( $value ) {
 			$keys = json_decode( $value );
 
-			if( ! $keys ) {
+			if ( ! $keys ) {
 				$this->dlog( "Keys were not decoded properly: " . print_r( $value, true ), __METHOD__ );
 			}
 		}
@@ -78,44 +79,50 @@ class Encryption {
 	 *
 	 * @return  stdClass|WP_Error  $keys or WP_Error if any issues
 	 *    $keys = [
-	 *        'private_key' 	 => (string)  The private key used for encrypt/decrypt.
-	 *        'public_key' 		 => (string)  The public key used for encrypt/decrypt.
+	 *        'private_key'     => (string)  The private key used for encrypt/decrypt.
+	 *        'public_key'         => (string)  The public key used for encrypt/decrypt.
 	 *        'sign_public_key'  => (string)  The public key used for signing/verifying.
 	 *        'sign_private_key' => (string)  The private key used for signing/verifying.
 	 *    ]
 	 */
 	private function generate_keys( $update = true ) {
 
-		if ( ! extension_loaded( 'sodium' ) ) {
+		if ( ! function_exists( 'sodium_crypto_box_keypair' ) ) {
 			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
 		}
 
-		// Keeping named $bob_{name} for clarity while implementing:
-		// https://paragonie.com/book/pecl-libsodium/read/05-publickey-crypto.md
-		$bob_box_kp 	    = \sodium_crypto_box_keypair();
-		$bob_box_secretkey  = \sodium_crypto_box_secretkey( $bob_box_kp );
-		$bob_box_publickey  = \sodium_crypto_box_publickey( $bob_box_kp );
+		try {
 
-		$bob_sign_kp 		= \sodium_crypto_sign_keypair();
-		$bob_sign_publickey = \sodium_crypto_sign_publickey( $bob_sign_kp );
-		$bob_sign_secretkey = \sodium_crypto_sign_secretkey( $bob_sign_kp );
+			// Keeping named $bob_{name} for clarity while implementing:
+			// https://paragonie.com/book/pecl-libsodium/read/05-publickey-crypto.md
+			$bob_box_kp        = \sodium_crypto_box_keypair();
+			$bob_box_secretkey = \sodium_crypto_box_secretkey( $bob_box_kp );
+			$bob_box_publickey = \sodium_crypto_box_publickey( $bob_box_kp );
 
-		$keys = (object) array(
-			'private_key' 	   => bin2hex( $bob_box_secretkey ),
-			'public_key'	   => bin2hex( $bob_box_publickey ),
-			'sign_private_key' => bin2hex( $bob_sign_secretkey),
-			'sign_public_key'  => bin2hex( $bob_sign_publickey)
-		);
+			$bob_sign_kp        = \sodium_crypto_sign_keypair();
+			$bob_sign_publickey = \sodium_crypto_sign_publickey( $bob_sign_kp );
+			$bob_sign_secretkey = \sodium_crypto_sign_secretkey( $bob_sign_kp );
 
-		if( $update ) {
-			$updated = $this->update_keys( $keys );
+			$keys = (object) array(
+				'private_key'      => \sodium_bin2hex( $bob_box_secretkey ),
+				'public_key'       => \sodium_bin2hex( $bob_box_publickey ),
+				'sign_private_key' => \sodium_bin2hex( $bob_sign_secretkey ),
+				'sign_public_key'  => \sodium_bin2hex( $bob_sign_publickey )
+			);
 
-			if ( is_wp_error( $updated ) ) {
-				return $updated;
+			if ( $update ) {
+				$updated = $this->update_keys( $keys );
+
+				if ( is_wp_error( $updated ) ) {
+					return $updated;
+				}
 			}
-		}
 
-		return $keys;
+			return $keys;
+
+		} catch ( \SodiumException $e ) {
+			return new WP_Error( 'sodium-error', $e->getMessage() );
+		}
 	}
 
 	/**
@@ -154,25 +161,26 @@ class Encryption {
 	 * Gets a specific public cryptographic key.
 	 *
 	 * @since 1.0.0
-	 * 
-	 * @param string $key_slug  The slug of the key to fetch. 
+	 *
+	 * @param string $key_slug The slug of the key to fetch.
 	 *                          Options are 'public_key' (default), 'sign_public_key'.
 	 *
 	 * @return string|WP_Error  Returns key if found, otherwise WP_Error.
 	 */
-	public function get_key( $key_slug = 'public_key' ){
+	public function get_public_key( $key_slug = 'public_key' ) {
+
 		$keys = $this->get_keys();
 
 		if ( is_wp_error( $keys ) ) {
 			return $keys;
 		}
 
-		if ( ! in_array( $key_slug, array( 'public_key', 'sign_public_key' ) ) ){
+		if ( ! in_array( $key_slug, array( 'public_key', 'sign_public_key' ) ) ) {
 			return new \WP_Error( 'not_public_key', 'This function can only return public keys' );
 		}
 
 		if ( ! $keys || ! is_object( $keys ) || ! property_exists( $keys, $key_slug ) ) {
-			return new \WP_Error( 'get_key_failed', __sprintf('Could not get %s from get_key.', $key_slug ) );
+			return new \WP_Error( 'get_key_failed', \sprintf( 'Could not get %s from get_key.', $key_slug ) );
 		}
 
 		return $keys->{$key_slug};
@@ -182,52 +190,29 @@ class Encryption {
 	 * Gets a specific private cryptographic key.
 	 *
 	 * @since 1.0.0
-	 * 
-	 * @param string $key_slug  The slug of the key to fetch. 
+	 *
+	 * @param string $key_slug The slug of the key to fetch.
 	 *                          Options are 'public_key' (default), 'sign_public_key'.
 	 *
 	 * @return string|WP_Error  Returns key if found, otherwise WP_Error.
 	 */
-	private function get_private_key( $key_slug = 'private_key' ){
+	private function get_private_key( $key_slug = 'private_key' ) {
+
 		$keys = $this->get_keys();
 
 		if ( is_wp_error( $keys ) ) {
 			return $keys;
 		}
 
-		if ( ! in_array( $key_slug, array( 'private_key', 'sign_private_key' ) ) ){
+		if ( ! in_array( $key_slug, array( 'private_key', 'sign_private_key' ) ) ) {
 			return new \WP_Error( 'not_public_key', 'This function can only return private keys' );
 		}
 
 		if ( ! $keys || ! is_object( $keys ) || ! property_exists( $keys, $key_slug ) ) {
-			return new \WP_Error( 'get_key_failed', __sprintf('Could not get %s from get_key.', $key_slug ) );
+			return new \WP_Error( 'get_key_failed', \sprintf( 'Could not get %s from get_key.', $key_slug ) );
 		}
 
 		return $keys->{$key_slug};
-	}
-
-	/**
-	 * Returns a public key for encryption.
-	 *
-	 * Used for sending to client-side plugin (via SaaS) to encrypt envelopes with before sending to Vault.
-	 *
-	 * @since 0.8.0
-	 *
-	 * @returns string|WP_Error A public key in which to encrypt, or an error
-	 */
-	public function get_public_key() {
-
-		$keys = $this->get_keys();
-
-		if ( is_wp_error( $keys ) ) {
-			return $keys;
-		}
-
-		if ( ! $keys || ! is_object( $keys ) || ! isset( $keys->public_key ) ) {
-			return new \WP_Error( 'get_keys_failed', 'Could not get public get_keys stored invalid JSON.' );
-		}
-
-		return $keys->public_key;
 	}
 
 	/**
@@ -239,7 +224,7 @@ class Encryption {
 	 * @uses \sodium_crypto_box_keypair_from_secretkey_and_publickey()
 	 * @uses \sodium_crypto_box_open()
 	 *
-	 * @param string $encrypted_payload Base 64 encoded string that needs to be decrypted.
+	 * @param string $encrypted_payload Base 64-encoded string that needs to be decrypted.
 	 * @param string $nonce Single use nonce for a specific Client.
 	 * @param string $client_public_key The public key from the Client plugin that generated the envelope.
 	 *
@@ -247,38 +232,44 @@ class Encryption {
 	 */
 	public function decrypt( $encrypted_payload, $nonce, $client_public_key ) {
 
-		$decrypted_payload = '';
-
-		$keys = $this->get_keys();
-
-		if ( ! $keys || ! isset( $keys->private_key ) ) {
-			return new \WP_Error( 'key_error', 'Cannot get keys from the local DB.' );
-		}
-
-		if ( empty( $encrypted_payload ) ) {
-			return new \WP_Error( 'data_empty', 'Will not decrypt an empty payload.' );
-		}
-
-		$encrypted_payload = base64_decode( $encrypted_payload );
-
-		if ( false == $encrypted_payload ) {
-			// Data was not successfully base64_decode'd
-			return new \WP_Error( 'data_malformated', 'Encrypted data needed to be base64 encoded.' );
-		}
-
-		if ( ! extension_loaded( 'sodium' ) ) {
+		if ( ! function_exists( 'sodium_crypto_box_open' ) ) {
 			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
 		}
 
-		$decryption_key = \sodium_crypto_box_keypair_from_secretkey_and_publickey( $keys->private_key, $client_public_key );
+		try {
 
-		$decrypted_payload = \sodium_crypto_box_open( $encrypted_payload, $nonce, $decryption_key );
+			$private_key = $this->get_private_key();
 
-		if ( empty( $decrypted_payload ) || $decrypted_payload == false ) {
-			return new \WP_Error( 'decryption_failed', 'Decryption failed.' );
+			if ( is_wp_error( $private_key ) ) {
+				return new \WP_Error( 'key_error', 'Cannot decrypt: can\'t get private keys from the local DB.', $private_key );
+			}
+
+			if ( empty( $encrypted_payload ) ) {
+				return new \WP_Error( 'data_empty', 'Will not decrypt an empty payload.' );
+			}
+
+			$encrypted_payload = base64_decode( $encrypted_payload );
+
+			if ( false === $encrypted_payload ) {
+				// Data was not successfully base64_decode'd
+				return new \WP_Error( 'data_malformated', 'Encrypted data must be base64 encoded.' );
+			}
+
+			$private_key = \sodium_hex2bin( $private_key );
+			$client_public_key = \sodium_hex2bin( $client_public_key );
+			$decryption_key = \sodium_crypto_box_keypair_from_secretkey_and_publickey( $private_key, $client_public_key );
+
+			$decrypted_payload = \sodium_crypto_box_open( $encrypted_payload, $nonce, $decryption_key );
+
+			if ( empty( $decrypted_payload ) ) {
+				return new \WP_Error( 'decryption_failed', 'Decryption failed.' );
+			}
+
+			return $decrypted_payload;
+
+		} catch ( \SodiumException $e ) {
+			return new WP_Error( 'sodium-error', $e->getMessage() );
 		}
-
-		return $decrypted_payload;
 
 	}
 
@@ -297,8 +288,6 @@ class Encryption {
 	 */
 	public function create_identity_nonce() {
 
-		$identity = array();
-		
 		$unsigned_nonce = $this->generate_nonce();
 
 		if ( is_wp_error( $unsigned_nonce ) ) {
@@ -307,18 +296,70 @@ class Encryption {
 
 		$key = $this->get_private_key( 'sign_private_key' );
 
-		if ( is_wp_error( $key ) ){
+		if ( is_wp_error( $key ) ) {
 			return $key;
 		}
 
-		$identity['nonce']  = base64_encode( $unsigned_nonce );
-		$identity['signed'] = base64_encode( $this->sign( $unsigned_nonce, $key ) );
+		$signed_nonce = $this->sign( $unsigned_nonce, $key );
 
-		if ( is_wp_error( $identity['signed'] ) ) {
-			return $identity['signed'];
+		if ( is_wp_error( $signed_nonce ) ) {
+			return $signed_nonce;
 		}
 
+		$verified = $this->verify_signature( $signed_nonce, $unsigned_nonce );
+
+		if ( is_wp_error( $verified ) ) {
+			return $verified;
+		}
+
+		$identity           = array();
+		$identity['nonce']  = base64_encode( $unsigned_nonce );
+		$identity['signed'] = base64_encode( $signed_nonce );
+
 		return $identity;
+	}
+
+	/**
+	 * Verifies if signature validates correctly
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $signed_nonce
+	 * @param string $unsigned_nonce
+	 *
+	 * @return bool|WP_Error  True if signature validates correctly, otherwise false. Returns WP_Error on issue.
+	 */
+	private function verify_signature( $signed_nonce, $unsigned_nonce ) {
+
+		try {
+
+			$sign_public_key = $this->get_public_key( 'sign_public_key' );
+
+			if ( is_wp_error( $sign_public_key ) ) {
+				return $sign_public_key;
+			}
+
+			$message_valid = \sodium_crypto_sign_verify_detached(
+				$signed_nonce,
+				$unsigned_nonce,
+				\sodium_hex2bin( $sign_public_key )
+			);
+			$this->dlog( "message_valid: " . print_r( $message_valid, true ), __METHOD__ );
+
+			if ( ! $message_valid ) {
+				return new WP_Error( 'signature-failure', 'Signature will not pass verification' );
+			}
+
+			return $message_valid;
+
+		} catch ( \SodiumException $e ) {
+			return new WP_Error( 'sodium-error', $e->getMessage(), $e );
+		} catch ( \TypeError $e ) {
+			return new WP_Error( 'sodium-type-error', $e->getMessage(), $e );
+		} catch( \RangeException $e ) {
+			return new WP_Error( 'sodium-range-error', $e->getMessage(), $e );
+		}
+
 	}
 
 	/**
@@ -330,13 +371,19 @@ class Encryption {
 	 *
 	 * @return string|WP_Error  If generated, a nonce. Otherwise a WP_Error.
 	 */
-	private function generate_nonce(){
+	private function generate_nonce() {
 
-		if ( ! extension_loaded( 'sodium' ) ) {
+		if ( ! function_exists( 'sodium_bin2hex' ) ) {
 			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
 		}
 
-		return \random_bytes(SODIUM_CRYPTO_BOX_NONCEBYTES);
+		try {
+
+			return \sodium_bin2hex( \random_bytes( SODIUM_CRYPTO_BOX_NONCEBYTES ) );
+
+		} catch ( \SodiumException $e ) {
+			return new WP_Error( 'sodium-error', $e->getMessage() );
+		}
 
 	}
 
@@ -355,16 +402,22 @@ class Encryption {
 	 */
 	private function sign( $data, $key ) {
 
-		if ( empty( $data ) || empty( $key ) ) {
-			return new \WP_Error( 'no_data', 'No data provided.' );
+		try {
+
+			if ( empty( $data ) || empty( $key ) ) {
+				return new \WP_Error( 'no_data', 'No data provided.' );
+			}
+
+			if ( ! function_exists( 'sodium_crypto_sign_detached' ) ) {
+				return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
+			}
+
+			$signed = \sodium_crypto_sign_detached( $data, \sodium_hex2bin( $key ) );
+
+			return $signed;
+
+		} catch ( \SodiumException $e ) {
+			return new WP_Error( 'sodium-error', $e->getMessage() );
 		}
-
-		if ( ! extension_loaded( 'sodium' ) ) {
-			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
-		}
-
-		$signed = \sodium_crypto_sign_detached($data, hex2bin($key));
-
-		return $signed;
 	}
 }

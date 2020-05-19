@@ -27,7 +27,7 @@ class Settings {
 	 */
 	private $default_options = array(
 		'account_id'       => '',
-		'account_key'      => '',
+		'private_key'      => '',
 		'public_key'       => '',
 		'helpdesk'         => array(),
 		'approved_roles'   => array( 'administrator' ),
@@ -187,9 +187,9 @@ class Settings {
 		);
 
 		add_settings_field(
-			'account_key',
-			__( 'TrustedLogin API Key ', 'trustedlogin-vendor' ),
-			array( $this, 'account_key_field_render' ),
+			'private_key',
+			__( 'TrustedLogin Private Key ', 'trustedlogin-vendor' ),
+			array( $this, 'private_key_field_render' ),
 			'trustedlogin_vendor_options',
 			'trustedlogin_vendor_options_section'
 		);
@@ -259,7 +259,7 @@ class Settings {
 
 		try {
 			$account_id = intval( $input['account_id'] );
-			$saas_auth  = sanitize_text_field( $input['account_key'] );
+			$saas_auth  = sanitize_text_field( $input['private_key'] );
 			$public_key = sanitize_text_field( $input['public_key'] );
 			$debug_mode = isset( $input['debug_enabled'] );
 
@@ -318,9 +318,9 @@ class Settings {
 		return $input;
 	}
 
-	public function account_key_field_render() {
+	public function private_key_field_render() {
 
-		$this->render_input_field( 'account_key', 'password', true );
+		$this->render_input_field( 'private_key', 'password', true );
 
 	}
 

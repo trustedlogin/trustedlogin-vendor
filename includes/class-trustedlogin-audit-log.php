@@ -5,6 +5,8 @@
  */
 namespace TrustedLogin\Vendor;
 
+use \WP_Error;
+
 if ( ! defined('ABSPATH') ) {
     exit;
 }
@@ -40,7 +42,8 @@ class TrustedLogin_Audit_Log {
 
 		register_activation_hook( __FILE__, array( $this, 'init' ) );
 
-		add_action( 'plugins_loaded', array( $this, 'maybe_update_schema' ) );
+		// Priority should be greater than 10 (needed for unit tests)
+		add_action( 'plugins_loaded', array( $this, 'maybe_update_schema' ), 11 );
 
 		add_action( 'trustedlogin/vendor/settings/form/after', array( $this, 'maybe_output_log' ), 10 );
 	}
@@ -50,7 +53,7 @@ class TrustedLogin_Audit_Log {
 	 *
 	 * @return string
 	 */
-	protected function get_db_table_name() {
+	public function get_db_table_name() {
 		global $wpdb;
 
 		return $wpdb->prefix . self::DB_TABLE_NAME;
@@ -64,6 +67,10 @@ class TrustedLogin_Audit_Log {
 	public function maybe_update_schema() {
 
 		if ( version_compare( get_site_option( 'tl_db_version' ), self::DB_VERSION, '<' ) ) {
+			$this->init();
+		}
+
+		if( defined( 'DOING_TL_VENDOR_TESTS') && DOING_TL_VENDOR_TESTS ) {
 			$this->init();
 		}
 	}

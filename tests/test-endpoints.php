@@ -19,64 +19,67 @@ class EndpointsTest extends WP_UnitTestCase {
 	/**
 	 * AuditLogTest constructor.
 	 */
-	public function __construct() {
-		$this->TL = new TrustedLogin_Support_Side;
+	public function setUp() {
+		$this->TL = new TrustedLogin\Vendor\Plugin();
 		$this->TL->setup();
 
 		$settings = new ReflectionProperty( $this->TL, 'settings' );
 		$settings->setAccessible( true );
 		$settings_value = $settings->getValue( $this->TL );
 
-		$this->endpoint = new TrustedLogin_Endpoint( $settings_value );
+		$this->endpoint = new TrustedLogin\Vendor\Endpoint( $settings_value );
 	}
 
 	/**
-	 * @covers TrustedLogin_Endpoint::register_endpoints
+	 * @covers Endpoint::register_endpoints
 	 */
 	function test_register_endpoints() {
 
 		$routes = rest_get_server()->get_routes();
 
 		$this->assertArrayHasKey( '/trustedlogin/v1', $routes, 'route should exist when TL is setup' );
-		$this->assertArrayHasKey( '/trustedlogin/v1/verify', $routes, 'route should exist when TL is setup' );
+		$this->assertArrayHasKey( '/trustedlogin/v1/healthcheck', $routes, 'route should exist when TL is setup' );
+		$this->assertArrayHasKey( '/trustedlogin/v1/public_key', $routes, 'route should exist when TL is setup' );
+		$this->assertArrayHasKey( '/trustedlogin/v1/signature_key', $routes, 'route should exist when TL is setup' );
 	}
 
 	/**
-	 * @covers TrustedLogin_Endpoint::endpoint_add_var
+	 * @covers Endpoint::public_key_callback
 	 */
-	function test_endpoint_add_var() {
-		global $wp;
+	function test_public_key_callback() {
 
-		$this->assertNotContains( TrustedLogin_Endpoint::redirect_endpoint, $wp->public_query_vars );
+		$request = new WP_REST_Request();
 
-		// Triggers parse_request, which contains public_query_vars
-		$wp->main();
+		$result = $this->endpoint->public_key_callback( $request );
 
-		$this->assertContains( TrustedLogin_Endpoint::redirect_endpoint, $wp->public_query_vars );
+		$this->assertTrue( $result instanceof WP_REST_Response );
 
-		_cleanup_query_vars();
-	}
+		$this->assertEquals( 200, $result->status );
 
-	/**
-	 * @covers TrustedLogin_Endpoint::validate_callback
-	 */
-	function test_validate_callback() {
+		$data = $result->get_data();
 
-		$this->assertTrue( $this->endpoint->validate_callback( 'EDD' ) );
+		$this->assertArrayHasKey( 'publicKey', $data );
 
-		$this->assertTrue( $this->endpoint->validate_callback( 'WooCommerce' ) );
 
-		$this->assertFalse( $this->endpoint->validate_callback( 'New Licensing Thingy' ) );
+		### What about when the key isn't fetchable?
 
-		add_filter( 'trustedlogin_api_ecom_types', $filter = function( $types = array() ) {
-			$types[] = 'New Licensing Thingy';
-
-			return $types;
+		add_filter( 'trustedlogin/encryption/get-keys', function () {
+			return new WP_Error( 'just_messin', 'Messing with expectations!' );
 		});
 
-		$this->assertTrue( $this->endpoint->validate_callback( 'New Licensing Thingy' ) );
+		$error = $this->endpoint->public_key_callback( $request );
 
-		remove_all_filters( 'trustedlogin_api_ecom_types' );
+		$this->assertTrue( $error instanceof WP_REST_Response );
+
+		// Error 501
+		$this->assertEquals( 501, $error->status );
+
+		$data = $error->get_data();
+
+		// And no data
+		$this->assertEmpty( $data );
+
+		remove_all_filters( 'trustedlogin/encryption/get-keys' );
 	}
 
 	/**

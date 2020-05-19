@@ -61,6 +61,7 @@ class API_Handler {
 	    $defaults = array(
 		    'auth' => null,
 		    'debug_mode' => false,
+		    'type' => 'saas',
 	    );
 
     	$atts = wp_parse_args( $data, $defaults );
@@ -140,7 +141,7 @@ class API_Handler {
 		$url = $this->api_url . $endpoint;
 
 		if ( ! empty( $this->auth_key ) ) {
-			$additional_headers[ $this->auth_header_type ] = $this->auth_key;
+			$additional_headers[ $this->auth_header_type ] = 'Bearer ' . $this->auth_key;
 		}
 
 		if ( $this->auth_required && empty( $additional_headers ) ) {
@@ -176,8 +177,10 @@ class API_Handler {
 		}
 
 		$url 	  = $this->api_url . 'accounts/' . $account_id ;
-        $method   = 'GET';
-        $body     = null;
+        $method   = 'POST';
+        $body     = array(
+        	'api_endpoint' => get_rest_url(),
+         );
         $headers  = $this->get_additional_headers();
 
         $verification = $this->api_send( $url, $body, $method, $headers );

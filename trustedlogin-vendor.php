@@ -20,6 +20,7 @@ if (!defined('ABSPATH')) {
 // Exit if accessed directly
 
 define( 'TRUSTEDLOGIN_PLUGIN_VERSION', '0.9.0-refactor' );
+define( 'TRUSTEDLOGIN_PLUGIN_FILE', __FILE__ );
 
 /** @define "$path" "./" */
 $path = plugin_dir_path(__FILE__);
@@ -32,6 +33,8 @@ require_once $path . 'includes/class-trustedlogin-endpoint.php';
 require_once $path . 'includes/class-tl-api-handler.php';
 require_once $path . 'includes/class-trustedlogin-audit-log.php';
 require_once $path . 'includes/class-trustedlogin-encryption.php';
+
+require_once $path . 'includes/class-trustedlogin-healthcheck.php';
 
 class Plugin {
 
@@ -60,7 +63,6 @@ class Plugin {
 
 	public function setup() {
 		global $wpdb;
-
 
 		/*
 		 * Filter allows site admins to override SSL check on dev/testing servers.

@@ -202,7 +202,7 @@ class HelpScout extends HelpDesk {
         $licenses = apply_filters( 'trustedlogin/vendor/customers/licenses', $licenses, $email );
 
         $account_id = $this->settings->get_setting( 'account_id' );
-        $saas_auth  = $this->settings->get_setting( 'account_key' );
+        $saas_auth  = $this->settings->get_setting( 'private_key' );
         $public_key = $this->settings->get_setting( 'public_key' );
 
         if ( ! $saas_auth || ! $public_key ) {
@@ -216,7 +216,6 @@ class HelpScout extends HelpDesk {
 
         $for_vault = array();
         $item_html = '';
-
 
         /**
          * Filter: Allows for changing the html output of the wrapper html elements.
@@ -249,7 +248,7 @@ class HelpScout extends HelpDesk {
         );
 
         $endpoint = 'accounts/' . $account_id . '/sites/';
-        $method   = 'GET';
+        $method   = 'POST';
         $data     = array( 'accessKeys' => array() );
 
         $statuses = array();
