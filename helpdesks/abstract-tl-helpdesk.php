@@ -88,19 +88,21 @@ abstract class HelpDesk {
 	 *
 	 * @return string The url with GET variables.
 	 */
-	public function build_action_url( $action, $access_key = '' ){
+	public function build_action_url( $action, $access_key = '' ) {
 
-		if ( empty( $action ) ){
+		if ( empty( $action ) ) {
 			return new \WP_Error( 'variable-missing', 'Cannot build helpdesk action URL without a specified action' );
 		}
 
+		$endpoint = Endpoint::REDIRECT_ENDPOINT;
+
 		$args = array(
-			'trustedlogin' => 1,
-			'action'   	   => $action,
-			'provider'     => static::slug,
+			$endpoint  => 1,
+			'action'   => $action,
+			'provider' => static::slug,
 		);
 
-		if ( $access_key ){
+		if ( $access_key ) {
 			$args['ak'] = $access_key;
 		}
 
