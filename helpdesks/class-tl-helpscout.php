@@ -278,7 +278,7 @@ class HelpScout extends HelpDesk {
                     foreach ( $secrets as $secret ){
                          $item_html .= sprintf(
                             $item_template,
-                            $this->build_action_url( $secret ),
+                            $this->build_action_url( 'support_redirect', $secret ),
                             __( 'TrustedLogin for ', 'tl-support-side' ),
                             $key,
                             $statuses[ $key ]
