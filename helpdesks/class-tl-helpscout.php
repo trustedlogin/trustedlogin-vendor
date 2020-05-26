@@ -1,42 +1,50 @@
 <?php
+namespace TrustedLogin\Vendor;
 
 /**
  * Class: TrustedLogin - HelpScout Integration
  *
  * @package tl-support-side
- * @version 0.2.0
- **/
-class TL_HelpScout
-{
+ * @version 0.1.0
+ */
+class HelpScout extends HelpDesk {
 
-    use TL_Debug_Logging;
+    use Debug_Logging;
+
+	const name = 'Help Scout';
+
+	const slug = 'helpscout';
+
+	const version = '0.1.0';
+
+	const is_active = true;
 
     /**
-     * @var String - the secret to verify requests from HelpScout
+     * @var string The secret to verify requests from HelpScout
      * @since 0.1.0
      **/
     private $secret;
 
     /**
-     * @var Boolean - whether our debug logging is activated
+     * @var boolean Whether our debug logging is activated
      * @since 0.1.0
      **/
     private $debug_mode;
 
     /**
-     * @var Array - the current TrustedLogin settings
+     * @var array Current TrustedLogin settings
      * @since 0.1.0
      **/
     private $options;
 
     /**
-     * @var Array - the default TrustedLogin settings
+     * @var array Default TrustedLogin settings
      * @since 0.1.0
      **/
     private $default_options;
 
     /**
-     * @var stdClass - this helpdesk's settings
+     * @var stdClass This helpdesk's settings
      * @since 0.1.0
      **/
     private $details;
@@ -49,14 +57,14 @@ class TL_HelpScout
 		    'version' => '0.1.0',
 	    );
 
-	    $this->settings   = new TrustedLogin_Settings();
-	    $this->secret     = $this->settings->get_setting( 'tls_' . $this->details->slug . '_secret' );
+	    $this->settings   = new Settings();
+	    $this->secret     = $this->settings->get_setting( self::slug . '_secret' );
 	    $this->debug_mode = $this->settings->debug_mode_enabled();
 
 	    add_action( 'admin_init', array( $this, 'add_extra_settings' ) );
 
-	    add_action( 'wp_ajax_' . $this->details->slug . '_webhook', array( $this, 'webhook_endpoint' ) );
-	    add_action( 'wp_ajax_nopriv_' . $this->details->slug . '_webhook', array( $this, 'webhook_endpoint' ) );
+	    add_action( 'wp_ajax_' . self::slug . '_webhook', array( $this, 'webhook_endpoint' ) );
+	    add_action( 'wp_ajax_nopriv_' . self::slug . '_webhook', array( $this, 'webhook_endpoint' ) );
 
     }
 
@@ -82,24 +90,24 @@ class TL_HelpScout
      */
     public function add_extra_settings() {
 
-	    $settings = new TrustedLogin_Settings();
+	    $settings = new Settings();
 
-	    if ( in_array( $this->details->slug, $settings->get_setting( 'helpdesk' ) ) ) {
+	    if ( self::slug === $settings->get_setting( 'helpdesk' ) ) {
 
 		    add_settings_field(
-			    'tls_' . $this->details->slug . '_secret',
-			    $this->details->name . ' ' . __( 'Secret Key', 'tl-support-side' ),
-			    array( $this, 'helpscout_secret_field_render' ),
-			    'TLS_plugin_options',
-			    'tls_options_section'
+			    'trustedlogin_vendor_' . self::slug . '_secret',
+			    self::name . ' ' . __( 'Secret Key', 'tl-support-side' ),
+			    array( $this, 'secret_field_render' ),
+			    'trustedlogin_vendor_options',
+			    'trustedlogin_vendor_options_section'
 		    );
 
 		    add_settings_field(
-			    'tls_' . $this->details->slug . '_url',
-			    $this->details->name . ' ' . __( 'Callback URL', 'tl-support-side' ),
-			    array( $this, 'helpscout_url_field_render' ),
-			    'TLS_plugin_options',
-			    'tls_options_section'
+			    'trustedlogin_vendor_' . self::slug . '_url',
+			    sprintf( __( '%s Callback URL', 'tl-support-side' ), self::name ),
+			    array( $this, 'url_field_render' ),
+			    'trustedlogin_vendor_options',
+			    'trustedlogin_vendor_options_section'
 		    );
 
 	    }
@@ -108,19 +116,18 @@ class TL_HelpScout
     /**
      * Renders the settings field for the helpdesk secret/api_key
      */
-    public function helpscout_secret_field_render(){
-
-        $this->settings->tls_settings_render_input_field('tls_' . $this->details->slug . '_secret', 'password', false);
-
+    public function secret_field_render( $field ){
+        $this->settings->render_input_field(self::slug . '_secret', 'password', false);
     }
 
     /**
      * Renders the settings field for the helpdesk url
      */
-    public function helpscout_url_field_render(){
+    public function url_field_render(){
 
-        $url = add_query_arg('action', $this->details->slug . '_webhook', admin_url('admin-ajax.php'));
-        echo '<input readonly="readonly" type="text" value="' . $url . '" class="regular-text ltr">';
+        $url = add_query_arg('action', self::slug . '_webhook', admin_url('admin-ajax.php'));
+
+        echo '<input readonly="readonly" type="text" value="' . esc_url( $url ) . '" class="regular-text widefat code">';
 
     }
 
@@ -192,11 +199,11 @@ class TL_HelpScout
          * @param string $email
          * @return array
          **/
-        $licenses = apply_filters( 'trusted_login_get_licenses', $licenses, $email );
+        $licenses = apply_filters( 'trustedlogin/vendor/customers/licenses', $licenses, $email );
 
-        $account_id = $this->settings->get_setting( 'tls_account_id' );
-        $saas_auth  = $this->settings->get_setting( 'tls_account_key' );
-        $public_key = $this->settings->get_setting( 'tls_public_key' );
+        $account_id = $this->settings->get_setting( 'account_id' );
+        $saas_auth  = $this->settings->get_setting( 'private_key' );
+        $public_key = $this->settings->get_setting( 'public_key' );
 
         if ( ! $saas_auth || ! $public_key ) {
             $error = __( 'Please make sure the TrustedLogin API Key setting is entered.', 'tl-support-side' );
@@ -205,18 +212,43 @@ class TL_HelpScout
         }
 
         $saas_attr = (object) array( 'type' => 'saas', 'auth' => $saas_auth, 'debug_mode' => $this->debug_mode );
-        $saas_api = new TL_API_Handler($saas_attr);
+        $saas_api = new API_Handler($saas_attr);
 
         $for_vault = array();
         $item_html = '';
 
-        $html_template = '<ul class="c-sb-list c-sb-list--two-line">%1$s</ul>';
-        $item_template = '<li class="c-sb-list-item"><a href="%1$s">%2$s %3$s</a> (%4$s)</li>';
-        $no_items_template = '<li class="c-sb-list-item">%1$s</li>';
-        $url_endpoint = apply_filters( 'trustedlogin_redirect_endpoint', 'trustedlogin' );
+        /**
+         * Filter: Allows for changing the html output of the wrapper html elements.
+         *
+         * @param string  $html
+         */
+        $html_template = apply_filters( 
+            'trustedlogin/vendor/helpdesk/'. self::slug. '/template/wrapper', 
+            '<ul class="c-sb-list c-sb-list--two-line">%1$s</ul>'
+        );
+
+        /**
+         * Filter: Allows for changing the html output of the individual items html elements.
+         *
+         * @param string  $html
+         */
+        $item_template = apply_filters( 
+            'trustedlogin/vendor/helpdesk/'. self::slug. '/template/item', 
+            '<li class="c-sb-list-item"><a href="%1$s">%2$s %3$s</a> (%4$s)</li>'
+        );
+
+        /**
+         * Filter: Allows for changing the html output of the html elements when no items found.
+         *
+         * @param string  $html
+         */
+        $no_items_template = apply_filters( 
+            'trustedlogin/vendor/helpdesk/'. self::slug. '/template/no-items', 
+            '<li class="c-sb-list-item">%1$s</li>'
+        );
 
         $endpoint = 'accounts/' . $account_id . '/sites/';
-        $method   = 'GET';
+        $method   = 'POST';
         $data     = array( 'accessKeys' => array() );
 
         $statuses = array();
@@ -246,7 +278,7 @@ class TL_HelpScout
                     foreach ( $secrets as $secret ){
                          $item_html .= sprintf(
                             $item_template,
-                            esc_url( site_url( '/' . $url_endpoint . '/' . $secret ) ),
+                            $this->build_action_url( $secret ),
                             __( 'TrustedLogin for ', 'tl-support-side' ),
                             $key,
                             $statuses[ $key ]
@@ -360,4 +392,4 @@ class TL_HelpScout
 
 }
 
-$hl = new TL_HelpScout();
+$hl = new HelpScout();

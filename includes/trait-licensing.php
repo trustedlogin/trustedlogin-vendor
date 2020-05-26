@@ -1,5 +1,7 @@
 <?php
-trait TL_Licensing {
+namespace TrustedLogin\Vendor;
+
+trait Licensing {
 
 	public function edd_has_licensing() {
 		return function_exists( 'edd_software_licensing' );

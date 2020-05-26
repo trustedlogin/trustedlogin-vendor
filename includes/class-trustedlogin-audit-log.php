@@ -3,6 +3,9 @@
  * Audit Log functionality
  * @package TrustedLogin\Vendor
  */
+namespace TrustedLogin\Vendor;
+
+use \WP_Error;
 
 if ( ! defined('ABSPATH') ) {
     exit;
@@ -11,7 +14,7 @@ if ( ! defined('ABSPATH') ) {
 
 class TrustedLogin_Audit_Log {
 
-	use TL_Debug_Logging;
+	use Debug_Logging;
 
 	/**
 	 * Version of the Audit Log DB schema
@@ -31,17 +34,18 @@ class TrustedLogin_Audit_Log {
 	/**
 	 * TrustedLogin_Audit_Log constructor.
 	 *
-	 * @param TrustedLogin_Settings $settings_instance
+	 * @param Settings $settings_instance
 	 */
-	public function __construct( TrustedLogin_Settings $settings_instance ) {
+	public function __construct( Settings $settings_instance ) {
 
 		$this->settings = $settings_instance;
 
 		register_activation_hook( __FILE__, array( $this, 'init' ) );
 
-		add_action( 'plugins_loaded', array( $this, 'maybe_update_schema' ) );
+		// Priority should be greater than 10 (needed for unit tests)
+		add_action( 'plugins_loaded', array( $this, 'maybe_update_schema' ), 11 );
 
-		add_action( 'trustedlogin_after_settings_form', array( $this, 'maybe_output_log' ), 10 );
+		add_action( 'trustedlogin/vendor/settings/form/after', array( $this, 'maybe_output_log' ), 10 );
 	}
 
 	/**
@@ -49,7 +53,7 @@ class TrustedLogin_Audit_Log {
 	 *
 	 * @return string
 	 */
-	protected function get_db_table_name() {
+	public function get_db_table_name() {
 		global $wpdb;
 
 		return $wpdb->prefix . self::DB_TABLE_NAME;
@@ -63,6 +67,10 @@ class TrustedLogin_Audit_Log {
 	public function maybe_update_schema() {
 
 		if ( version_compare( get_site_option( 'tl_db_version' ), self::DB_VERSION, '<' ) ) {
+			$this->init();
+		}
+
+		if( defined( 'DOING_TL_VENDOR_TESTS') && DOING_TL_VENDOR_TESTS ) {
 			$this->init();
 		}
 	}
@@ -102,7 +110,7 @@ class TrustedLogin_Audit_Log {
 	 */
 	public function maybe_output_log() {
 
-		$audit_log_enabled = $this->settings->tls_settings_is_toggled( 'tls_output_audit_log' );
+		$audit_log_enabled = $this->settings->setting_is_toggled( 'tls_output_audit_log' );
 
 		if ( ! $audit_log_enabled ) {
 			return;
@@ -118,8 +126,7 @@ class TrustedLogin_Audit_Log {
 		if ( 0 < count( $entries ) ) {
 			echo $this->build_output( $entries );
 		} else {
-
-			echo __( 'No Audit Log items to show yet.', 'tl-support-side' );
+			esc_html_e( "No Audit Log items to show yet.", 'trustedlogin-vendor' );
 		}
 	}
 

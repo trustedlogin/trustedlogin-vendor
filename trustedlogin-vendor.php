@@ -12,13 +12,15 @@
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Copyright: © 2020 Katz Web Services, Inc.
  */
+namespace TrustedLogin\Vendor;
 
 if (!defined('ABSPATH')) {
     exit;
 }
 // Exit if accessed directly
 
-define( 'TRUSTEDLOGIN_PLUGIN_VERSION', '0.9.0' );
+define( 'TRUSTEDLOGIN_PLUGIN_VERSION', '0.9.0-refactor' );
+define( 'TRUSTEDLOGIN_PLUGIN_FILE', __FILE__ );
 
 /** @define "$path" "./" */
 $path = plugin_dir_path(__FILE__);
@@ -32,10 +34,12 @@ require_once $path . 'includes/class-tl-api-handler.php';
 require_once $path . 'includes/class-trustedlogin-audit-log.php';
 require_once $path . 'includes/class-trustedlogin-encryption.php';
 
-class TrustedLogin_Support_Side {
+require_once $path . 'includes/class-trustedlogin-healthcheck.php';
 
-	use TL_Debug_Logging;
-	use TL_Licensing;
+class Plugin {
+
+	use \TrustedLogin\Vendor\Debug_Logging;
+	use \TrustedLogin\Vendor\Licensing;
 
 	/**
 	 * @since 0.1.0
@@ -44,24 +48,24 @@ class TrustedLogin_Support_Side {
 	private $plugin_version;
 
 	/**
-	 * @var TrustedLogin_Endpoint
+	 * @var \TrustedLogin\Vendor\Endpoint
 	 */
 	private $endpoint;
 
 	/**
-	 * @var TrustedLogin_Settings
+	 * @var \TrustedLogin\Vendor\Settings
 	 */
 	private $settings;
 
-	public function __construct() {}
+	public function __construct() {
+		$this->plugin_version = TRUSTEDLOGIN_PLUGIN_VERSION;
+	}
 
 	public function setup() {
 		global $wpdb;
 
-		$this->plugin_version = TRUSTEDLOGIN_PLUGIN_VERSION;
-
 		/*
-		 * Filter allows site admins to over-ride ssl check on dev/testing servers.
+		 * Filter allows site admins to override SSL check on dev/testing servers.
 		 * This should NEVER be used on production environments.
 		 */
 		if ( ! is_ssl() && ! defined( 'DOING_TL_VENDOR_TESTS') ) {
@@ -72,16 +76,11 @@ class TrustedLogin_Support_Side {
 			return false;
 		}
 
-		$this->settings = new TrustedLogin_Settings( $this->plugin_version );
+		$this->settings = new Settings();
 
-		$this->endpoint = new TrustedLogin_Endpoint( $this->settings );
+		$this->endpoint = new Endpoint( $this->settings );
 
-		// Setup the Plugin Settings
-		if ( is_admin() ) {
-			$this->settings->admin_init();
-		}
-
-		add_action( 'init', array( $this, 'init_helpdesk_integration' ) );
+		$this->load_helpdesks();
 	}
 
 	/*
@@ -91,12 +90,14 @@ class TrustedLogin_Support_Side {
 	 */
 	public function ssl_admin_notice() {
 	    $class = 'notice notice-error';
-	    $message = __( 'TrustedLogin plugin NOT enabled. SSL required to securely interact with TrustedLogin servers.', 'trustedlogin' );
+	    $message = __( 'The TrustedLogin plugin is NOT enabled. SSL is required to securely interact with TrustedLogin servers.', 'trustedlogin-vendor' );
 
 	    printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
 	}
 
-	public function init_helpdesk_integration() {
+	public function load_helpdesks() {
+
+		include_once plugin_dir_path( __FILE__ ) . 'helpdesks/abstract-tl-helpdesk.php';
 
 		// Load all field files automatically
 		foreach ( glob( plugin_dir_path( __FILE__ ) . 'helpdesks/class-*.php' ) as $helpdesk ) {
@@ -106,17 +107,13 @@ class TrustedLogin_Support_Side {
 
 }
 
-function init_tl_vendor(){
-
-	$init_tl = new TrustedLogin_Support_Side();
+add_action( 'plugins_loaded', function() {
+	$init_tl = new Plugin();
 	$init_tl->setup();
+} );
 
-}
+register_deactivation_hook( __FILE__, 'trustedlogin_vendor_deactivate' );
 
-add_action( 'after_setup_theme', 'init_tl_vendor' );
-
-register_deactivation_hook( __FILE__, 'trustedlogin_supportside_deactivate' );
-
-function trustedlogin_supportside_deactivate() {
+function trustedlogin_vendor_deactivate() {
     delete_option('tl_permalinks_flushed');
 }

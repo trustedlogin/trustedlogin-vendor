@@ -6,63 +6,74 @@
  * @version 0.2.0
  **/
 
-class TrustedLogin_Settings {
+namespace TrustedLogin\Vendor;
+
+use \WP_Error;
+use \Exception;
+use const TRUSTEDLOGIN_PLUGIN_VERSION;
+use function selected;
+
+class Settings {
 
 	/**
-	 * @var Boolean - whether or not to save a local text log
+	 * @var boolean $debug_mode Whether or not to save a local text log
 	 * @since 0.1.0
-	 **/
+	 */
 	protected $debug_mode;
 
 	/**
-	 * @var Array - the default settings for our plugin
+	 * @var array $default_options The default settings for our plugin
 	 * @since 0.1.0
-	 **/
-	private $default_options;
-
-	/**
-	 * @var String - where the TrustedLogin settings should sit in menu.
-	 * @since 0.1.0
-	 **@see Filter: trustedlogin_menu_location
 	 */
-	private $menu_location;
+	private $default_options = array(
+		'account_id'       => '',
+		'private_key'      => '',
+		'public_key'       => '',
+		'helpdesk'         => array(),
+		'approved_roles'   => array( 'administrator' ),
+		'debug_enabled'    => 'on',
+		'output_audit_log' => 'off',
+	);
 
 	/**
-	 * @var Array - current site's TrustedLogin settings
+	 * @var string $menu_location Where the TrustedLogin settings should sit in menu. Options: 'main', or 'submenu' to add under Setting tab
+	 * @see Filter: trustedlogin_menu_location
+	 */
+	private $menu_location = 'main';
+
+	/**
+	 * @var array Current site's TrustedLogin settings
 	 * @since 0.1.0
 	 **/
 	private $options;
 
 	/**
-	 * @var String - the x.x.x value of the current plugin version. Used for versioning of settings page assets.
+	 * @var string $plugin_version Used for versioning of settings page assets.
 	 * @since 0.1.0
-	 **/
+	 */
 	private $plugin_version;
 
-	public function __construct( $plugin_version = null ) {
+	public function __construct() {
 
 		$this->set_defaults();
 
-		$this->plugin_version = ( is_null( $plugin_version ) ) ? '0.0.0' : $plugin_version;
+		$this->plugin_version = TRUSTEDLOGIN_PLUGIN_VERSION;
 
+		$this->add_hooks();
 	}
 
-	public function admin_init() {
+	public function add_hooks() {
 
-		/**
-		 * Filter: Where in the menu the TrustedLogin Options should go.
-		 * Added to allow devs to move options item under 'Settings' menu item in wp-admin to keep things neat.
-		 *
-		 * @since 0.1.0
-		 *
-		 * @param String either 'main' or 'submenu'
-		 **/
-		$this->menu_location = apply_filters( 'trustedlogin_menu_location', 'main' );
+		if( did_action( 'trustedlogin/vendor/add_hooks/after' ) ) {
+			return;
+		}
 
-		add_action( 'admin_menu', array( $this, 'tls_settings_add_admin_menu' ) );
-		add_action( 'admin_init', array( $this, 'tls_settings_init' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'tls_settings_scripts' ) );
+		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
+		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts' ) );
+		add_action( 'admin_init', array( $this, 'maybe_handle_accesskey' ) );
 
+		do_action( 'trustedlogin/vendor/add_hooks/after' );
 	}
 
 	public function debug_mode_enabled() {
@@ -72,116 +83,155 @@ class TrustedLogin_Settings {
 	}
 
 	public function set_defaults() {
-		if ( property_exists( $this, 'default_options' ) ) {
-			$this->default_options = apply_filters( 'trustedlogin_default_settings', array(
-				'tls_account_id'       => "",
-				'tls_account_key'      => "",
-				'tls_public_key'       => "",
-				'tls_helpdesk'         => array(),
-				'tls_approved_roles'   => array( 'administrator' ),
-				'tls_debug_enabled'    => 'on',
-				'tls_output_audit_log' => 'off',
-			) );
-		}
-		if ( property_exists( $this, 'menu_location' ) ) {
-			$this->menu_location = 'main'; // change to 'submenu' to add under Setting tab
-		}
 
-		$this->options = get_option( 'tls_settings', $this->default_options );
 
-		$this->debug_mode = $this->tls_settings_is_toggled( 'tls_debug_enabled' );
+		/**
+		 * Filter: Manipulate default options 
+		 *
+		 * @since 1.0.0
+		 *
+		 * @see   `default_options` private variable. 
+		 *
+		 * @param array 
+		 **/
+		$this->default_options = apply_filters( 'trustedlogin/vendor/settings/default', $this->default_options );
+
+		$this->options = get_option( 'trustedlogin_vendor', $this->default_options );
+
+		$this->debug_mode = $this->setting_is_toggled( 'debug_enabled' );
+
+		/**
+		 * Filter: Where in the menu the TrustedLogin Options should go.
+		 * Added to allow devs to move options item under 'Settings' menu item in wp-admin to keep things neat.
+		 *
+		 * @since 1.0.0
+		 *
+		 * @param String either 'main' or 'submenu'
+		 **/
+		$this->menu_location = apply_filters( 'trustedlogin/vendor/settings/menu-location', 'main' );
 	}
 
-	public function tls_settings_add_admin_menu() {
+	public function add_admin_menu() {
 
 		$args = array(
 			'submenu_page' => 'options-general.php',
-			'menu_title'   => __( 'TrustedLogin Settings', 'tl-support-side' ),
-			'page_title'   => __( 'TrustedLogin', 'tl-support-side' ),
+			'menu_title'   => __( 'Settings', 'trustedlogin-vendor' ),
+			'page_title'   => __( 'TrustedLogin', 'trustedlogin-vendor' ),
 			'capabilities' => 'manage_options',
-			'slug'         => 'tls_settings',
-			'callback'     => array( $this, 'tls_settings_options_page' ),
+			'slug'         => 'trustedlogin_vendor',
+			'callback'     => array( $this, 'settings_options_page' ),
 			'icon'         => 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDEzOS4zIDIyMC43IiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAxMzkuMyAyMjAuNyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48c3R5bGUgdHlwZT0idGV4dC9jc3MiPi5zdDB7ZmlsbDojMDEwMTAxO308L3N0eWxlPjxwYXRoIGNsYXNzPSJzdDAiIGQ9Im00Mi4yIDY5Ljd2LTIxLjZjMC0xNS4yIDEyLjMtMjcuNSAyNy41LTI3LjUgMTUuMSAwIDI3LjUgMTIuMyAyNy41IDI3LjV2MjEuNmM3LjUgMC41IDE0LjUgMS4yIDIwLjYgMi4xdi0yMy43YzAtMjYuNS0yMS42LTQ4LjEtNDguMS00OC4xLTI2LjYgMC00OC4yIDIxLjYtNDguMiA0OC4xdjIzLjdjNi4yLTAuOSAxMy4yLTEuNiAyMC43LTIuMXoiLz48cmVjdCBjbGFzcz0ic3QwIiB4PSIyMS41IiB5PSI2Mi40IiB3aWR0aD0iMjAuNiIgaGVpZ2h0PSIyNS41Ii8+PHJlY3QgY2xhc3M9InN0MCIgeD0iOTcuMSIgeT0iNjIuNCIgd2lkdGg9IjIwLjYiIGhlaWdodD0iMjUuNSIvPjxwYXRoIGNsYXNzPSJzdDAiIGQ9Im02OS43IDc1LjNjLTM4LjUgMC02OS43IDQuOS02OS43IDEwLjh2NTRoNTYuOXYtOS44YzAtMi41IDEuOC0zLjYgNC0yLjNsMjguMyAxNi40YzIuMiAxLjMgMi4yIDMuMyAwIDQuNmwtMjguMyAxNi40Yy0yLjIgMS4zLTQgMC4yLTQtMi4zdi05LjhoLTU2Ljl2MTIuN2MwIDM4LjUgNDcuNSA1NC44IDY5LjcgNTQuOHM2OS43LTE2LjMgNjkuNy01NC44di03OS45Yy0wLjEtNS45LTMxLjMtMTAuOC02OS43LTEwLjh6bTAgMTIyLjRjLTIzIDAtNDIuNS0xNS4zLTQ4LjktMzYuMmgxNC44YzUuOCAxMy4xIDE4LjkgMjIuMyAzNC4xIDIyLjMgMjAuNSAwIDM3LjItMTYuNyAzNy4yLTM3LjJzLTE2LjctMzcuMi0zNy4yLTM3LjJjLTE1LjIgMC0yOC4zIDkuMi0zNC4xIDIyLjNoLTE0LjhjNi40LTIwLjkgMjUuOS0zNi4yIDQ4LjktMzYuMiAyOC4yIDAgNTEuMSAyMi45IDUxLjEgNTEuMS0wLjEgMjguMi0yMyA1MS4xLTUxLjEgNTEuMXoiLz48L3N2Zz4=',
 		);
 
 		if ( 'submenu' === $this->menu_location ) {
 			add_submenu_page( $args['submenu_page'], $args['menu_title'], $args['page_title'], $args['capabilities'], $args['slug'], $args['callback'] );
 		} else {
-			add_menu_page( $args['menu_title'], $args['page_title'], $args['capabilities'], $args['slug'], $args['callback'], $args['icon'] );
+			// add_menu_page( $args['menu_title'], $args['page_title'], $args['capabilities'], $args['slug'], $args['callback'], $args['icon'] );
+			add_menu_page(
+                $args['menu_title'], 
+                $args['page_title'], 
+                $args['capabilities'], 
+                $args['slug'], 
+                $args['callback'], 
+                $args['icon']
+            );
+
+             add_submenu_page(
+                $args['slug'],
+                $args['page_title'], 
+                $args['menu_title'], 
+                $args['capabilities'], 
+                $args['slug'], 
+                $args['callback']
+            );
+
 		}
+
+		$access_key_page_args = array(
+			'submenu_page' => 'trustedlogin_vendor',
+			'menu_title'   => __( 'Login via AccessKey', 'trustedlogin-vendor' ),
+			'page_title'   => __( 'TrustedLogin via AccessKey', 'trustedlogin-vendor' ),
+			'capabilities' => 'manage_options',
+			'slug'         => 'trustedlogin_accesskey',
+			'callback'     => array( $this, 'accesskey_page' ),
+		);
+
+		add_submenu_page( 
+			$access_key_page_args['submenu_page'], 
+			$access_key_page_args['page_title'],
+			$access_key_page_args['menu_title'],  
+			$access_key_page_args['capabilities'], 
+			$access_key_page_args['slug'], 
+			$access_key_page_args['callback'] 
+		);
 
 	}
 
-	public function tls_settings_init() {
+	public function admin_init() {
 
-		register_setting( 'TLS_plugin_options', 'tls_settings', [
-			'sanitize_callback' => [
-				$this,
-				'verify_api_details'
-			]
-		] );
+		register_setting( 'trustedlogin_vendor_options', 'trustedlogin_vendor', array( 'sanitize_callback' => array( $this, 'verify_api_details' ) ) );
 
 		add_settings_section(
-			'tls_options_section',
-			__( 'Settings for how your site and support agents are connected to TrustedLogin', 'tl-support-side' ),
-			array( $this, 'tls_settings_section_callback' ),
-			'TLS_plugin_options'
+			'trustedlogin_vendor_options_section',
+			__( 'Settings for how your site and support agents are connected to TrustedLogin', 'trustedlogin-vendor' ),
+			array( $this, 'section_callback' ),
+			'trustedlogin_vendor_options'
 		);
 
 		add_settings_field(
-			'tls_account_id',
-			__( 'TrustedLogin Account ID', 'tl-support-side' ),
-			array( $this, 'tls_settings_account_id_field_render' ),
-			'TLS_plugin_options',
-			'tls_options_section'
+			'account_id',
+			__( 'TrustedLogin Account ID ', 'trustedlogin-vendor' ),
+			array( $this, 'account_id_field_render' ),
+			'trustedlogin_vendor_options',
+			'trustedlogin_vendor_options_section'
 		);
 
 		add_settings_field(
-			'tls_account_key',
-			__( 'TrustedLogin API Key', 'tl-support-side' ),
-			array( $this, 'tls_settings_account_key_field_render' ),
-			'TLS_plugin_options',
-			'tls_options_section'
+			'private_key',
+			__( 'TrustedLogin Private Key ', 'trustedlogin-vendor' ),
+			array( $this, 'private_key_field_render' ),
+			'trustedlogin_vendor_options',
+			'trustedlogin_vendor_options_section'
 		);
 
 		add_settings_field(
-			'tls_public_key',
-			__( 'TrustedLogin Public Key', 'tl-support-side' ),
-			array( $this, 'tls_settings_public_key_field_render' ),
-			'TLS_plugin_options',
-			'tls_options_section'
+			'public_key',
+			__( 'TrustedLogin Public Key ', 'trustedlogin-vendor' ),
+			array( $this, 'public_key_field_render' ),
+			'trustedlogin_vendor_options',
+			'trustedlogin_vendor_options_section'
 		);
 
 		add_settings_field(
-			'tls_approved_roles',
-			__( 'Which WP roles can automatically be logged into customer sites?', 'tl-support-side' ),
-			array( $this, 'tls_settings_approved_roles_field_render' ),
-			'TLS_plugin_options',
-			'tls_options_section'
+			'approved_roles',
+			__( 'Which WP roles can automatically be logged into customer sites?', 'trustedlogin-vendor' ),
+			array( $this, 'approved_roles_field_render' ),
+			'trustedlogin_vendor_options',
+			'trustedlogin_vendor_options_section'
 		);
 
 		add_settings_field(
-			'tls_helpdesk',
-			__( 'Which helpdesk software are you using?', 'tl-support-side' ),
-			array( $this, 'tls_settings_helpdesks_field_render' ),
-			'TLS_plugin_options',
-			'tls_options_section'
+			'trustedlogin_vendor_helpdesk',
+			__( 'Which helpdesk software are you using?', 'trustedlogin-vendor' ),
+			array( $this, 'helpdesks_field_render' ),
+			'trustedlogin_vendor_options',
+			'trustedlogin_vendor_options_section'
 		);
 
 		add_settings_field(
-			'tls_debug_enabled',
-			__( 'Enable debug logging?', 'tl-support-side' ),
-			array( $this, 'tls_settings_debug_enabled_field_render' ),
-			'TLS_plugin_options',
-			'tls_options_section'
+			'trustedlogin_vendor_debug_enabled',
+			__( 'Enable debug logging?', 'trustedlogin-vendor' ),
+			array( $this, 'debug_enabled_field_render' ),
+			'trustedlogin_vendor_options',
+			'trustedlogin_vendor_options_section'
 		);
 
 		add_settings_field(
-			'tls_output_audit_log',
-			__( 'Display Audit Log below?', 'tl-support-side' ),
-			array( $this, 'tls_settings_output_audit_log_field_render' ),
-			'TLS_plugin_options',
-			'tls_options_section'
+			'trustedlogin_vendor_output_audit_log',
+			__( 'Display Audit Log below?', 'trustedlogin-vendor' ),
+			array( $this, 'output_audit_log_field_render' ),
+			'trustedlogin_vendor_options',
+			'trustedlogin_vendor_options_section'
 		);
 
 	}
@@ -195,43 +245,33 @@ class TrustedLogin_Settings {
 	 *
 	 * @uses `add_settings_error()` to set an alert for verification failures/errors and success message when API creds verified.
 	 *
-	 * @param Array $input Data saved on Settings page.
+	 * @param array $input Data saved on Settings page.
 	 *
 	 * @return Array Output of sanitized data.
 	 */
 	public function verify_api_details( $input ) {
 
-		if ( ! isset( $_POST ) || ! isset( $_POST['tls_settings'] ) ) {
+		if ( ! isset( $input['account_id'] ) ) {
 			return $input;
 		}
 
 		$api_creds_verified = false;
 
 		try {
+			$account_id = intval( $input['account_id'] );
+			$saas_auth  = sanitize_text_field( $input['private_key'] );
+			$public_key = sanitize_text_field( $input['public_key'] );
+			$debug_mode = isset( $input['debug_enabled'] );
 
-			$checks = array(
-				'tls_account_key' => __( 'Private Key', 'trustedlogin' ),
-				'tls_account_id'  => __( 'Account ID', 'trustedlogin' ),
-				'tls_public_key'  => __( 'Public Key', 'trustedlogin' ),
+			$saas_attr = array(
+				'auth' => $saas_auth,
+				'debug_mode' => $debug_mode
 			);
 
-			foreach ( $checks as $key => $title ) {
-				if ( ! isset( $_POST['tls_settings'][ $key ] ) ) {
-					throw new Exception( sprintf( __( 'No %s provided.', 'trustedlogin' ), $title ) );
-				}
-			}
-
-			$account_id = intval( $_POST['tls_settings']['tls_account_id'] );
-			$saas_auth  = sanitize_text_field( $_POST['tls_settings']['tls_account_key'] );
-			$debug_mode = ( isset( $_POST['tls_settings']['tls_debug_enabled'] ) ) ? true : false;
-			$public_key = sanitize_text_field( $_POST['tls_settings']['tls_public_key'] );
-
-			$saas_attr = (object) array( 'type' => 'saas', 'auth' => $saas_auth, 'debug_mode' => $debug_mode );
-
-			$saas_api = new TL_API_Handler( $saas_attr );
+			$saas_api = new API_Handler( $saas_attr );
 
 			/**
-			 * @var String $saas_token Additional SaaS Token for authenticating API queries.
+			 * @var string $saas_token Additional SaaS Token for authenticating API queries.
 			 * @see https://github.com/trustedlogin/trustedlogin-ecommerce/blob/master/docs/user-remote-authentication.md
 			 **/
 			$saas_token  = hash( 'sha256', $public_key . $saas_auth );
@@ -254,12 +294,12 @@ class TrustedLogin_Settings {
 		} catch ( Exception $e ) {
 
 			$error = sprintf(
-				__( 'Could not verify TrustedLogin credentials. %s', 'trustedlogin' ),
+				esc_html__( 'Could not verify TrustedLogin credentials: %s', 'trustedlogin-vendor' ),
 				esc_html__( $e->getMessage() )
 			);
 
 			add_settings_error(
-				'TLS_plugin_options',
+				'trustedlogin_vendor_options',
 				'trustedlogin_auth',
 				$error,
 				'error'
@@ -268,9 +308,9 @@ class TrustedLogin_Settings {
 
 		if ( $api_creds_verified ) {
 			add_settings_error(
-				'TLS_plugin_options',
+				'trustedlogin_vendor_options',
 				'trustedlogin_auth',
-				__( 'TrustedLogin API credentials verified.', 'trustedlogin' ),
+				__( 'TrustedLogin API credentials verified.', 'trustedlogin-vendor' ),
 				'updated'
 			);
 		}
@@ -278,23 +318,23 @@ class TrustedLogin_Settings {
 		return $input;
 	}
 
-	public function tls_settings_account_key_field_render() {
+	public function private_key_field_render() {
 
-		$this->tls_settings_render_input_field( 'tls_account_key', 'password', true );
-
-	}
-
-	public function tls_settings_public_key_field_render() {
-
-		$this->tls_settings_render_input_field( 'tls_public_key', 'text', true );
+		$this->render_input_field( 'private_key', 'password', true );
 
 	}
 
-	public function tls_settings_account_id_field_render() {
-		$this->tls_settings_render_input_field( 'tls_account_id', 'text', true );
+	public function public_key_field_render() {
+
+		$this->render_input_field( 'public_key', 'text', true );
+
 	}
 
-	public function tls_settings_render_input_field( $setting, $type = 'text', $required = false ) {
+	public function account_id_field_render() {
+		$this->render_input_field( 'account_id', 'text', true );
+	}
+
+	public function render_input_field( $setting, $type = 'text', $required = false ) {
 		if ( ! in_array( $type, array( 'password', 'text' ) ) ) {
 			$type = 'text';
 		}
@@ -303,17 +343,17 @@ class TrustedLogin_Settings {
 
 		$set_required = ( $required ) ? 'required' : '';
 
-		$output = '<input id="' . $setting . '" name="tls_settings[' . $setting . ']" type="' . $type . '" value="' . $value . '" class="regular-text ltr" ' . $set_required . '>';
+		$output = '<input id="' . esc_attr( $setting ) . '" name="trustedlogin_vendor[' . esc_attr( $setting ) . ']" type="' . esc_attr( $type ) . '" value="' . esc_attr( $value ) . '" class="regular-text ltr" ' . esc_attr( $set_required ) . '>';
 
 		echo $output;
 	}
 
-	public function tls_settings_approved_roles_field_render() {
+	public function approved_roles_field_render() {
 
 		$roles          = get_editable_roles();
 		$selected_roles = $this->get_approved_roles();
 
-		$select = "<select name='tls_settings[tls_approved_roles][]' id='tls_approved_roles' class='postform regular-text ltr' multiple='multiple' regular-text ltr>";
+		$select = "<select name='trustedlogin_vendor[approved_roles][]' id='trustedlogin_vendor_approved_roles' class='postform regular-text ltr' multiple='multiple' regular-text ltr>";
 
 		foreach ( $roles as $role_slug => $role_info ) {
 
@@ -332,49 +372,50 @@ class TrustedLogin_Settings {
 
 	}
 
-	public function tls_settings_helpdesks_field_render() {
+	public function helpdesks_field_render() {
 
 		/**
 		 * Filter: The array of TrustLogin supported HelpDesks
 		 *
 		 * @since 0.1.0
 		 *
-		 * @param Array ('slug'=>'Title')
+		 * @param array [
+		 * 		$slug => [					Slug is the identifier of the Helpdesk software, and is the value of the dropdown option.
+		 *			@var string $title,  	Translated title of the Helpdesk software, and title of dropdown option.
+		 *			@var bool   $active,	If false, the Helpdesks Solution is not shown in the dropdown options for selection.
+		 * 		],
+		 * ]
 		 **/
-		$helpdesks = apply_filters( 'trustedlogin_supported_helpdesks', array(
+		$helpdesks = apply_filters( 'trustedlogin/vendor/settings/helpdesks', array(
 			''          => array(
-				'title'  => __( 'Select Your Helpdesk Software', 'tl-support-side' ),
+				'title'  => __( 'Select Your Helpdesk Software', 'trustedlogin-vendor' ),
 				'active' => false
 			),
-			'helpscout' => array( 'title' => __( 'HelpScout', 'tl-support-side' ), 'active' => true ),
-			'intercom'  => array( 'title' => __( 'Intercom', 'tl-support-side' ), 'active' => false ),
-			'helpspot'  => array( 'title' => __( 'HelpSpot', 'tl-support-side' ), 'active' => false ),
-			'drift'     => array( 'title' => __( 'Drift', 'tl-support-side' ), 'active' => false ),
-			'gosquared' => array( 'title' => __( 'GoSquared', 'tl-support-side' ), 'active' => false ),
+			'helpscout' => array( 'title' => __( 'HelpScout', 'trustedlogin-vendor' ), 'active' => true ),
+			'intercom'  => array( 'title' => __( 'Intercom', 'trustedlogin-vendor' ), 'active' => false ),
+			'helpspot'  => array( 'title' => __( 'HelpSpot', 'trustedlogin-vendor' ), 'active' => false ),
+			'drift'     => array( 'title' => __( 'Drift', 'trustedlogin-vendor' ), 'active' => false ),
+			'gosquared' => array( 'title' => __( 'GoSquared', 'trustedlogin-vendor' ), 'active' => false ),
 		) );
 
-		$selected_helpdesk = $this->tls_settings_get_selected_helpdesk();
+		$selected_helpdesk = $this->get_setting( 'helpdesk' );
 
-		$select = "<select name='tls_settings[tls_helpdesk][]' id='tls_helpdesk' class='postform regular-text ltr'>";
+		$select = "<select name='trustedlogin_vendor[helpdesk][]' id='helpdesk' class='postform regular-text ltr'>";
 
 		foreach ( $helpdesks as $key => $helpdesk ) {
 
-			if ( in_array( $key, $selected_helpdesk ) ) {
-				$selected = "selected='selected'";
-			} else {
-				$selected = "";
-			}
+			$selected = selected( $selected_helpdesk, $key, false );
 
 			$title = $helpdesk['title'];
 
 			if ( ! $helpdesk['active'] && ! empty( $key ) ) {
-				$title    .= ' (' . __( 'Coming Soon', 'tl-support-side' ) . ')';
-				$disabled = 'disabled="disabled"';
+				$title    .= ' (' . __( 'Coming Soon', 'trustedlogin-vendor' ) . ')';
+				$disabled = ' disabled="disabled"';
 			} else {
 				$disabled = '';
 			}
 
-			$select .= "<option value='" . $key . "' " . $selected . " " . $disabled . ">" . $title . "</option>";
+			$select .= sprintf( '<option value="%s"%s%s>%s</option>', esc_attr( $key ), esc_attr( $selected ), esc_attr( $disabled ), esc_html( $title ) );
 
 		}
 
@@ -384,35 +425,35 @@ class TrustedLogin_Settings {
 
 	}
 
-	public function tls_settings_debug_enabled_field_render() {
+	public function debug_enabled_field_render() {
 
-		$this->tls_settings_output_toggle( 'tls_debug_enabled' );
-
-	}
-
-	public function tls_settings_output_audit_log_field_render() {
-
-		$this->tls_settings_output_toggle( 'tls_output_audit_log' );
+		$this->settings_output_toggle( 'debug_enabled' );
 
 	}
 
-	public function tls_settings_output_toggle( $setting ) {
+	public function output_audit_log_field_render() {
+
+		$this->settings_output_toggle( 'output_audit_log' );
+
+	}
+
+	public function settings_output_toggle( $setting ) {
 
 		$value = ( array_key_exists( $setting, $this->options ) ) ? $this->options[ $setting ] : 'off';
 
 		$select = '<label class="switch">
-                    <input class="switch-input" name="tls_settings[' . $setting . ']" id="' . $setting . '" type="checkbox" ' . checked( $value, 'on', false ) . '/>
+                    <input class="switch-input" name="trustedlogin_vendor[' . $setting . ']" id="' . $setting . '" type="checkbox" ' . checked( $value, 'on', false ) . '/>
                     <span class="switch-label" data-on="On" data-off="Off"></span>
                     <span class="switch-handle"></span>
                 </label>';
 		echo $select;
 	}
 
-	public function tls_settings_section_callback() {
-		do_action( 'trustedlogin_section_callback' );
+	public function section_callback() {
+		do_action( 'trustedlogin/vendor/settings/section-callback' );
 	}
 
-	public function tls_settings_options_page() {
+	public function settings_options_page() {
 
 		wp_enqueue_script( 'chosen' );
 		wp_enqueue_style( 'chosen' );
@@ -421,26 +462,85 @@ class TrustedLogin_Settings {
 
 		echo '<form method="post" action="options.php">';
 
-		echo sprintf( '<h1>%1$s</h1>', __( 'TrustedLogin Settings', 'tl-support-side' ) );
+		echo sprintf( '<h1>%1$s</h1>', __( 'TrustedLogin Settings', 'trustedlogin-vendor' ) );
 
-		settings_errors( 'TLS_plugin_options' );
+		settings_errors( 'trustedlogin_vendor_options' );
 
-		do_action( 'trustedlogin_before_settings_sections' );
+		do_action( 'trustedlogin/vendor/settings/sections/before' );
 
-		settings_fields( 'TLS_plugin_options' );
-		do_settings_sections( 'TLS_plugin_options' );
+		settings_fields( 'trustedlogin_vendor_options' );
 
-		do_action( 'trustedlogin_after_settings_sections' );
+		do_settings_sections( 'trustedlogin_vendor_options' );
+
+		do_action( 'trustedlogin/vendor/settings/sections/after' );
 
 		submit_button();
 
-		echo "</form>";
+		echo '</form>';
 
-		do_action( 'trustedlogin_after_settings_form' );
+		do_action( 'trustedlogin/vendor/settings/form/after' );
 
 	}
 
-	public function tls_settings_scripts() {
+	/**
+	 * Settings page output for logging into a customer's site via an AccessKey
+	 *
+	 * @since 1.0.0
+	 */
+	public function accesskey_page(){
+
+		wp_enqueue_script( 'chosen' );
+		wp_enqueue_style( 'chosen' );
+		wp_enqueue_script( 'trustedlogin-settings' );
+		wp_enqueue_style( 'trustedlogin-settings' );
+
+		$endpoint = new Endpoint( $this );
+
+		if ( $endpoint->auth_verify_user() ){
+			$output = sprintf(
+				'<div class="trustedlogin-dialog accesskey">
+				  <form method="GET">
+					  <input type="text" name="ak" id="trustedlogin-access-key" placeholder="%1$s" />
+					  <button type="submit" id="trustedlogin-go" class="trustedlogin-proceed">%2$s</button>
+					  <input type="hidden" name="action" value="ak-redirect" />
+					  <input type="hidden" name="page" value="%3$s" />
+				  </form>
+				</div>',
+				/* %1$s */ __('Paste AccessKey received from customer', 'trustedlogin-vendor'),
+				/* %2$s */ __('Login to Site', 'trustedlogin-vendor'),
+				/* $3$s */ esc_attr( \sanitize_title( $_GET['page'] ) )
+			);
+		} else {
+			$output = sprintf(
+				'<div class="trustedlogin-dialog error">%1$s</div>',
+				__('You do not have permissions to use TrustedLogin AccessKeys.', 'trustedlogin-vendor')
+			);
+		}
+		echo $output;
+	}
+
+	public function maybe_handle_accesskey(){
+
+		if ( ! isset( $_REQUEST['page'] ) || $_REQUEST['page'] !== 'trustedlogin_accesskey' ){
+			return;
+		}
+
+		if ( ! isset( $_REQUEST['ak'] ) ){
+			return;
+		}
+
+		$access_key = sanitize_text_field( $_REQUEST['ak'] );
+
+		if ( empty( $access_key ) ){
+			return;
+		}
+
+		$endpoint = new namespace\Endpoint( $this );
+		$endpoint->maybe_redirect_support( $access_key );
+
+	}
+
+	public function register_scripts() {
 
 		wp_register_style(
 			'chosen',
@@ -475,23 +575,24 @@ class TrustedLogin_Settings {
 	 *
 	 * @param String $setting_name The name of the setting to get the value for
 	 *
-	 * @return Mixed     The value of the setting, or false if it's not found.
+	 * @return mixed     The value of the setting, or false if it's not found.
 	 **/
 	public function get_setting( $setting_name ) {
 
 		if ( empty( $setting_name ) ) {
-			return new WP_Error( 'input-error', __( 'Cannot fetch empty setting name', 'trustedlogin' ) );
+			return new WP_Error( 'input-error', __( 'Cannot fetch empty setting name', 'trustedlogin-vendor' ) );
 		}
 
 		switch ( $setting_name ) {
 			case 'approved_roles':
-				return $this->tls_settings_get_selected_values( 'tls_approved_roles' );
+				return $this->get_selected_values( 'approved_roles' );
 				break;
 			case 'helpdesk':
-				return $this->tls_settings_get_selected_values( 'tls_helpdesk' );
+				$helpdesk = $this->get_selected_values( 'helpdesk' );
+				return empty( $helpdesk ) ? null : $helpdesk[0];
 				break;
 			case 'debug_enabled':
-				return $this->tls_settings_is_toggled( 'tls_debug_enabled' );
+				return $this->setting_is_toggled( 'debug_enabled' );
 				break;
 			default:
 				return $value = ( array_key_exists( $setting_name, $this->options ) ) ? $this->options[ $setting_name ] : false;
@@ -500,24 +601,20 @@ class TrustedLogin_Settings {
 	}
 
 	public function get_approved_roles() {
-		return $this->tls_settings_get_selected_values( 'tls_approved_roles' );
+		return $this->get_selected_values( 'approved_roles' );
 	}
 
-	public function tls_settings_get_selected_helpdesk() {
-		return $this->tls_settings_get_selected_values( 'tls_helpdesk' );
-	}
-
-	public function tls_settings_get_selected_values( $setting ) {
+	public function get_selected_values( $setting ) {
 		$value = ( array_key_exists( $setting, $this->options ) ) ? $this->options[ $setting ] : array();
 
 		return maybe_unserialize( $value );
 	}
 
-	public function tls_settings_is_toggled( $setting ) {
-		return ( array_key_exists( $setting, $this->options ) ) ? true : false;
+	public function setting_is_toggled( $setting ) {
+		return in_array( $setting, $this->options, true ) ? true : false;
 	}
 
-	public function tls_settings_get_value( $setting ) {
+	public function settings_get_value( $setting ) {
 		return $value = ( array_key_exists( $setting, $this->options ) ) ? $this->options[ $setting ] : false;
 	}
 

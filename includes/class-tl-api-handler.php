@@ -1,4 +1,8 @@
 <?php
+namespace TrustedLogin\Vendor;
+
+use \WP_Error;
+use \Exception;
 
 /**
  * Class: TrustedLogin API Handler
@@ -6,7 +10,7 @@
  * @package tl-support-side
  * @version 0.1.0
  */
-class TL_API_Handler {
+class API_Handler {
 
 	/**
 	 * @since 0.1.0
@@ -16,15 +20,9 @@ class TL_API_Handler {
 
 	/**
 	 * @since 0.1.0
-	 * @var string - the type of API Handler we're working with. Possible options: 'saas'
-	 */
-	private $type;
-
-	/**
-	 * @since 0.1.0
 	 * @var string - the url for the API being queried.
 	 */
-	private $api_url;
+	private $api_url = 'https://app.trustedlogin.com/api/';
 
 	/**
 	 * @since 0.1.0
@@ -42,7 +40,7 @@ class TL_API_Handler {
 	 * @since 0.1.0
 	 * @var string - The type of Header to use for sending the token
 	 */
-	private $auth_header_type;
+	private $auth_header_type = 'Authorization';
 
 	/**
 	 * @since 0.8.0
@@ -50,33 +48,29 @@ class TL_API_Handler {
 	 */
 	private $additional_headers = array();
 
-	/**
-	 * @since 0.1.0
-	 * @var Boolean - whether or not debug logging is enabled.
-	 */
-	private $debug_mode = false;
+    /**
+     * @since 0.1.0
+     * @var Boolean - whether or not debug logging is enabled.
+     **/
+    private $debug_mode = false;
 
-	use TL_Debug_Logging;
+    use Debug_Logging;
 
-	public function __construct( $data ) {
+    public function __construct( $data ) {
 
-		$defaults = array(
-			'type'       => null,
-			'auth'       => null,
-			'debug_mode' => false,
-		);
+	    $defaults = array(
+		    'auth' => null,
+		    'debug_mode' => false,
+		    'type' => 'saas',
+	    );
 
-		$atts = wp_parse_args( $data, $defaults );
+    	$atts = wp_parse_args( $data, $defaults );
 
-		$this->type = $atts['type'];
+        $this->type = $atts['type'];
 
-		$this->auth_key = $atts['auth'];
+        $this->auth_key = $atts['auth'];
 
-		$this->debug_mode = (bool) $atts['debug_mode'];
-
-		$this->api_url          = 'https://app.trustedlogin.com/api/';
-
-		$this->auth_header_type = 'Authorization';
+        $this->debug_mode = (bool) $atts['debug_mode'];
 	}
 
 	/**
@@ -84,7 +78,7 @@ class TL_API_Handler {
 	 */
 	public function get_api_url() {
 
-		$url = apply_filters( 'trustedlogin/api-url/saas', $this->api_url );
+		$url = apply_filters( 'trustedlogin/vendor/api/url', $this->api_url );
 
 		return $url;
 	}
@@ -147,11 +141,11 @@ class TL_API_Handler {
 		$url = $this->api_url . $endpoint;
 
 		if ( ! empty( $this->auth_key ) ) {
-			$additional_headers[ $this->auth_header_type ] = $this->auth_key;
+			$additional_headers[ $this->auth_header_type ] = 'Bearer ' . $this->auth_key;
 		}
 
 		if ( $this->auth_required && empty( $additional_headers ) ) {
-			$this->dlog( "Auth required for " . $this->type . " API call", __METHOD__ );
+			$this->dlog( "Auth required for API call", __METHOD__ );
 
 			return false;
 		}
@@ -178,13 +172,15 @@ class TL_API_Handler {
 		if ( 0 == $account_id ){
 			return new WP_Error(
 				'verify-failed',
-				__('No account ID provided.', 'trustedlogin' )
+				__('No account ID provided.', 'trustedlogin-vendor' )
 			);
 		}
 
 		$url 	  = $this->api_url . 'accounts/' . $account_id ;
-        $method   = 'GET';
-        $body     = null;
+        $method   = 'POST';
+        $body     = array(
+        	'api_endpoint' => get_rest_url(),
+         );
         $headers  = $this->get_additional_headers();
 
         $verification = $this->api_send( $url, $body, $method, $headers );
@@ -192,7 +188,7 @@ class TL_API_Handler {
         if( is_wp_error( $verification ) ) {
 	        return new WP_Error (
 		        $verification->get_error_code(),
-		        __('We could not verify your TrustedLogin credentials, please try save settings again.', 'trustedlogin' ),
+		        __('We could not verify your TrustedLogin credentials, please try save settings again.', 'trustedlogin-vendor' ),
 		        $verification->get_error_message()
 	        );
         }
@@ -200,29 +196,31 @@ class TL_API_Handler {
         if ( ! $verification ) {
 	    	return new WP_Error (
 	    		'verify-failed',
-	    		__('We could not verify your TrustedLogin credentials, please try save settings again.', 'trustedlogin' )
+	    		__('We could not verify your TrustedLogin credentials, please try save settings again.', 'trustedlogin-vendor' )
 	    	);
 	    }
 
 	    $status = wp_remote_retrieve_response_code( $verification );
 
+
 	    switch ( $status ){
 	    	case 400:
+		    case 403:
 	    		return new WP_Error(
-	    			'verify-failed-400',
-	    			__('Could not verify private/public keys, please confirm the provided keys.', 'trustedlogin' )
+	    			'verify-failed-' . $status,
+	    			__('Could not verify private/public keys, please confirm the provided keys.', 'trustedlogin-vendor' )
 	    		);
 	    		break;
 	    	case 404:
 	    		return new WP_Error(
 	    			'verify-failed-404',
-	    			__('Account not found, please check the ID provided.', 'trustedlogin' )
+	    			__('Account not found, please check the ID provided.', 'trustedlogin-vendor' )
 	    		);
 	    		break;
 	    	case 500:
 	    		return new WP_Error(
 	    			'verify-failed-500',
-	    			sprintf( __('Status %d returned', 'trustedlogin' ), $status )
+	    			sprintf( __('Status %d returned', 'trustedlogin-vendor' ), $status )
 	    		);
 	    		break;
 	    }
@@ -234,15 +232,22 @@ class TL_API_Handler {
 	    if( ! $body ) {
 		    return new WP_Error(
 			    'verify-failed',
-			    __('Your TrustedLogin account is not active, please login to activate your account.', 'trustedlogin' )
+			    __('Your TrustedLogin account is not active, please login to activate your account.', 'trustedlogin-vendor' )
 		    );
 	    }
 
-	    if ( 'active' !== $body->status ){
+	    if ( isset( $body->status ) && 'active' !== $body->status ){
 	    	return new WP_Error(
     			'verify-failed-inactive',
-    			__('Your TrustedLogin account is not active, please login to activate your account.', 'trustedlogin' )
+    			__('Your TrustedLogin account is not active, please login to activate your account.', 'trustedlogin-vendor' )
     		);
+	    }
+
+	    if( isset( $body->error ) && $body->error ) {
+		    return new WP_Error(
+			    'verify-failed-other',
+			    sprintf( __('Please contact support (Error Status #%d)', 'trustedlogin-vendor' ), $status )
+		    );
 	    }
 
 	    return true;
