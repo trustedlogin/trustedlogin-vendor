@@ -433,7 +433,7 @@ class Endpoint {
 
 		try {
 			$parts = array(
-				'siteurl'    => $trustedlogin_encryption->decrypt( $envelope['siteurl'], $envelope['nonce'], $envelope['publicKey'] ),
+				'siteurl'    => $trustedlogin_encryption->decrypt( $envelope['siteUrl'], $envelope['nonce'], $envelope['publicKey'] ),
 				'identifier' => $trustedlogin_encryption->decrypt( $envelope['identifier'], $envelope['nonce'], $envelope['publicKey'] ),
 			);
 
