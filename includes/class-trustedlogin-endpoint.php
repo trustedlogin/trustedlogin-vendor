@@ -222,7 +222,6 @@ class Endpoint {
 		foreach ( $required_args as $required_arg ) {
 			if ( ! isset( $_REQUEST[ $required_arg ] ) ) {
 				$this->dlog( 'Required arg ' . $required_arg . ' missing.', __METHOD__ );
-
 				return;
 			}
 		}
@@ -353,14 +352,12 @@ class Endpoint {
 
 		$endpoint = 'sites/' . $secret_id . '/get-envelope';
 
-
 		$saas_attr = array(
 			'type'       => 'saas',
 			'auth'       => $saas_auth,
 			'debug_mode' => $this->settings->debug_mode_enabled()
 		);
 		$saas_api  = new API_Handler( $saas_attr );
-
 
 		/**
 		 * @see https://github.com/trustedlogin/trustedlogin-ecommerce/blob/master/docs/user-remote-authentication.md

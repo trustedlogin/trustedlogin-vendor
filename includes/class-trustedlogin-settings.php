@@ -86,13 +86,13 @@ class Settings {
 
 
 		/**
-		 * Filter: Manipulate default options 
+		 * Filter: Manipulate default options
 		 *
 		 * @since 1.0.0
 		 *
-		 * @see   `default_options` private variable. 
+		 * @see   `default_options` private variable.
 		 *
-		 * @param array 
+		 * @param array
 		 **/
 		$this->default_options = apply_filters( 'trustedlogin/vendor/settings/default', $this->default_options );
 
@@ -128,20 +128,20 @@ class Settings {
 		} else {
 			// add_menu_page( $args['menu_title'], $args['page_title'], $args['capabilities'], $args['slug'], $args['callback'], $args['icon'] );
 			add_menu_page(
-                $args['menu_title'], 
-                $args['page_title'], 
-                $args['capabilities'], 
-                $args['slug'], 
-                $args['callback'], 
+                $args['menu_title'],
+                $args['page_title'],
+                $args['capabilities'],
+                $args['slug'],
+                $args['callback'],
                 $args['icon']
             );
 
              add_submenu_page(
                 $args['slug'],
-                $args['page_title'], 
-                $args['menu_title'], 
-                $args['capabilities'], 
-                $args['slug'], 
+                $args['page_title'],
+                $args['menu_title'],
+                $args['capabilities'],
+                $args['slug'],
                 $args['callback']
             );
 
@@ -156,13 +156,13 @@ class Settings {
 			'callback'     => array( $this, 'accesskey_page' ),
 		);
 
-		add_submenu_page( 
-			$access_key_page_args['submenu_page'], 
+		add_submenu_page(
+			$access_key_page_args['submenu_page'],
 			$access_key_page_args['page_title'],
-			$access_key_page_args['menu_title'],  
-			$access_key_page_args['capabilities'], 
-			$access_key_page_args['slug'], 
-			$access_key_page_args['callback'] 
+			$access_key_page_args['menu_title'],
+			$access_key_page_args['capabilities'],
+			$access_key_page_args['slug'],
+			$access_key_page_args['callback']
 		);
 
 	}
