@@ -506,7 +506,7 @@ class Settings {
 					  <input type="hidden" name="page" value="%3$s" />
 				  </form>
 				</div>',
-				/* %1$s */ __('Paste AccessKey received from customer', 'trustedlogin-vendor'),
+				/* %1$s */ __('Paste key received from customer', 'trustedlogin-vendor'),
 				/* %2$s */ __('Login to Site', 'trustedlogin-vendor'),
 				/* $3$s */ esc_attr( \sanitize_title( $_GET['page'] ) )
 			);
