@@ -400,9 +400,10 @@ class Endpoint {
 	 * @since 0.1.0
 	 *
 	 * @param array $envelope Received from encrypted TrustedLogin storage {
-	 *
-	 * @type string $siteurl Encrypted site URL
-	 * @type string $identifier Encrypted site identifier, used to generate endpoint
+	 *   @type string $siteUrl Encrypted site URL
+	 *   @type string $identifier Encrypted site identifier, used to generate endpoint
+	 *   @type string $publicKey @TODO
+	 *   @type string $nonce @TODO
 	 * }
 	 *
 	 * @return string|false
