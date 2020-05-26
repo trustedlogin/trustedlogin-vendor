@@ -232,9 +232,9 @@ class HelpScout extends HelpDesk {
          *
          * @param string  $html
          */
-        $item_template = apply_filters( 
-            'trustedlogin/vendor/helpdesk/'. self::slug. '/template/item', 
-            '<li class="c-sb-list-item"><a href="%1$s">%2$s %3$s</a> (%4$s)</li>'
+        $item_template = apply_filters(
+            'trustedlogin/vendor/helpdesk/'. self::slug. '/template/item',
+            '<li class="c-sb-list-item"><a href="%1$s" target="_blank">%2$s %3$s</a> (%4$s)</li>'
         );
 
         /**
