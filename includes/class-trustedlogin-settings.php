@@ -523,7 +523,7 @@ class Settings {
 		echo $output;
 	}
 
-	public function maybe_handle_accesskey(){
+	public function maybe_handle_accesskey() {
 
 		if ( ! isset( $_REQUEST['page'] ) || $_REQUEST['page'] !== 'trustedlogin_accesskey' ){
 			return;

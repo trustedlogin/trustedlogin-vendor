@@ -217,7 +217,7 @@ class HelpScout extends HelpDesk {
 		 * ]
 		 * @since 0.6.0
 		 *
-		 * @param array $licenses [
+		 * @param array $licenses
 		 * @param string $email
 		 *
 		 * @return array
@@ -243,7 +243,7 @@ class HelpScout extends HelpDesk {
 			return $error;
 		}
 
-		$saas_attr = (object) array(
+		$saas_attr = array(
 			'type'       => 'saas',
 			'auth'       => $saas_auth,
 			'debug_mode' => $this->debug_mode,
@@ -251,7 +251,6 @@ class HelpScout extends HelpDesk {
 
 		$saas_api = new API_Handler( $saas_attr );
 
-		$for_vault = array();
 		$item_html = '';
 
 		/**
