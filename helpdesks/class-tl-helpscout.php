@@ -55,11 +55,7 @@ class HelpScout extends HelpDesk {
 	    $this->secret     = $this->settings->get_setting( self::slug . '_secret' );
 	    $this->debug_mode = $this->settings->debug_mode_enabled();
 
-	    add_action( 'admin_init', array( $this, 'add_extra_settings' ) );
-
-	    add_action( 'wp_ajax_' . self::slug . '_webhook', array( $this, 'webhook_endpoint' ) );
-	    add_action( 'wp_ajax_nopriv_' . self::slug . '_webhook', array( $this, 'webhook_endpoint' ) );
-
+	    parent::__construct();
     }
 
     /**
