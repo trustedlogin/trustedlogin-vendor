@@ -31,7 +31,7 @@ class HelpScout extends HelpDesk {
 	 * @var string
 	 * @since 0.1.0
 	 **/
-	private $secret;
+	protected $secret;
 
 	/**
 	 * Whether our debug logging is activated
@@ -39,7 +39,7 @@ class HelpScout extends HelpDesk {
 	 * @var boolean
 	 * @since 0.1.0
 	 **/
-	private $debug_mode;
+	protected $debug_mode;
 
 	/**
 	 * Current TrustedLogin settings
@@ -47,7 +47,7 @@ class HelpScout extends HelpDesk {
 	 * @var array
 	 * @since 0.1.0
 	 **/
-	private $options;
+	protected $options;
 
 	/**
 	 * Default TrustedLogin settings
@@ -55,7 +55,7 @@ class HelpScout extends HelpDesk {
 	 * @var array
 	 * @since 0.1.0
 	 **/
-	private $default_options;
+	protected $default_options;
 
 	/**
 	 * This helpdesk's settings
@@ -63,18 +63,17 @@ class HelpScout extends HelpDesk {
 	 * @var Settings
 	 * @since 0.1.0
 	 **/
-	private $settings;
+	protected $settings;
 
 	/**
 	 * HelpScout constructor.
 	 */
 	public function __construct() {
 
-		$this->settings   = new Settings();
+		parent::__construct();
+
 		$this->secret     = $this->settings->get_setting( self::SLUG . '_secret' );
 		$this->debug_mode = $this->settings->debug_mode_enabled();
-
-		parent::__construct();
 	}
 
 	/**

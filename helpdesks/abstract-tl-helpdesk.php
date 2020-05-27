@@ -22,7 +22,7 @@ abstract class HelpDesk {
 	 * @var string
 	 * @since 0.1.0
 	 **/
-	private $secret;
+	protected $secret;
 
 	/**
 	 * Whether our debug logging is activated
@@ -30,7 +30,7 @@ abstract class HelpDesk {
 	 * @var bool
 	 * @since 0.1.0
 	 **/
-	private $debug_mode;
+	protected $debug_mode;
 
 	/**
 	 * The current TrustedLogin settings
@@ -38,7 +38,9 @@ abstract class HelpDesk {
 	 * @var array
 	 * @since 0.1.0
 	 **/
-	private $options;
+	protected $options;
+
+	protected $settings;
 
 	/**
 	 * The default TrustedLogin settings
@@ -52,6 +54,8 @@ abstract class HelpDesk {
 	 * HelpDesk constructor.
 	 */
 	public function __construct() {
+
+		$this->settings   = new Settings();
 
 		add_filter( 'trustedlogin/vendor/settings/helpdesks', array( $this, 'add_supported_helpdesk' ) );
 
@@ -72,10 +76,7 @@ abstract class HelpDesk {
 	 * @return bool
 	 */
 	public function is_active() {
-
-		$active_helpdesk = array(); // $this->tls_settings_get_selected_helpdesk();
-
-		return in_array( static::SLUG, $active_helpdesk, true );
+		return static::SLUG === $this->settings->get_setting( 'helpdesk' );
 	}
 
 	/**
