@@ -615,7 +615,7 @@ class Settings {
 	}
 
 	public function setting_is_toggled( $setting ) {
-		return in_array( $setting, $this->options, true ) ? true : false;
+		return array_key_exists( $setting, $this->options ) ? true : false;
 	}
 
 	public function settings_get_value( $setting ) {
