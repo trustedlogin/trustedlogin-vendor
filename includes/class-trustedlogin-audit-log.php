@@ -140,14 +140,15 @@ class TrustedLogin_Audit_Log {
 	 */
 	public function output_log() {
 
-		printf( '<h1 class="wp-heading-inline">%s</h1>', esc_html__( 'Latest Audit Log Entries', 'trustedlogin-vendor' ) );
+		printf( '<h1 class="wp-heading-inline">%s</h1>', esc_html__( 'Latest Activity', 'trustedlogin-vendor' ) );
 
 		$entries = $this->get_log_entries();
 
 		if ( count( $entries ) ) {
+			echo '<h2>' . esc_html__( 'Each row represents a user attempting to log into a customer site.', 'trustedlogin-vendor' ) . '</h2>';
 			echo $this->build_output( $entries );
 		} else {
-			esc_html_e( 'No Audit Log items to show yet.', 'trustedlogin-vendor' );
+			echo '<h2>' . esc_html__( 'No activity yet!', 'trustedlogin-vendor' ) . '</h2>';
 		}
 	}
 
@@ -164,24 +165,25 @@ class TrustedLogin_Audit_Log {
 		$ret = '<div class="wrap">';
 
 		$ret .= '<table class="wp-list-table widefat fixed striped posts">';
-		$ret .= '<thead><tr>
-        <th scope="col" id="audit-id" class="manage-column column-audit-id column-primary sortable desc"><a href="#"><span>ID</span><span class="sorting-indicator"></span></a></th>
-        <th scope="col" id="user-id" class="manage-column column-user-id column-primary sortable desc"><a href="#"><span>User</span><span class="sorting-indicator"></span></a></th>
-        <th scope="col" id="site-id" class="manage-column column-site-id column-primary sortable desc"><a href="#"><span>Site ID</span><span class="sorting-indicator"></span></a></th>
-        <th scope="col" id="time" class="manage-column column-time column-primary sortable desc"><a href="#"><span>Time</span><span class="sorting-indicator"></span></a></th>
-        <th scope="col" id="action" class="manage-column column-action column-primary sortable desc"><a href="#"><span>Action</span><span class="sorting-indicator"></span></a></th>
-        <th scope="col" id="notes" class="manage-column column-notes column-primary sortable desc"><a href="#"><span>Notes</span><span class="sorting-indicator"></span></a></th>
-        </tr></thead><tbody id="the-list">';
+		$ret .= '<thead>
+		<tr>
+	        <th scope="col" id="time" class="column-time">' . esc_html__( 'Time', 'trustedlogin-vendor' ) . '</th>
+	        <th scope="col" id="user-id" class="column-user-id">' . esc_html__( 'User', 'trustedlogin-vendor' ) . '</th>
+	        <th scope="col" id="site-id" class="column-site-id">' . esc_html__( 'Site ID', 'trustedlogin-vendor' ) . '</th>
+	        <th scope="col" id="action" class="column-action">' . esc_html__( 'Action', 'trustedlogin-vendor' ) . '</th>
+	        <th scope="col" id="notes" class="column-notes">' . esc_html__( 'Notes', 'trustedlogin-vendor' ) . '</th>
+        </tr>
+        </thead>';
+        $ret .= '<tbody id="the-list">';
 
 		foreach ( $log_array as $log_item ) {
 
 			$log_user = get_user_by( 'id', $log_item->user_id );
 
 			$ret .= '<tr>';
-			$ret .= '<td>' . esc_html( $log_item->id ) . '</td>';
+			$ret .= '<th scope="row">' . esc_html( $log_item->time ) . '</th>';
 			$ret .= '<td>' . esc_html( $log_user->display_name ) . '</td>';
 			$ret .= '<td>' . esc_html( $log_item->tl_site_id ) . '</td>';
-			$ret .= '<td>' . esc_html( $log_item->time ) . '</td>';
 			$ret .= '<td>' . esc_html( $log_item->action ) . '</td>';
 			$ret .= '<td>' . esc_html( $log_item->notes ) . '</td>';
 			$ret .= '</tr>';
@@ -196,7 +198,7 @@ class TrustedLogin_Audit_Log {
 	}
 
 	/**
-	 * Helper Function: Save as a row in the audit_db_table
+	 * Save a row in the audit_db_table if audit logging is enabled
 	 *
 	 * @since 0.1.0
 	 *
