@@ -174,7 +174,15 @@ class HelpScout extends HelpDesk {
 		}
 
 		$data_obj = json_decode( $data, false );
-		$email    = sanitize_email( $data_obj->customer->email );
+
+		$customer_email = isset( $data_obj->customer->email ) ? $data_obj->customer->email : false;
+
+		if ( is_null( $data_obj ) || ! $customer_email ) {
+			$error_text  = '<p class="red">' . esc_html__( 'Unable to Process.', 'trustedlogin-vendor' ) . '</p>';
+			$error_text .= '<p>' . esc_html__( 'The help desk sent corrupted customer data. Please try refreshing the page.', 'trustedlogin-vendor' ) . '</p>';
+			wp_send_json( array( 'html' => $error_text ), 400 );
+		}
+
 		$licenses = get_transient( 'trustedlogin_licenses_' . md5( $email ) );
 
 		if ( false === $licenses ) {
