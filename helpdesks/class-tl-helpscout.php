@@ -183,6 +183,15 @@ class HelpScout extends HelpDesk {
 			wp_send_json( array( 'html' => $error_text ), 400 );
 		}
 
+		$return_html = $this->get_widget_response( $customer_email );
+
+		wp_send_json( array( 'html' => $return_html ), 200 );
+
+	}
+
+	private function get_widget_response( $customer_email ) {
+
+		$email    = sanitize_email( $customer_email );
 		$licenses = get_transient( 'trustedlogin_licenses_' . md5( $email ) );
 
 		if ( false === $licenses ) {
