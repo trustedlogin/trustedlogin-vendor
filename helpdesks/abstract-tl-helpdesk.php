@@ -30,7 +30,7 @@ abstract class HelpDesk {
 	private $options;
 
 	/**
-	 * @var Array - the default TrustedLogin settings
+	 * @var array - the default TrustedLogin settings
 	 * @since 0.1.0
 	 **/
 	private $default_options;
