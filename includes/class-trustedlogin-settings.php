@@ -349,6 +349,9 @@ class Settings {
 		$roles          = get_editable_roles();
 		$selected_roles = $this->get_approved_roles();
 
+		// I mean, really. No one wants this.
+		unset( $roles['subscriber'] );
+
 		$select = '<select name="' . self::SETTING_NAME . '[approved_roles][]" size="5" id="trustedlogin_vendor_approved_roles" class="postform regular-text ltr" multiple="multiple" regular-text>';
 
 		foreach ( $roles as $role_slug => $role_info ) {
