@@ -29,6 +29,7 @@ require_once $path . 'includes/trait-debug-logging.php';
 require_once $path . 'includes/trait-licensing.php';
 
 require_once $path . 'includes/class-trustedlogin-settings.php';
+require_once $path . 'includes/class-trustedlogin-sitekey-login.php';
 require_once $path . 'includes/class-trustedlogin-endpoint.php';
 require_once $path . 'includes/class-tl-api-handler.php';
 require_once $path . 'includes/class-trustedlogin-audit-log.php';
@@ -61,6 +62,9 @@ class Plugin {
 		$this->plugin_version = TRUSTEDLOGIN_PLUGIN_VERSION;
 	}
 
+	/**
+	 * @return void
+	 */
 	public function setup() {
 		global $wpdb;
 
@@ -73,16 +77,18 @@ class Plugin {
 			// If SSL not enabled, show alert and don't load the plugin.
 			add_action( 'admin_notices', array( $this, 'ssl_admin_notice' ) );
 
-			return false;
+			return;
 		}
 
 		$this->settings = new Settings();
 
 		$this->endpoint = new Endpoint( $this->settings );
 
-		$healthcheck = new HealthCheck();
-
 		$this->load_helpdesks();
+
+		new SiteKey_Login( $this->settings );
+
+		new HealthCheck();
 	}
 
 	/*
