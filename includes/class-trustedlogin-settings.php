@@ -15,6 +15,8 @@ use function selected;
 
 class Settings {
 
+	const SETTING_NAME = 'trustedlogin_vendor';
+
 	/**
 	 * @var boolean $debug_mode Whether or not to save a local text log
 	 * @since 0.1.0
@@ -126,7 +128,6 @@ class Settings {
 		if ( 'submenu' === $this->menu_location ) {
 			add_submenu_page( $args['submenu_page'], $args['menu_title'], $args['page_title'], $args['capabilities'], $args['slug'], $args['callback'] );
 		} else {
-			// add_menu_page( $args['menu_title'], $args['page_title'], $args['capabilities'], $args['slug'], $args['callback'], $args['icon'] );
 			add_menu_page(
                 $args['menu_title'],
                 $args['page_title'],
@@ -347,7 +348,7 @@ class Settings {
 
 		$set_required = ( $required ) ? 'required' : '';
 
-		$output = '<input id="' . esc_attr( $setting ) . '" name="trustedlogin_vendor[' . esc_attr( $setting ) . ']" type="' . esc_attr( $type ) . '" value="' . esc_attr( $value ) . '" class="regular-text ltr" ' . esc_attr( $set_required ) . '>';
+		$output = '<input id="' . esc_attr( $setting ) . '" name="' . self::SETTING_NAME . '[' . esc_attr( $setting ) . ']" type="' . esc_attr( $type ) . '" value="' . esc_attr( $value ) . '" class="regular-text ltr" ' . esc_attr( $set_required ) . '>';
 
 		echo $output;
 	}
@@ -357,17 +358,13 @@ class Settings {
 		$roles          = get_editable_roles();
 		$selected_roles = $this->get_approved_roles();
 
-		$select = "<select name='trustedlogin_vendor[approved_roles][]' id='trustedlogin_vendor_approved_roles' class='postform regular-text ltr' multiple='multiple' regular-text ltr>";
+		$select = '<select name="' . self::SETTING_NAME . '[approved_roles][]" size="5" id="trustedlogin_vendor_approved_roles" class="postform regular-text ltr" multiple="multiple" regular-text>';
 
 		foreach ( $roles as $role_slug => $role_info ) {
 
-			if ( in_array( $role_slug, $selected_roles ) ) {
-				$selected = "selected='selected'";
-			} else {
-				$selected = "";
-			}
-			$select .= "<option value='" . $role_slug . "' " . $selected . ">" . $role_info['name'] . "</option>";
+			$selected = selected( true, in_array( $role_slug, $selected_roles, true ), false );
 
+			$select .= "<option value='" . $role_slug . "' " . $selected . ">" . $role_info['name'] . "</option>";
 		}
 
 		$select .= "</select>";
@@ -404,7 +401,7 @@ class Settings {
 
 		$selected_helpdesk = $this->get_setting( 'helpdesk' );
 
-		$select = "<select name='trustedlogin_vendor[helpdesk][]' id='helpdesk' class='postform regular-text ltr'>";
+		$select = '<select name="' . self::SETTING_NAME . '[helpdesk][]" id="helpdesk" class="postform regular-text ltr">';
 
 		foreach ( $helpdesks as $key => $helpdesk ) {
 
@@ -446,7 +443,7 @@ class Settings {
 		$value = ( array_key_exists( $setting, $this->options ) ) ? $this->options[ $setting ] : 'off';
 
 		$select = '<label class="switch">
-                    <input class="switch-input" name="trustedlogin_vendor[' . $setting . ']" id="' . $setting . '" type="checkbox" ' . checked( $value, 'on', false ) . '/>
+                    <input class="switch-input" name="' . self::SETTING_NAME . '[' . $setting . ']" id="' . $setting . '" type="checkbox" ' . checked( $value, 'on', false ) . '/>
                     <span class="switch-label" data-on="On" data-off="Off"></span>
                     <span class="switch-handle"></span>
                 </label>';
