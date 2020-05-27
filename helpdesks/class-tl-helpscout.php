@@ -367,20 +367,21 @@ class HelpScout extends HelpDesk {
 		$licenses = array();
 		$user     = get_user_by( 'email', $email );
 
-		if ( $user ) {
+		if ( ! $user ) {
+			return false;
+		}
 
-			$licenses = edd_software_licensing()->get_license_keys_of_user( $user->ID, 0, 'all', true );
+		$licenses = edd_software_licensing()->get_license_keys_of_user( $user->ID, 0, 'all', true );
 
-			foreach ( $licenses as $license ) {
-				$children = edd_software_licensing()->get_child_licenses( $license->ID );
-				if ( $children ) {
-					foreach ( $children as $child ) {
-						$licenses[] = edd_software_licensing()->get_license( $child->ID );
-					}
+		foreach ( $licenses as $license ) {
+			$children = edd_software_licensing()->get_child_licenses( $license->ID );
+			if ( $children ) {
+				foreach ( $children as $child ) {
+					$licenses[] = edd_software_licensing()->get_license( $child->ID );
 				}
-
-				$licenses[] = edd_software_licensing()->get_license( $license->ID );
 			}
+
+			$licenses[] = edd_software_licensing()->get_license( $license->ID );
 		}
 
 		return ( ! empty( $licenses ) ) ? $licenses : false;
