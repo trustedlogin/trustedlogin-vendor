@@ -80,6 +80,8 @@ class Plugin {
 
 		$this->endpoint = new Endpoint( $this->settings );
 
+		$healthcheck = new HealthCheck();
+
 		$this->load_helpdesks();
 	}
 
