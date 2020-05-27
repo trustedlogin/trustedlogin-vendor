@@ -397,7 +397,7 @@ class HelpScout extends HelpDesk {
 	 *
 	 * @return bool  if the calculated hash matches the signature provided.
 	 */
-	private function verify_request( $data, $signature ) {
+	private function verify_request( $data, $signature = null ) {
 
 		if ( ! $this->has_secret() ) {
 			$this->dlog( 'No secret is set.', __METHOD__ );
