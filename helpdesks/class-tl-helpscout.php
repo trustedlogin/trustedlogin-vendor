@@ -339,10 +339,7 @@ class HelpScout extends HelpDesk {
 			);
 		}
 
-		$return_html = sprintf( $html_template, $item_html );
-
-		wp_send_json( array( 'html' => $return_html ), 200 );
-
+		return sprintf( $html_template, $item_html );
 	}
 
 	/**
