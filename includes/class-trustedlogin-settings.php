@@ -255,11 +255,11 @@ class Settings {
 			return $input;
 		}
 
+		static $api_creds_verified = false;
+
 		if( $api_creds_verified ) {
 			return $input;
 		}
-
-		static $api_creds_verified = false;
 
 		try {
 			$account_id = intval( $input['account_id'] );
