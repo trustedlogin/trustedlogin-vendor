@@ -229,9 +229,18 @@ class HelpScout extends HelpDesk {
 		$public_key = $this->settings->get_setting( 'public_key' );
 
 		if ( ! $saas_auth || ! $public_key ) {
-			$error = __( 'Please make sure the TrustedLogin API Key setting is entered.', 'tl-support-side' );
+			$error = __( 'TrustedLogin has not been properly configured : both the API Key and Private Key must be entered.', 'trustedlogin-vendor' );
+
 			$this->dlog( $error, __METHOD__ );
-			wp_send_json_error( array( 'message' => $error ) );
+
+			// translators: %s is replaced with the domain name of the website
+			$error = sprintf( '<h4 class="red">%s</h4><p><a href="%s">%s</a></p>',
+				$error,
+				esc_url( admin_url( 'admin.php?page=trustedlogin_vendor' ) ),
+				sprintf( esc_html__( 'Fix the issue on %s', 'trustedlogin-vendor' ), get_site_url() )
+			);
+
+			return $error;
 		}
 
 		$saas_attr = (object) array(
