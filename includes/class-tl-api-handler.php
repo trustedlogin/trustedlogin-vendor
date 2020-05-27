@@ -214,7 +214,7 @@ class API_Handler {
 	    	case 404:
 	    		return new WP_Error(
 	    			'verify-failed-404',
-	    			__('Account not found, please check the ID provided.', 'trustedlogin-vendor' )
+	    			__( 'Account not found, please check the ID provided.', 'trustedlogin-vendor' )
 	    		);
 	    		break;
 	    	case 405:

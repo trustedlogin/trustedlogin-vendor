@@ -42,7 +42,7 @@ class HealthCheck {
 	/**
 	 * TrustedLogin\Vendor\HealthCheck constructor
 	 */
-	public function __construct(){
+	public function __construct() {
 
 		$this->set_defaults();
 
@@ -51,7 +51,7 @@ class HealthCheck {
 	/**
 	 * Sets up the required tests array 
 	 */
-	public function set_defaults(){
+	public function set_defaults() {
 
 		/**
 		 * Filter: allows for the addition of more healtchecks
@@ -79,13 +79,13 @@ class HealthCheck {
 			'all_passed' => true,
 		);
 
-		foreach ( $this->requirements as $key => $tests ){
+		foreach ( $this->requirements as $key => $tests ) {
 			$callback = 'check_'. $key ;
 			$results = $this->$callback();
 
-			if ( ! $results['all_passed'] ){
+			if ( ! $results['all_passed'] ) {
 
-				if ( ! $return_checks ){
+				if ( ! $return_results ) {
 					return new WP_Error( 
 						$key.'_checks_failed', 
 						sprintf( 
@@ -120,17 +120,17 @@ class HealthCheck {
 		$key   = $steps[0];
 		$tests = $steps[1];
 
-		if ( ! array_key_exists( $key,  $this->requirements ) ){
+		if ( ! array_key_exists( $key,  $this->requirements ) ) {
 			return new WP_Error( 'tests-error', sprintf( __('No tests found for key: %s', 'trustedlogin-vendor'), $key ) );
 		}
 
-		if ( ! array_key_exists( $tests, $this->requirements[ $key ] ) ){
+		if ( ! array_key_exists( $tests, $this->requirements[ $key ] ) ) {
 			return new WP_Error( 'tests-error', sprintf( __('No tests found for tests: %s', 'trustedlogin-vendor'), $tests ) );
 		}
 
 		$current_tests = $this->requirements[ $key ];
 
-		foreach ( $current_tests as $current_key => $current_test ){
+		foreach ( $current_tests as $current_key => $current_test ) {
 			if ( $current_key !== $tests ){
 				unset( $current_tests[ $current_key ] );
 			}
@@ -139,11 +139,11 @@ class HealthCheck {
 
 	}
 
-	public function build_notices( $check_results ){
+	public function build_notices( $check_results ) {
 
 		$notices = array();
 
-		foreach ( $check_results as $key => $results ){
+		foreach ( $check_results as $key => $results ) {
 
 			// skip over the all_passed value
 			if ( 'all_passed' == $key ) continue;
@@ -151,7 +151,7 @@ class HealthCheck {
 			// skip over group if all tests passed
 			if ( $results['all_passed'] ) continue;
 
-			foreach ( $results as $subkey => $result ){
+			foreach ( $results as $subkey => $result ) {
 
 				// skip over non-negative results
 				if ( $result || 'all_passed' == $subkey ) continue;
