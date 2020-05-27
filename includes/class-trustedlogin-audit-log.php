@@ -1,17 +1,24 @@
 <?php
 /**
  * Audit Log functionality
+ *
  * @package TrustedLogin\Vendor
  */
+
 namespace TrustedLogin\Vendor;
 
 use \WP_Error;
 
-if ( ! defined('ABSPATH') ) {
-    exit;
+// Exit if accessed directly!
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
-// Exit if accessed directly
 
+/**
+ * Class TrustedLogin_Audit_Log
+ *
+ * @package TrustedLogin\Vendor
+ */
 class TrustedLogin_Audit_Log {
 
 	use Debug_Logging;
@@ -34,7 +41,7 @@ class TrustedLogin_Audit_Log {
 	/**
 	 * TrustedLogin_Audit_Log constructor.
 	 *
-	 * @param Settings $settings_instance
+	 * @param Settings $settings_instance Settings for the help desk.
 	 */
 	public function __construct( Settings $settings_instance ) {
 
@@ -42,7 +49,7 @@ class TrustedLogin_Audit_Log {
 
 		register_activation_hook( __FILE__, array( $this, 'init' ) );
 
-		// Priority should be greater than 10 (needed for unit tests)
+		// Priority should be greater than 10 (needed for unit tests).
 		add_action( 'plugins_loaded', array( $this, 'maybe_update_schema' ), 11 );
 
 		add_action( 'trustedlogin/vendor/settings/form/after', array( $this, 'maybe_output_log' ), 10 );
@@ -70,7 +77,7 @@ class TrustedLogin_Audit_Log {
 			$this->init();
 		}
 
-		if( defined( 'DOING_TL_VENDOR_TESTS') && DOING_TL_VENDOR_TESTS ) {
+		if ( defined( 'DOING_TL_VENDOR_TESTS' ) && DOING_TL_VENDOR_TESTS ) {
 			$this->init();
 		}
 	}
@@ -110,23 +117,20 @@ class TrustedLogin_Audit_Log {
 	 */
 	public function maybe_output_log() {
 
-		$audit_log_enabled = $this->settings->setting_is_toggled( 'tls_output_audit_log' );
+		$audit_log_enabled = $this->settings->setting_is_toggled( 'output_audit_log' );
 
 		if ( ! $audit_log_enabled ) {
 			return;
 		}
 
+		printf( '<h1 class="wp-heading-inline">%s</h1>', esc_html__( 'Latest Audit Log Entries', 'trustedlogin-vendor' ) );
+
 		$entries = $this->get_log_entries();
 
-		/**
-		 * @todo - fix this
-		 */
-		echo '<h1 class="wp-heading-inline">Last Audit Log Entries</h1>';
-
-		if ( 0 < count( $entries ) ) {
+		if ( count( $entries ) ) {
 			echo $this->build_output( $entries );
 		} else {
-			esc_html_e( "No Audit Log items to show yet.", 'trustedlogin-vendor' );
+			esc_html_e( 'No Audit Log items to show yet.', 'trustedlogin-vendor' );
 		}
 	}
 
@@ -135,7 +139,7 @@ class TrustedLogin_Audit_Log {
 	 *
 	 * @todo Convert to WP_Table_List
 	 *
-	 * @param stdClass[] $log_array Array of audit log items to render with id, display_name, tl_site_id, time, action, notes
+	 * @param \stdClass[] $log_array Array of audit log items to render with id, display_name, tl_site_id, time, action, notes.
 	 *
 	 * @return string
 	 */
@@ -179,9 +183,9 @@ class TrustedLogin_Audit_Log {
 	 *
 	 * @since 0.1.0
 	 *
-	 * @param string $site_id md5 hash identifier of the site being supported
-	 * @param string $action The action being logged (eg 'requested','redirected')
-	 * @param string $note Optional string for adding context or extra info to the log
+	 * @param string $site_id md5 hash identifier of the site being supported.
+	 * @param string $action The action being logged (eg 'requested','redirected').
+	 * @param string $note Optional string for adding context or extra info to the log.
 	 *
 	 * @return boolean|null True: saved; false: not saved, error; null: logged-out user (ID 0)
 	 */
@@ -223,22 +227,19 @@ class TrustedLogin_Audit_Log {
 	 *
 	 * @since 0.1.0
 	 *
-	 * @param int $limit Number of log entries to retrieve
+	 * @param int $limit Number of log entries to retrieve.
 	 *
-	 * @return Array
+	 * @return array
 	 */
 	public function get_log_entries( $limit = 25 ) {
 		global $wpdb;
 
-		// TODO: Add custom capabilities
+		// TODO: Add custom capabilities!
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error( 'unauthorized', 'You must have manage_options capability to view audit log entries' );
 		}
 
-		$query = $wpdb->prepare( 'SELECT *
-			FROM `' . $this->get_db_table_name() . '`
-            ORDER BY `id` DESC
-            LIMIT %d', $limit );
+		$query = $wpdb->prepare( 'SELECT * FROM `' . $this->get_db_table_name() . '` ORDER BY `id` DESC LIMIT %d', $limit );
 
 		return $wpdb->get_results( $query );
 	}

@@ -149,8 +149,8 @@ class Settings {
 
 		$access_key_page_args = array(
 			'submenu_page' => 'trustedlogin_vendor',
-			'menu_title'   => __( 'Login via AccessKey', 'trustedlogin-vendor' ),
-			'page_title'   => __( 'TrustedLogin via AccessKey', 'trustedlogin-vendor' ),
+			'menu_title'   => __( 'Login with Site Key', 'trustedlogin-vendor' ),
+			'page_title'   => __( 'TrustedLogin with Site Key', 'trustedlogin-vendor' ),
 			'capabilities' => 'manage_options',
 			'slug'         => 'trustedlogin_accesskey',
 			'callback'     => array( $this, 'accesskey_page' ),
@@ -247,7 +247,7 @@ class Settings {
 	 *
 	 * @param array $input Data saved on Settings page.
 	 *
-	 * @return Array Output of sanitized data.
+	 * @return array Output of sanitized data.
 	 */
 	public function verify_api_details( $input ) {
 
@@ -505,13 +505,13 @@ class Settings {
 				'<div class="trustedlogin-dialog accesskey">
 				  <form method="GET">
 					  <input type="text" name="ak" id="trustedlogin-access-key" placeholder="%1$s" />
-					  <button type="submit" id="trustedlogin-go" class="trustedlogin-proceed">%2$s</button>
+					  <button type="submit" id="trustedlogin-go" class="button button-large trustedlogin-proceed">%2$s</button>
 					  <input type="hidden" name="action" value="ak-redirect" />
 					  <input type="hidden" name="page" value="%3$s" />
 				  </form>
 				</div>',
-				/* %1$s */ __('Paste key received from customer', 'trustedlogin-vendor'),
-				/* %2$s */ __('Login to Site', 'trustedlogin-vendor'),
+				/* %1$s */ esc_html__('Paste key received from customer', 'trustedlogin-vendor'),
+				/* %2$s */ esc_html__('Login to Site', 'trustedlogin-vendor'),
 				/* $3$s */ esc_attr( \sanitize_title( $_GET['page'] ) )
 			);
 		} else {
