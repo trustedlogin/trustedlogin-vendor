@@ -52,7 +52,30 @@ class TrustedLogin_Audit_Log {
 		// Priority should be greater than 10 (needed for unit tests).
 		add_action( 'plugins_loaded', array( $this, 'maybe_update_schema' ), 11 );
 
-		add_action( 'trustedlogin/vendor/settings/form/after', array( $this, 'maybe_output_log' ), 10 );
+		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
+	}
+
+	/**
+	 * Adds a submenu page when the Activity Log setting is enabled
+	 *
+	 * @return void
+	 */
+	public function add_admin_menu() {
+
+		$audit_log_enabled = $this->settings->setting_is_toggled( 'output_audit_log' );
+
+		if ( ! $audit_log_enabled ) {
+			return;
+		}
+
+		add_submenu_page(
+			'trustedlogin_vendor',
+			__( 'Activity Log', 'trustedlogin-vendor' ),
+			__( 'Activity Log', 'trustedlogin-vendor' ),
+			'manage_options', // TODO: Custom capabilities!
+			'trustedlogin_activity_log',
+			array( $this, 'output_log' )
+		);
 	}
 
 	/**
@@ -115,13 +138,7 @@ class TrustedLogin_Audit_Log {
 	 *
 	 * @return void
 	 */
-	public function maybe_output_log() {
-
-		$audit_log_enabled = $this->settings->setting_is_toggled( 'output_audit_log' );
-
-		if ( ! $audit_log_enabled ) {
-			return;
-		}
+	public function output_log() {
 
 		printf( '<h1 class="wp-heading-inline">%s</h1>', esc_html__( 'Latest Audit Log Entries', 'trustedlogin-vendor' ) );
 
@@ -191,6 +208,12 @@ class TrustedLogin_Audit_Log {
 	 */
 	public function insert( $site_id, $action, $note = null ) {
 		global $wpdb;
+
+		$enabled = $this->settings->setting_is_toggled( 'output_audit_log' );
+
+		if ( ! $enabled ) {
+			return false;
+		}
 
 		$user_id = get_current_user_id();
 

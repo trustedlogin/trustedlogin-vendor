@@ -228,7 +228,7 @@ class Settings {
 
 		add_settings_field(
 			'trustedlogin_vendor_output_audit_log',
-			__( 'Display Audit Log below?', 'trustedlogin-vendor' ),
+			__( 'Enable Activity Log?', 'trustedlogin-vendor' ),
 			array( $this, 'output_audit_log_field_render' ),
 			'trustedlogin_vendor_options',
 			'trustedlogin_vendor_options_section'
