@@ -50,10 +50,6 @@ class HealthCheck {
 			'encryption_get_public_key' => array(
 				'callback' => array( __NAMESPACE__.'\\Encryption', 'get_public_key' ),
 			),
-			'encryption_get_key' => array(
-				'callback' => array( __NAMESPACE__.'\\Encryption', 'get_key' ),
-			),
-			
 		)
 	);
 
