@@ -85,6 +85,7 @@ class SiteKey_Login {
 
 		$output = sprintf(
 			'<div class="trustedlogin-dialog accesskey">
+				  <img src="%1$s" width="400" alt="TrustedLogin">
 				  <form method="GET">
 					  <input type="text" name="ak" id="trustedlogin-access-key" placeholder="%2$s" />
 					  <button type="submit" id="trustedlogin-go" class="button button-large trustedlogin-proceed">%3$s</button>
