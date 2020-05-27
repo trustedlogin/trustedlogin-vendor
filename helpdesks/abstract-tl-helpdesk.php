@@ -1,4 +1,5 @@
 <?php
+
 namespace TrustedLogin\Vendor;
 
 /**
@@ -57,10 +58,15 @@ abstract class HelpDesk {
 		return in_array( static::SLUG, $active_helpdesk, true );
 	}
 
+	/**
+	 * @param array $helpdesks
+	 *
+	 * @return array
+	 */
 	public function add_supported_helpdesk( $helpdesks = array() ) {
 
 		$helpdesks[ static::SLUG ] = array(
-			'title' => static::NAME,
+			'title'  => static::NAME,
 			'active' => static::IS_ACTIVE,
 		);
 
@@ -79,8 +85,8 @@ abstract class HelpDesk {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @param string $action  What action the link should do. eg 'support_redirect'.
-	 * @param string $access_key  (Optional) The key for the access being requested.
+	 * @param string $action What action the link should do. eg 'support_redirect'.
+	 * @param string $access_key (Optional) The key for the access being requested.
 	 *
 	 * @return string The url with GET variables.
 	 */
