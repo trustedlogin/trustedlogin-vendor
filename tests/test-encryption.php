@@ -75,7 +75,7 @@ class EncryptionTest extends WP_UnitTestCase {
 
 
 		// Test what happens when filtering the setting name
-		add_filter( 'trustedlogin/encryption/keys-option', function() {
+		add_filter( 'trustedlogin/vendor/encryption/keys-option', function() {
 			return 'should_be_filtered';
 		});
 
@@ -96,8 +96,8 @@ class EncryptionTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers TrustedLogin_Encryption::get_keys()
-	 * @covers TrustedLogin_Encryption::generate_keys()
+	 * @covers Encryption::get_keys()
+	 * @covers Encryption::generate_keys()
 	 */
 	function test_get_keys() {
 
@@ -128,13 +128,13 @@ class EncryptionTest extends WP_UnitTestCase {
 		$this->assertObjectHasAttribute( 'public_key', $keys, 'public_key should be returned by get_keys ');
 		$this->assertObjectHasAttribute( 'private_key', $keys, 'private_key should be returned by get_keys ');
 
-		add_filter( 'trustedlogin/encryption/get-keys', '__return_zero' );
+		add_filter( 'trustedlogin/vendor/encryption/get-keys', '__return_zero' );
 
 		$zero = $method_get_keys->invoke( $this->encryption, true );
 
-		$this->assertEquals( 0, $zero, 'trustedlogin/encryption/get-keys filter failed' );
+		$this->assertEquals( 0, $zero, 'trustedlogin/vendor/encryption/get-keys filter failed' );
 
-		remove_all_filters( 'trustedlogin/encryption/get-keys' );
+		remove_all_filters( 'trustedlogin/vendor/encryption/get-keys' );
 	}
 
 	/**
@@ -183,7 +183,7 @@ class EncryptionTest extends WP_UnitTestCase {
 		$this->assertWPError( $wp_error, 'The signed nonce was made up; this should not have passed.' );
 		$this->assertEquals( 'sodium-error', $wp_error->get_error_code() );
 
-		add_filter( 'trustedlogin/encryption/get-keys', $bad_range_key = function( $keys ) {
+		add_filter( 'trustedlogin/vendor/encryption/get-keys', $bad_range_key = function( $keys ) {
 
 			$keys->sign_public_key = 'should be 64 bytes long...';
 
@@ -195,7 +195,7 @@ class EncryptionTest extends WP_UnitTestCase {
 		$this->assertWPError( $wp_error, 'The key was not the correct number of characters; this should not have passed.' );
 		$this->assertEquals( 'sodium-range-error', $wp_error->get_error_code() );
 
-		remove_filter( 'trustedlogin/encryption/get-keys', $bad_range_key );
+		remove_filter( 'trustedlogin/vendor/encryption/get-keys', $bad_range_key );
 
 		/** @var WP_Error $wp_error */
 		$wp_error = $method_verify_signature->invoke( $this->encryption, $signed_nonce, str_shuffle( $unsigned_nonce ) );

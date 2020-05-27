@@ -63,7 +63,7 @@ class EndpointsTest extends WP_UnitTestCase {
 
 		### What about when the key isn't fetchable?
 
-		add_filter( 'trustedlogin/encryption/get-keys', function () {
+		add_filter( 'trustedlogin/vendor/encryption/get-keys', function () {
 			return new WP_Error( 'just_messin', 'Messing with expectations!' );
 		});
 
@@ -79,7 +79,7 @@ class EndpointsTest extends WP_UnitTestCase {
 		// And no data
 		$this->assertEmpty( $data );
 
-		remove_all_filters( 'trustedlogin/encryption/get-keys' );
+		remove_all_filters( 'trustedlogin/vendor/encryption/get-keys' );
 	}
 
 	/**
