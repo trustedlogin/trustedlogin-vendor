@@ -134,7 +134,7 @@ class Endpoint {
 
 		$response    = new \WP_REST_Response();
 		$healthcheck = new HealthCheck();
-		$checks      = $healthcheck->run_checks();
+		$checks      = $healthcheck->run_all_checks();
 
 		if ( ! is_wp_error( $checks ) ) {
 			$response->set_status( self::HEALTH_CHECK_SUCCESS_STATUS );
