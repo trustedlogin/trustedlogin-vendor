@@ -37,10 +37,6 @@ abstract class HelpDesk {
 
 	public function __construct() {
 
-		$this->secret = '';//$this->tls_settings_get_value( 'tls_' . static::slug . '_secret' );
-
-		$this->debug_mode = '';//$this->tls_settings_is_toggled( 'tls_debug_enabled' );
-
 		add_filter( 'trustedlogin_supported_helpdesks', array( $this, 'add_supported_helpdesk' ) );
 
 		if ( ! $this->is_active() ) {
