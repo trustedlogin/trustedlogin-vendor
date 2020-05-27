@@ -148,22 +148,13 @@ class Settings {
 
 		}
 
-		$access_key_page_args = array(
-			'submenu_page' => 'trustedlogin_vendor',
-			'menu_title'   => __( 'Login with Site Key', 'trustedlogin-vendor' ),
-			'page_title'   => __( 'TrustedLogin with Site Key', 'trustedlogin-vendor' ),
-			'capabilities' => 'manage_options',
-			'slug'         => 'trustedlogin_accesskey',
-			'callback'     => array( $this, 'accesskey_page' ),
-		);
-
 		add_submenu_page(
-			$access_key_page_args['submenu_page'],
-			$access_key_page_args['page_title'],
-			$access_key_page_args['menu_title'],
-			$access_key_page_args['capabilities'],
-			$access_key_page_args['slug'],
-			$access_key_page_args['callback']
+			'trustedlogin_vendor',
+			__( 'TrustedLogin with Site Key', 'trustedlogin-vendor' ),
+			__( 'Log In with Site Key', 'trustedlogin-vendor' ),
+			'manage_options', // TODO: Custom capabilities!
+			'trustedlogin_log',
+			array( $this, 'accesskey_page' )
 		);
 
 	}
