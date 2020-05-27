@@ -44,18 +44,12 @@ class HelpScout extends HelpDesk {
     private $default_options;
 
     /**
-     * @var stdClass This helpdesk's settings
+     * @var Settings This helpdesk's settings
      * @since 0.1.0
      **/
-    private $details;
+    private $settings;
 
     public function __construct() {
-
-	    $this->details = (object) array(
-		    'name'    => __( 'Help Scout', 'tl-support-side' ),
-		    'slug'    => 'helpscout',
-		    'version' => '0.1.0',
-	    );
 
 	    $this->settings   = new Settings();
 	    $this->secret     = $this->settings->get_setting( self::slug . '_secret' );
