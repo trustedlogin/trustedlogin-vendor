@@ -167,7 +167,7 @@ class HelpScout extends HelpDesk {
 
 		$data = file_get_contents( 'php://input' );
 
-		if ( ! $this->verify_request( $data, $signature ) ) {
+		if ( ! $data || ! $this->verify_request( $data, $signature ) ) {
 			$error_text  = '<p class="red">' . esc_html__( 'Unauthorized.', 'trustedlogin-vendor' ) . '</p>';
 			$error_text .= '<p>' . esc_html__( 'Verify your site\'s TrustedLogin Settings match the Help Scout widget settings.', 'trustedlogin-vendor' ) . '</p>';
 			wp_send_json( array( 'html' => $error_text ), 401 );
