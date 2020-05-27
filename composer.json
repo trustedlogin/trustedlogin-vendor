@@ -1,33 +1,16 @@
 {
   "name": "trustedlogin/trustedlogin-vendor",
   "type": "wordpress-plugin",
-  "repositories": [
-    {
-      "type": "github",
-      "url":  "https://github.com/Automattic/VIP-Coding-Standards.git",
-      "no-api": true
-    }
-  ],
-  "require": {
-    "oomphinc/composer-installers-extender": "^1.1",
-    "wp-coding-standards/wpcs": "*",
-    "automattic/vipwpcs": "*",
+  "require": {},
+  "require-dev": {
+    "squizlabs/php_codesniffer": "^3.5.5",
+    "dealerdirect/phpcodesniffer-composer-installer": "*",
     "phpcompatibility/php-compatibility": "*",
-    "phpcompatibility/phpcompatibility-paragonie": "*",
-    "phpcompatibility/phpcompatibility-wp": "*"
+    "wp-coding-standards/wpcs": "*"
   },
-  "extra": {
-    "installer-types": ["library", "phpcodesniffer-standard"],
-    "installer-paths": {
-      "/srv/www/phpcs/": ["squizlabs/php_codesniffer"],
-      "/srv/www/phpcs/CodeSniffer/Standards/WordPress/": ["wp-coding-standards/wpcs"],
-      "/srv/www/phpcs/CodeSniffer/Standards/VIP-Coding-Standards/": ["automattic/vipwpcs"],
-      "/srv/www/phpcs/CodeSniffer/Standards/PHPCompatibility/": ["phpcompatibility/php-compatibility"],
-      "/srv/www/phpcs/CodeSniffer/Standards/PHPCompatibilityParagonie/": ["phpcompatibility/phpcompatibility-paragonie"],
-      "/srv/www/phpcs/CodeSniffer/Standards/PHPCompatibilityWP/": ["phpcompatibility/phpcompatibility-wp"]
-    }
-  },
-  "config": {
-    "bin-dir": "scripts"
+  "scripts": {
+    "post-install-cmd": [
+      "composer create-project wp-coding-standards/wpcs"
+    ]
   }
 }

@@ -1,6 +1,11 @@
 <?php
 namespace TrustedLogin;
 
+/**
+ * Class License_Generator
+ *
+ * @package TrustedLogin
+ */
 abstract class License_Generator {
 
 	protected $name;
@@ -45,7 +50,9 @@ abstract class License_Generator {
 
 	/**
 	 * Get an array of license keys
-	 * 
+	 *
+	 * @param string $email Email of user to check licenses against
+	 *
 	 * @return string[]
 	 */
 	abstract public function get_license_keys_by_email( $email );

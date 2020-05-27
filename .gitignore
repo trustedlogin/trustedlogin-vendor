@@ -1,2 +1,4 @@
 tl-debug-log.txt
 .DS_Store
+vendor/
+wpcs/
