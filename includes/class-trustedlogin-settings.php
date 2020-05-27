@@ -34,7 +34,7 @@ class Settings {
 		'helpdesk'         => array( 'helpscout' ),
 		'approved_roles'   => array( 'administrator' ),
 		'debug_enabled'    => 'on',
-		'output_audit_log' => 'on',
+		'enable_audit_log' => 'on',
 	);
 
 	/**
@@ -219,9 +219,9 @@ class Settings {
 		);
 
 		add_settings_field(
-			'trustedlogin_vendor_output_audit_log',
+			'trustedlogin_vendor_enable_audit_log',
 			__( 'Enable Activity Log?', 'trustedlogin-vendor' ),
-			array( $this, 'output_audit_log_field_render' ),
+			array( $this, 'enable_audit_log_field_render' ),
 			'trustedlogin_vendor_options',
 			'trustedlogin_vendor_options_section'
 		);
@@ -426,9 +426,9 @@ class Settings {
 
 	}
 
-	public function output_audit_log_field_render() {
+	public function enable_audit_log_field_render() {
 
-		$this->settings_output_toggle( 'output_audit_log' );
+		$this->settings_output_toggle( 'enable_audit_log' );
 
 	}
 

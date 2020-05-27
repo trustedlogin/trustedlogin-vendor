@@ -62,7 +62,7 @@ class TrustedLogin_Audit_Log {
 	 */
 	public function add_admin_menu() {
 
-		$audit_log_enabled = $this->settings->setting_is_toggled( 'output_audit_log' );
+		$audit_log_enabled = $this->settings->setting_is_toggled( 'enable_audit_log' );
 
 		if ( ! $audit_log_enabled ) {
 			return;
@@ -211,7 +211,7 @@ class TrustedLogin_Audit_Log {
 	public function insert( $site_id, $action, $note = null ) {
 		global $wpdb;
 
-		$enabled = $this->settings->setting_is_toggled( 'output_audit_log' );
+		$enabled = $this->settings->setting_is_toggled( 'enable_audit_log' );
 
 		if ( ! $enabled ) {
 			return false;
