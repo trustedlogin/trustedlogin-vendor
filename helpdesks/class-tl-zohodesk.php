@@ -1,4 +1,10 @@
 <?php
+/**
+ * Adds support for the Zoho Desk helpdesk
+ *
+ * @package TrustedLogin\Vendor\HelpDesks
+ */
+
 namespace TrustedLogin\Vendor;
 
 /**

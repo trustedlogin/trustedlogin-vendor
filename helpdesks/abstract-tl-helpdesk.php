@@ -1,44 +1,59 @@
 <?php
+/**
+ * Defines the generic help desk functionality
+ *
+ * @package TrustedLogin\Vendor
+ */
 
 namespace TrustedLogin\Vendor;
 
 /**
- * Class: TrustedLogin - HelpScout Integration
+ * Class HelpDesk
  *
- * @package tl-support-side
- * @version 0.1.0
- **/
+ * @package TrustedLogin\Vendor
+ */
 abstract class HelpDesk {
 
 	use Debug_Logging;
 
 	/**
-	 * @var string The secret to verify requests from HelpScout
+	 * The secret to verify requests from HelpScout
+	 *
+	 * @var string
 	 * @since 0.1.0
 	 **/
 	private $secret;
 
 	/**
-	 * @var bool Whether our debug logging is activated
+	 * Whether our debug logging is activated
+	 *
+	 * @var bool
 	 * @since 0.1.0
 	 **/
 	private $debug_mode;
 
 	/**
-	 * @var array The current TrustedLogin settings
+	 * The current TrustedLogin settings
+	 *
+	 * @var array
 	 * @since 0.1.0
 	 **/
 	private $options;
 
 	/**
-	 * @var array - the default TrustedLogin settings
+	 * The default TrustedLogin settings
+	 *
+	 * @var array
 	 * @since 0.1.0
 	 **/
 	private $default_options;
 
+	/**
+	 * HelpDesk constructor.
+	 */
 	public function __construct() {
 
-		add_filter( 'trustedlogin_supported_helpdesks', array( $this, 'add_supported_helpdesk' ) );
+		add_filter( 'trustedlogin/vendor/settings/helpdesks', array( $this, 'add_supported_helpdesk' ) );
 
 		if ( ! $this->is_active() ) {
 			return;
@@ -51,15 +66,25 @@ abstract class HelpDesk {
 
 	}
 
+	/**
+	 * Returns whether the current help desk is active
+	 *
+	 * @return bool
+	 */
 	public function is_active() {
 
-		$active_helpdesk = array();//$this->tls_settings_get_selected_helpdesk();
+		$active_helpdesk = array(); // $this->tls_settings_get_selected_helpdesk();
 
 		return in_array( static::SLUG, $active_helpdesk, true );
 	}
 
 	/**
-	 * @param array $helpdesks
+	 * Add a help desk to the list of supported options
+	 *
+	 * @param array $helpdesks Array of active help desks {
+	 *   @type string $title Name of the help desk
+	 *   @type bool   $active Whether the help desk is enabled
+	 * }
 	 *
 	 * @return array
 	 */
@@ -73,11 +98,16 @@ abstract class HelpDesk {
 		return $helpdesks;
 	}
 
+	/**
+	 * Add settings for each help desk using {@see add_settings_field()}
+	 */
 	public function add_extra_settings() {
 	}
 
+	/**
+	 * Override validation of requests sent by the help desk in-app widgets
+	 */
 	public function webhook_endpoint() {
-
 	}
 
 	/**

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Adds support for the Intercom helpdesk
+ *
+ * @package TrustedLogin\Vendor\HelpDesks
+ */
+
 namespace TrustedLogin\Vendor;
 
 /**

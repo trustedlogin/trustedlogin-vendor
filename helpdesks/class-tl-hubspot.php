@@ -1,4 +1,10 @@
 <?php
+/**
+ * Adds support for the HubSpot helpdesk
+ *
+ * @package TrustedLogin\Vendor\HelpDesks
+ */
+
 namespace TrustedLogin\Vendor;
 
 /**

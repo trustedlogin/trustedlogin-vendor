@@ -1,4 +1,9 @@
 <?php
+/**
+ * Adds support for the Help Scout helpdesk
+ *
+ * @package TrustedLogin\Vendor\HelpDesks
+ */
 
 namespace TrustedLogin\Vendor;
 
@@ -21,39 +26,52 @@ class HelpScout extends HelpDesk {
 	const IS_ACTIVE = true;
 
 	/**
-	 * @var string The secret to verify requests from HelpScout
+	 * The secret to verify requests from HelpScout
+	 *
+	 * @var string
 	 * @since 0.1.0
 	 **/
 	private $secret;
 
 	/**
-	 * @var boolean Whether our debug logging is activated
+	 * Whether our debug logging is activated
+	 *
+	 * @var boolean
 	 * @since 0.1.0
 	 **/
 	private $debug_mode;
 
 	/**
-	 * @var array Current TrustedLogin settings
+	 * Current TrustedLogin settings
+	 *
+	 * @var array
 	 * @since 0.1.0
 	 **/
 	private $options;
 
 	/**
-	 * @var array Default TrustedLogin settings
+	 * Default TrustedLogin settings
+	 *
+	 * @var array
 	 * @since 0.1.0
 	 **/
 	private $default_options;
 
 	/**
-	 * @var Settings This helpdesk's settings
+	 * This helpdesk's settings
+	 *
+	 * @var Settings
 	 * @since 0.1.0
 	 **/
 	private $settings;
 
+	/**
+	 * HelpScout constructor.
+	 */
 	public function __construct() {
 
 		$this->settings   = new Settings();
-		$this->secret     = $this->settings->get_setting( self::slug . '_secret' );
+		$this->secret     = $this->settings->get_setting( self::SLUG . '_secret' );
 		$this->debug_mode = $this->settings->debug_mode_enabled();
 
 		parent::__construct();
@@ -67,6 +85,7 @@ class HelpScout extends HelpDesk {
 	 * @return bool  Whether the secret is set and not empty.
 	 */
 	public function has_secret() {
+
 		if ( ! isset( $this->secret ) || empty( $this->secret ) ) {
 			return false;
 		}
@@ -81,34 +100,33 @@ class HelpScout extends HelpDesk {
 	 */
 	public function add_extra_settings() {
 
-		$settings = new Settings();
-
-		if ( self::slug === $settings->get_setting( 'helpdesk' ) ) {
-
-			add_settings_field(
-				'trustedlogin_vendor_' . self::slug . '_secret',
-				self::name . ' ' . __( 'Secret Key', 'tl-support-side' ),
-				array( $this, 'secret_field_render' ),
-				'trustedlogin_vendor_options',
-				'trustedlogin_vendor_options_section'
-			);
-
-			add_settings_field(
-				'trustedlogin_vendor_' . self::slug . '_url',
-				sprintf( __( '%s Callback URL', 'tl-support-side' ), self::name ),
-				array( $this, 'url_field_render' ),
-				'trustedlogin_vendor_options',
-				'trustedlogin_vendor_options_section'
-			);
-
+		if ( self::SLUG !== $this->settings->get_setting( 'helpdesk' ) ) {
+			return;
 		}
+
+		add_settings_field(
+			'trustedlogin_vendor_' . self::SLUG . '_secret',
+			self::NAME . ' ' . __( 'Secret Key', 'tl-support-side' ),
+			array( $this, 'secret_field_render' ),
+			'trustedlogin_vendor_options',
+			'trustedlogin_vendor_options_section'
+		);
+
+		add_settings_field(
+			'trustedlogin_vendor_' . self::SLUG . '_url',
+			// translators: %s is replaced with the name of the help desk.
+			sprintf( __( '%s Callback URL', 'tl-support-side' ), self::NAME ),
+			array( $this, 'url_field_render' ),
+			'trustedlogin_vendor_options',
+			'trustedlogin_vendor_options_section'
+		);
 	}
 
 	/**
 	 * Renders the settings field for the helpdesk secret/api_key
 	 */
 	public function secret_field_render() {
-		$this->settings->render_input_field( self::slug . '_secret', 'password', false );
+		$this->settings->render_input_field( self::SLUG . '_secret', 'password', false );
 	}
 
 	/**
@@ -116,7 +134,7 @@ class HelpScout extends HelpDesk {
 	 */
 	public function url_field_render() {
 
-		$url = add_query_arg( 'action', self::slug . '_webhook', admin_url( 'admin-ajax.php' ) );
+		$url = add_query_arg( 'action', self::SLUG . '_webhook', admin_url( 'admin-ajax.php' ) );
 
 		echo '<input readonly="readonly" type="text" value="' . esc_url( $url ) . '" class="regular-text widefat code">';
 	}
@@ -129,7 +147,7 @@ class HelpScout extends HelpDesk {
 	 * @since 0.1.0
 	 * @since 0.9.2 - added the status of licenses to output
 	 *
-	 * @uses self::helpscout_verify_source()
+	 * @uses self::verify_request()
 	 *
 	 * @return void Sends JSON response back to an Ajax request via wp_send_json()
 	 */
@@ -150,30 +168,27 @@ class HelpScout extends HelpDesk {
 
 		$data = file_get_contents( 'php://input' );
 
-		if ( ! $this->helpscout_verify_source( $data, $signature ) ) {
-			wp_send_json( array(
-				'html' => '<p class="red">Unauthorized.</p><p>Verify your site\'s TrustedLogin Settings match the Help Scout widget settings.</p>',
-			), 401 );
+		if ( ! $this->verify_request( $data, $signature ) ) {
+			$error_text  = '<p class="red">' . esc_html__( 'Unauthorized.', 'trustedlogin-vendor' ) . '</p>';
+			$error_text .= '<p>' . esc_html__( 'Verify your site\'s TrustedLogin Settings match the Help Scout widget settings.', 'trustedlogin-vendor' ) . '</p>';
+			wp_send_json( array( 'html' => $error_text ), 401 );
 		}
 
-		$licenses = array();
 		$data_obj = json_decode( $data, false );
 		$email    = sanitize_email( $data_obj->customer->email );
+		$licenses = get_transient( 'trustedlogin_licenses_' . md5( $email ) );
 
-		if ( false === ( $licenses = get_transient( 'trustedlogin_licenses_' . md5( $email ) ) ) ) {
+		if ( false === $licenses ) {
 
 			if ( $this->is_edd_store() && ! empty( $email ) ) {
-
 				if ( $this->has_edd_licensing() ) {
 					$licenses = $this->edd_get_licenses( $email );
 				}
-
 			}
 
 			if ( $licenses ) {
 				set_transient( 'trustedlogin_licenses_' . md5( $email ), $licenses, DAY_IN_SECONDS );
 			}
-
 		}
 
 		/**
@@ -190,7 +205,7 @@ class HelpScout extends HelpDesk {
 		 * @param string $email
 		 *
 		 * @return array
-		 **/
+		 */
 		$licenses = apply_filters( 'trustedlogin/vendor/customers/licenses', $licenses, $email );
 
 		$account_id = $this->settings->get_setting( 'account_id' );
@@ -203,8 +218,13 @@ class HelpScout extends HelpDesk {
 			wp_send_json_error( array( 'message' => $error ) );
 		}
 
-		$saas_attr = (object) array( 'type' => 'saas', 'auth' => $saas_auth, 'debug_mode' => $this->debug_mode );
-		$saas_api  = new API_Handler( $saas_attr );
+		$saas_attr = (object) array(
+			'type'       => 'saas',
+			'auth'       => $saas_auth,
+			'debug_mode' => $this->debug_mode,
+		);
+
+		$saas_api = new API_Handler( $saas_attr );
 
 		$for_vault = array();
 		$item_html = '';
@@ -215,7 +235,7 @@ class HelpScout extends HelpDesk {
 		 * @param string $html
 		 */
 		$html_template = apply_filters(
-			'trustedlogin/vendor/helpdesk/' . self::slug . '/template/wrapper',
+			'trustedlogin/vendor/helpdesk/' . self::SLUG . '/template/wrapper',
 			'<ul class="c-sb-list c-sb-list--two-line">%1$s</ul>'
 		);
 
@@ -225,7 +245,7 @@ class HelpScout extends HelpDesk {
 		 * @param string $html
 		 */
 		$item_template = apply_filters(
-			'trustedlogin/vendor/helpdesk/' . self::slug . '/template/item',
+			'trustedlogin/vendor/helpdesk/' . self::SLUG . '/template/item',
 			'<li class="c-sb-list-item"><a href="%1$s" target="_blank">%2$s %3$s</a> (%4$s)</li>'
 		);
 
@@ -235,7 +255,7 @@ class HelpScout extends HelpDesk {
 		 * @param string $html
 		 */
 		$no_items_template = apply_filters(
-			'trustedlogin/vendor/helpdesk/' . self::slug . '/template/no-items',
+			'trustedlogin/vendor/helpdesk/' . self::SLUG . '/template/no-items',
 			'<li class="c-sb-list-item">%1$s</li>'
 		);
 
@@ -260,10 +280,10 @@ class HelpScout extends HelpDesk {
 			 * @var $response [
 			 *   "<license_key>" => [ <secrets> ]
 			 * ]
-			 **/
+			 */
 			$response = $saas_api->call( $endpoint, $data, $method );
 
-			$this->dlog( "Response: " . print_r( $response, true ), __METHOD__ );
+			$this->dlog( 'Response: ' . print_r( $response, true ), __METHOD__ );
 
 			if ( ! empty( $response ) ) {
 				foreach ( $response as $key => $secrets ) {
@@ -279,15 +299,15 @@ class HelpScout extends HelpDesk {
 				}
 			}
 
-			$this->dlog( "item_html: " . $item_html, __METHOD__ );
+			$this->dlog( 'item_html: ' . $item_html, __METHOD__ );
 
 		} else {
 
-			$this->dlog( "No accessKeys found. ", __METHOD__ );
+			$this->dlog( 'No accessKeys found.', __METHOD__ );
 
 		}
 
-		if ( empty ( $item_html ) ) {
+		if ( empty( $item_html ) ) {
 			$item_html = sprintf(
 				$no_items_template,
 				__( 'No TrustedLogin sessions authorized for this user.', 'tl-support-side' )
@@ -316,7 +336,7 @@ class HelpScout extends HelpDesk {
 	 *
 	 * @since 0.1.0
 	 *
-	 * @param string $email The email to check for EDD licenses
+	 * @param string $email The email to check for EDD licenses.
 	 *
 	 * @return \EDD_SL_License[]|false  Array of licenses or false if none are found.
 	 **/
@@ -345,7 +365,7 @@ class HelpScout extends HelpDesk {
 	}
 
 	/**
-	 * Verifies the source of the Widget AJAX request is from helpscout
+	 * Verifies the source of the Widget AJAX request is from Help Scout
 	 *
 	 * @since 0.1.0
 	 *
@@ -354,7 +374,7 @@ class HelpScout extends HelpDesk {
 	 *
 	 * @return bool  if the calculated hash matches the signature provided.
 	 */
-	public function helpscout_verify_source( $data, $signature ) {
+	private function verify_request( $data, $signature ) {
 
 		if ( ! $this->has_secret() ) {
 			$this->dlog( 'No secret is set.', __METHOD__ );
@@ -370,7 +390,7 @@ class HelpScout extends HelpDesk {
 
 		$calculated = base64_encode( hash_hmac( 'sha1', $data, $this->secret, true ) );
 
-		return $signature == $calculated;
+		return $signature === $calculated;
 	}
 
 	/**
