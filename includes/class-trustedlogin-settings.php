@@ -29,7 +29,7 @@ class Settings {
 		'account_id'       => '',
 		'private_key'      => '',
 		'public_key'       => '',
-		'helpdesk'         => array(),
+		'helpdesk'         => array( 'helpscout' ),
 		'approved_roles'   => array( 'administrator' ),
 		'debug_enabled'    => 'on',
 		'output_audit_log' => 'off',
