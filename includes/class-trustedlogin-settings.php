@@ -32,7 +32,7 @@ class Settings {
 		'helpdesk'         => array( 'helpscout' ),
 		'approved_roles'   => array( 'administrator' ),
 		'debug_enabled'    => 'on',
-		'output_audit_log' => 'off',
+		'output_audit_log' => 'on',
 	);
 
 	/**
