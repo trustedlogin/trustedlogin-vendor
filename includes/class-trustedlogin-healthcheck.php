@@ -19,7 +19,7 @@ class HealthCheck {
 	/**
 	 * Array of tests to run for HealthCheck
 	 *
-	 * @var requirements
+	 * @var $requirements
 	 * @since 1.0.0
 	 */
 	private $requirements = array(
@@ -73,9 +73,7 @@ class HealthCheck {
 		add_filter( 'trustedlogin/vendor/healthcheck/requirements', array( $this, 'set_translateable_data' ) );
 		add_filter( 'site_status_tests', array( $this, 'add_wp_tests' ) );
 
-
 		do_action( 'trustedlogin/vendor/healthcheck/add_hooks/after' );
-
 	}
 
 	/**
@@ -122,8 +120,8 @@ class HealthCheck {
 			'label'       => __( 'Minimum versions required were met.', 'trustedlogin-vendor' ),
 			'status'      => 'good',
 			'badge'       => array(
-				'label' => __( 'TrustedLogin', 'trustedlogin-vendor' ),
-				'color' => 'green',
+				'label' => 'TrustedLogin',
+				'color' => 'blue',
 			),
 			'description' => sprintf(
 				'<p>%s</p>',
@@ -139,7 +137,7 @@ class HealthCheck {
 			$action_links = '';
 			foreach ( $test_results as $key => $test_result ) {
 
-				if ( 'all_passed' == $key ) {
+				if ( 'all_passed' === $key ) {
 					continue;
 				}
 
@@ -151,6 +149,7 @@ class HealthCheck {
 						$title,
 						$this->requirements['versions'][ $key ]['min']
 					);
+
 					if ( isset( $this->requirements['versions'][ $key ]['action_url'] ) ) {
 						$action_links .= sprintf(
 							'<a href="%s">%s</a>',
@@ -195,8 +194,8 @@ class HealthCheck {
 			'label'       => __( 'Required constants were found.', 'trustedlogin-vendor' ),
 			'status'      => 'good',
 			'badge'       => array(
-				'label' => __( 'TrustedLogin', 'trustedlogin-vendor' ),
-				'color' => 'green',
+				'label' => 'TrustedLogin',
+				'color' => 'blue',
 			),
 			'description' => sprintf(
 				'<p>%s</p>',
@@ -212,7 +211,7 @@ class HealthCheck {
 			$action_links = '';
 			foreach ( $test_results as $key => $test_result ) {
 
-				if ( 'all_passed' == $key ) {
+				if ( 'all_passed' === $key ) {
 					continue;
 				}
 
@@ -268,8 +267,8 @@ class HealthCheck {
 			'label'       => __( 'Required functions are available.', 'trustedlogin-vendor' ),
 			'status'      => 'good',
 			'badge'       => array(
-				'label' => __( 'TrustedLogin', 'trustedlogin-vendor' ),
-				'color' => 'green',
+				'label' => 'TrustedLogin',
+				'color' => 'blue',
 			),
 			'description' => sprintf(
 				'<p>%s</p>',
@@ -285,7 +284,7 @@ class HealthCheck {
 			$action_links = '';
 			foreach ( $test_results as $key => $test_result ) {
 
-				if ( 'all_passed' == $key ) {
+				if ( 'all_passed' === $key ) {
 					continue;
 				}
 
@@ -309,13 +308,13 @@ class HealthCheck {
 
 			$result['status']         = 'critical';
 			$result['label']          = __( 'Required modules missing.', 'trustedlogin-vendor' );
+			$result['badge']['color'] = 'red';
 			$result['description']    = sprintf(
 				'<p>%s</p><p>%s</p><pre>%s</pre>',
 				__( 'The following functions could not be found or tested.' ),
 				$failed_tests,
 				print_r( $test_results, true )
 			);
-			$result['badge']['color'] = 'red';
 			if ( ! empty( $action_links ) ) {
 				$result['actions'] .= sprintf(
 					'<p>%s</p>',
@@ -339,15 +338,15 @@ class HealthCheck {
 		$test_results = $this->check_callbacks();
 
 		$result = array(
-			'label'       => __( 'Required function callbacks tested.', 'trustedlogin-vendor' ),
+			'label'       => __( 'Required callbacks tested.', 'trustedlogin-vendor' ),
 			'status'      => 'good',
 			'badge'       => array(
-				'label' => __( 'TrustedLogin', 'trustedlogin-vendor' ),
-				'color' => 'green',
+				'label' => 'TrustedLogin',
+				'color' => 'blue',
 			),
 			'description' => sprintf(
 				'<p>%s</p>',
-				__( 'TrustedLogin tested a few built-in callbacks and they are working as expected.', 'trustedlogin-vendor' )
+				__( 'TrustedLogin tested built-in callbacks and they are working as expected.', 'trustedlogin-vendor' )
 			),
 			'actions'     => '',
 			'test'        => 'trustedlogin_callbacks',
@@ -359,7 +358,7 @@ class HealthCheck {
 			$action_links = '';
 			foreach ( $test_results as $key => $test_result ) {
 
-				if ( 'all_passed' == $key ) {
+				if ( 'all_passed' === $key ) {
 					continue;
 				}
 
@@ -381,10 +380,10 @@ class HealthCheck {
 			}
 
 			$result['status']         = 'critical';
-			$result['label']          = __( 'Required modules missing.', 'trustedlogin-vendor' );
+			$result['label']          = __( 'Required callbacks failed.', 'trustedlogin-vendor' );
 			$result['description']    = sprintf(
 				'<p>%s</p><p>%s</p><pre>%s</pre>',
-				__( 'The following callbacks could not be found or tested.' ),
+				__( 'TrustedLogin requires certain URLs be accessible in order to function properly.', 'trustedlogin-vendor' ),
 				$failed_tests,
 				print_r( $test_results, true )
 			);
@@ -432,7 +431,6 @@ class HealthCheck {
 
 		// callbacks
 		$requirements['callbacks']['encryption_get_public_key']['title'] = __( 'Encryption::get_public_key', 'trustedlogin-vendor' );
-
 
 		return $requirements;
 	}
@@ -525,7 +523,7 @@ class HealthCheck {
 		foreach ( $check_results as $key => $results ) {
 
 			// skip over the all_passed value
-			if ( 'all_passed' == $key ) {
+			if ( 'all_passed' === $key ) {
 				continue;
 			}
 
@@ -537,7 +535,7 @@ class HealthCheck {
 			foreach ( $results as $subkey => $result ) {
 
 				// skip over non-negative results
-				if ( $result || 'all_passed' == $subkey ) {
+				if ( $result || 'all_passed' === $subkey ) {
 					continue;
 				}
 
@@ -658,18 +656,12 @@ class HealthCheck {
 	/**
 	 * Callback for the constants tests
 	 *
-	 * @var  $constant  The constant to check.
-	 * ]
+	 * @param array $tests Array of constants to check
 	 *
-	 * @var  bool $all_passed - whether all tests in this checker passed
-	 * @var  bool  ${ $key }    - results of the tests for $key
-	 * ]
-	 * @since 1.0.0
-	 * @uses defined()
-	 *
-	 * @param array $tests Array of constants to check [
-	 *
-	 * @return array  $results [
+	 * @return array $results {
+	 *   @type  bool $all_passed Whether all tests in this checker passed
+	 *   @type  bool ${ $key } Results of the tests for $key
+	 * }
 	 */
 	private function check_constants( $tests = array() ) {
 
@@ -701,18 +693,12 @@ class HealthCheck {
 	/**
 	 * Callback for the callbacks tests
 	 *
-	 * @var  $callback  The callback to check.
-	 * ]
+	 * @param array $tests Array of callbacks to check.
 	 *
-	 * @var  bool $all_passed - whether all tests in this checker passed
-	 * @var  bool  ${ $key }    - results of the tests for $key
-	 * ]
-	 * @since 1.0.0
-	 * @uses class_exists()
-	 *
-	 * @param array $tests Array of callbacks to check [
-	 *
-	 * @return array  $results [
+	 * @return array $results {
+	 *   @type  bool $all_passed Whether all tests in this checker passed
+	 *   @type  bool ${ $key } Results of the tests for $key
+	 * }
 	 */
 	private function check_callbacks( $tests = array() ) {
 
@@ -762,7 +748,6 @@ class HealthCheck {
 			}
 
 			$results[ $callback ] = $passed;
-
 		}
 
 		$this->dlog( "results: " . print_r( $results, true ), __METHOD__ );

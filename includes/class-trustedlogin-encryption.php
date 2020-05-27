@@ -42,7 +42,7 @@ class Encryption {
 	 *
 	 * @param bool $generate_if_not_set If keys aren't saved in the database, should create using {@see generate_keys}?
 	 *
-	 * @return stdClass|WP_Error If keys exist, returns the stdClass of keys. Otherwise, WP_Error explaning things.
+	 * @return \stdClass|WP_Error If keys exist, returns the stdClass of keys. Otherwise, WP_Error explaning things.
 	 */
 	private function get_keys( $generate_if_not_set = true ) {
 
@@ -64,7 +64,7 @@ class Encryption {
 		/**
 		 * Filter allows site admins to change where the key is fetched from.
 		 *
-		 * @param stdClass|WP_Error $keys
+		 * @param \stdClass|WP_Error $keys
 		 * @param Encryption $this
 		 */
 		return apply_filters( 'trustedlogin/vendor/encryption/get-keys', $keys, $this );
