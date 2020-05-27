@@ -9,13 +9,13 @@ namespace TrustedLogin\Vendor;
  **/
 class Intercom extends HelpDesk {
 
-	const name = 'Intercom';
+	const NAME = 'Intercom';
 
-	const slug = 'intercom';
+	const SLUG = 'intercom';
 
-	const version = '0.0';
+	const VERSION = '0.0';
 
-	const is_active = false;
+	const IS_ACTIVE = false;
 }
 
 $hl = new Intercom();

@@ -11,13 +11,13 @@ class HelpScout extends HelpDesk {
 
     use Debug_Logging;
 
-	const name = 'Help Scout';
+	const NAME = 'Help Scout';
 
-	const slug = 'helpscout';
+	const SLUG = 'helpscout';
 
-	const version = '0.1.0';
+	const VERSION = '0.1.0';
 
-	const is_active = true;
+	const IS_ACTIVE = true;
 
     /**
      * @var string The secret to verify requests from HelpScout

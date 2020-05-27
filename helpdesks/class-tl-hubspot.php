@@ -9,13 +9,13 @@ namespace TrustedLogin\Vendor;
  **/
 class HubSpot extends HelpDesk {
 
-	const name = 'HubSpot';
+	const NAME = 'HubSpot';
 
-	const slug = 'hubspot';
+	const SLUG = 'hubspot';
 
-	const version = '0.0';
+	const VERSION = '0.0';
 
-	const is_active = false;
+	const IS_ACTIVE = false;
 }
 
 $hl = new HubSpot();

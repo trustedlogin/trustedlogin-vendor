@@ -9,13 +9,13 @@ namespace TrustedLogin\Vendor;
  **/
 class ZohoDesk extends HelpDesk {
 
-	const name = 'ZohoDesk';
+	const NAME = 'ZohoDesk';
 
-	const slug = 'zohodesk';
+	const SLUG = 'zohodesk';
 
-	const version = '0.0';
+	const VERSION = '0.0';
 
-	const is_active = false;
+	const IS_ACTIVE = false;
 }
 
 $hl = new ZohoDesk();

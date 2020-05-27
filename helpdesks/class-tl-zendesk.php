@@ -9,13 +9,13 @@ namespace TrustedLogin\Vendor;
  **/
 class ZenDesk extends HelpDesk {
 
-	const name = 'ZenDesk';
+	const NAME = 'ZenDesk';
 
-	const slug = 'zendesk';
+	const SLUG = 'zendesk';
 
-	const version = '0.0';
+	const VERSION = '0.0';
 
-	const is_active = false;
+	const IS_ACTIVE = false;
 }
 
 $hl = new ZenDesk();

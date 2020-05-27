@@ -49,8 +49,8 @@ abstract class HelpDesk {
 
 		add_action( 'admin_init', array( $this, 'add_extra_settings' ) );
 
-		add_action( 'wp_ajax_' . static::slug . '_webhook', array( $this, 'webhook_endpoint' ) );
-		add_action( 'wp_ajax_nopriv_' . static::slug . '_webhook', array( $this, 'webhook_endpoint' ) );
+		add_action( 'wp_ajax_' . static::SLUG . '_webhook', array( $this, 'webhook_endpoint' ) );
+		add_action( 'wp_ajax_nopriv_' . static::SLUG . '_webhook', array( $this, 'webhook_endpoint' ) );
 
 	}
 
@@ -58,14 +58,14 @@ abstract class HelpDesk {
 
 		$active_helpdesk = array();//$this->tls_settings_get_selected_helpdesk();
 
-		return in_array( static::slug, $active_helpdesk, true );
+		return in_array( static::SLUG, $active_helpdesk, true );
 	}
 
 	public function add_supported_helpdesk( $helpdesks = array() ) {
 
-		$helpdesks[ static::slug ] = array(
-			'title' => static::name,
-			'active' => static::is_active,
+		$helpdesks[ static::SLUG ] = array(
+			'title' => static::NAME,
+			'active' => static::IS_ACTIVE,
 		);
 
 		return $helpdesks;
@@ -99,7 +99,7 @@ abstract class HelpDesk {
 		$args = array(
 			$endpoint  => 1,
 			'action'   => $action,
-			'provider' => static::slug,
+			'provider' => static::SLUG,
 		);
 
 		if ( $access_key ) {
