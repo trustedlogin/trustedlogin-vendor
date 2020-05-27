@@ -33,7 +33,7 @@ class TrustedLogin_Audit_Log {
 	/**
 	 * The settings for the Vendor plugin, which include whether to enable logging
 	 *
-	 * @var TrustedLogin_Settings
+	 * @var Settings
 	 * @since 0.9.0
 	 */
 	private $settings;
