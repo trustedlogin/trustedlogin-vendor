@@ -290,7 +290,7 @@ class Endpoint {
 
 		if ( $url ) {
 			// then redirect
-			$this->audit_log->insert( $secret_id, 'redirected', __( 'Succcessful', 'trustedlogin-vendor' ) );
+			$this->audit_log->insert( $secret_id, 'redirected', __( 'Successful', 'trustedlogin-vendor' ) );
 			wp_redirect( $url, self::REDIRECT_SUCCESS_STATUS );
 			exit;
 		}
@@ -305,7 +305,7 @@ class Endpoint {
 	 *
 	 * @param string $site_id - unique secret_id of a site
 	 *
-	 * @return array|false
+	 * @return array|false|WP_Error
 	 */
 	public function api_get_envelope( $secret_id ) {
 		if ( empty( $secret_id ) ) {
@@ -435,7 +435,7 @@ class Endpoint {
 				'identifier' => $trustedlogin_encryption->decrypt( $envelope['identifier'], $envelope['nonce'], $envelope['publicKey'] ),
 			);
 
-		} catch ( Exception $e ) {
+		} catch ( \Exception $e ) {
 
 			return new WP_Error( $e->getCode(), $e->getMessage() );
 
