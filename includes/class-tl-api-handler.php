@@ -13,44 +13,37 @@ use \Exception;
 class API_Handler {
 
 	/**
-	 * @since 0.1.0
-	 * @var string - API version
+	 * @var string Current API version.
 	 */
-	const saas_api_version = 'v1';
+	const API_VERSION = 'v1';
 
 	/**
-	 * @since 0.1.0
-	 * @var string - the url for the API being queried.
+	 * @var string The url for the API being queried.
 	 */
-	private $api_url = 'https://app.trustedlogin.com/api/';
+	const API_URL = 'https://app.trustedlogin.com/api/';
 
 	/**
-	 * @since 0.1.0
-	 * @var string - The API/Auth Key for authenticating API calls
+	 * @var string The API/Auth Key for authenticating API calls
 	 */
 	private $auth_key;
 
 	/**
-	 * @since 0.1.0
-	 * @var Boolean - whether an Auth token is required.
+	 * @var bool Whether an Auth token is required.
 	 */
 	private $auth_required = true;
 
 	/**
-	 * @since 0.1.0
-	 * @var string - The type of Header to use for sending the token
+	 * @var string The type of Header to use for sending the token
 	 */
 	private $auth_header_type = 'Authorization';
 
 	/**
-	 * @since 0.8.0
-	 * @var array - Additional headers added to the TL_API_Handler instance. Eg for adding 'X-TL-TOKEN' values.
+	 * @var array Additional headers added to the TL_API_Handler instance. Eg for adding 'X-TL-TOKEN' values.
 	 */
 	private $additional_headers = array();
 
     /**
-     * @since 0.1.0
-     * @var Boolean - whether or not debug logging is enabled.
+     * @var bool Whether or not debug logging is enabled
      **/
     private $debug_mode = false;
 
@@ -74,13 +67,11 @@ class API_Handler {
 	}
 
 	/**
-	 * @return string
+	 * @internal
+	 * @return string Full versioned API url, with trailing slash.
 	 */
 	public function get_api_url() {
-
-		$url = apply_filters( 'trustedlogin/vendor/api/url', $this->api_url );
-
-		return $url;
+		return self::API_URL . self::API_VERSION . '/';
 	}
 
 	/**
@@ -138,7 +129,7 @@ class API_Handler {
 
 		$additional_headers = $this->get_additional_headers();
 
-		$url = $this->api_url . $endpoint;
+		$url = $this->get_api_url() . $endpoint;
 
 		if ( ! empty( $this->auth_key ) ) {
 			$additional_headers[ $this->auth_header_type ] = 'Bearer ' . $this->auth_key;
@@ -176,7 +167,7 @@ class API_Handler {
 			);
 		}
 
-		$url 	  = $this->api_url . 'accounts/' . $account_id ;
+		$url 	  = $this->get_api_url() . 'accounts/' . $account_id ;
         $method   = 'POST';
         $body     = array(
         	'api_endpoint' => get_rest_url(),
@@ -220,10 +211,10 @@ class API_Handler {
 	    	case 405:
 	    		return new WP_Error(
 	    			'verify-failed-405',
-	    			sprintf( 
+	    			sprintf(
 	    				__('Incorrect method (%1$s) used for %2$s', 'trustedlogin-vendor'),
 	    				/* %1$s */ $method,
-	    				/* %2$s */ $url 
+	    				/* %2$s */ $url
 	    			)
 	    		);
 	    	case 500:
