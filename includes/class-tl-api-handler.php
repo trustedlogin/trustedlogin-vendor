@@ -20,7 +20,7 @@ class API_Handler {
 	/**
 	 * @var string The url for the API being queried.
 	 */
-	const API_URL = 'https://app.trustedlogin.com/api/';
+	const API_URL = 'http://web/api/';
 
 	/**
 	 * @var string The API/Auth Key for authenticating API calls
