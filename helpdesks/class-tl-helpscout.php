@@ -210,14 +210,9 @@ class HelpScout extends HelpDesk {
 		/**
 		 * Filter: allow for other addons to generate the licenses array
 		 *
-		 * @var  object $license [
-		 * @var  string  status  The status of the license.
-		 * @var  string  key     The license key.
-		 *   ]
-		 * ]
 		 * @since 0.6.0
 		 *
-		 * @param array $licenses
+		 * @param \EDD_SL_License[]|false $licenses
 		 * @param string $email
 		 *
 		 * @return array

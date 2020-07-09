@@ -226,6 +226,15 @@ class Endpoint {
 			}
 		}
 
+		$active_helpdesk = $this->settings->get_setting( 'helpdesk' );
+
+		if( $active_helpdesk !== $_REQUEST['provider'] ) {
+			$this->dlog( 'Active helpdesk doesn\'t match passed provider. Helpdesk: ' . esc_attr( $active_helpdesk ) . ', Provider: ' . esc_attr( $_REQUEST['provider'] ), __METHOD__ );
+
+			return;
+		}
+
+
 		switch ( $_REQUEST['action'] ) {
 			case 'support_redirect':
 
@@ -314,16 +323,16 @@ class Endpoint {
 			return new WP_Error( 'data-error', __( 'Site ID cannot be empty', 'trustedlogin-vendor' ) );
 		}
 
-		/**
-		 * @var The data array that will be sent to TrustedLogin to request a site's envelope
-		 */
+		// The data array that will be sent to TrustedLogin to request a site's envelope
 		$data = array();
 
 		// Let's grab the user details. Logged in status already confirmed in maybe_redirect_support();
 		$current_user = wp_get_current_user();
+
 		if ( 0 == $current_user->ID ) {
 			return new WP_Error( 'auth-error', __( 'User not logged in.', 'trustedlogin-vendor' ) );
 		}
+
 		$data['user'] = array( 'id' => $current_user->ID, 'name' => $current_user->display_name );
 
 		// make sure we have the auth details from the settings page before continuing.
