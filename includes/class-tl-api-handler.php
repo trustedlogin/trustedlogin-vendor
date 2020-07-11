@@ -20,7 +20,7 @@ class API_Handler {
 	/**
 	 * @var string The url for the API being queried.
 	 */
-	private $api_url;
+	private $api_url = 'https://app.trustedlogin.com/api/';
 
 	/**
 	 * @var string The API/Auth Key for authenticating API calls
@@ -64,8 +64,6 @@ class API_Handler {
 		$this->auth_key = $atts['auth'];
 
 		$this->debug_mode = (bool) $atts['debug_mode'];
-
-		$this->api_url          = 'https://app.trustedlogin.com/api/';
 
     }
 
