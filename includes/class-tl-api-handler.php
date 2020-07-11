@@ -51,22 +51,23 @@ class API_Handler {
 
     public function __construct( $data ) {
 
-	    $defaults = array(
-		    'auth' => null,
-		    'debug_mode' => false,
-		    'type' => 'saas',
-	    );
+		$defaults = array(
+			'auth' => null,
+			'debug_mode' => false,
+			'type' => 'saas',
+		);
 
-    	$atts = wp_parse_args( $data, $defaults );
+		$atts = wp_parse_args( $data, $defaults );
 
-        $this->type = $atts['type'];
+		$this->type = $atts['type'];
 
-        $this->auth_key = $atts['auth'];
+		$this->auth_key = $atts['auth'];
 
-	    $this->api_url = 'https://app.trustedlogin.com/api/';
+		$this->debug_mode = (bool) $atts['debug_mode'];
 
-        $this->debug_mode = (bool) $atts['debug_mode'];
-	}
+		$this->api_url          = 'https://app.trustedlogin.com/api/';
+
+    }
 
 	/**
 	 * @internal
