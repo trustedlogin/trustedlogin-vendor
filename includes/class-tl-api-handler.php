@@ -20,7 +20,7 @@ class API_Handler {
 	/**
 	 * @var string The url for the API being queried.
 	 */
-	const API_URL = 'http://web/api/';
+	private $api_url = 'https://app.trustedlogin.com/api/';
 
 	/**
 	 * @var string The API/Auth Key for authenticating API calls
@@ -51,27 +51,30 @@ class API_Handler {
 
     public function __construct( $data ) {
 
-	    $defaults = array(
-		    'auth' => null,
-		    'debug_mode' => false,
-		    'type' => 'saas',
-	    );
+		$defaults = array(
+			'auth' => null,
+			'debug_mode' => false,
+			'type' => 'saas',
+		);
 
-    	$atts = wp_parse_args( $data, $defaults );
+		$atts = wp_parse_args( $data, $defaults );
 
-        $this->type = $atts['type'];
+		$this->type = $atts['type'];
 
-        $this->auth_key = $atts['auth'];
+		$this->auth_key = $atts['auth'];
 
-        $this->debug_mode = (bool) $atts['debug_mode'];
-	}
+		$this->debug_mode = (bool) $atts['debug_mode'];
+
+    }
 
 	/**
 	 * @internal
 	 * @return string Full versioned API url, with trailing slash.
 	 */
 	public function get_api_url() {
-		return self::API_URL . self::API_VERSION . '/';
+		$url = apply_filters( 'trustedlogin/api-url/saas', $this->api_url );
+
+		return $url;
 	}
 
 	/**
