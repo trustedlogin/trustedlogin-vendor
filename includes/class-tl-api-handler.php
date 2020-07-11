@@ -20,7 +20,7 @@ class API_Handler {
 	/**
 	 * @var string The url for the API being queried.
 	 */
-	private $api_url = 'https://app.trustedlogin.com/api/';
+	private $api_url = 'https://app.trustedlogin.com/api/v1/';
 
 	/**
 	 * @var string The API/Auth Key for authenticating API calls
