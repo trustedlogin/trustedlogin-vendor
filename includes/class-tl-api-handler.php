@@ -20,7 +20,7 @@ class API_Handler {
 	/**
 	 * @var string The url for the API being queried.
 	 */
-	const API_URL = 'http://web/api/';
+	private $api_url;
 
 	/**
 	 * @var string The API/Auth Key for authenticating API calls
@@ -63,6 +63,8 @@ class API_Handler {
 
         $this->auth_key = $atts['auth'];
 
+	    $this->api_url = 'https://app.trustedlogin.com/api/';
+
         $this->debug_mode = (bool) $atts['debug_mode'];
 	}
 
@@ -71,7 +73,9 @@ class API_Handler {
 	 * @return string Full versioned API url, with trailing slash.
 	 */
 	public function get_api_url() {
-		return self::API_URL . self::API_VERSION . '/';
+		$url = apply_filters( 'trustedlogin/api-url/saas', $this->api_url );
+
+		return $url;
 	}
 
 	/**
