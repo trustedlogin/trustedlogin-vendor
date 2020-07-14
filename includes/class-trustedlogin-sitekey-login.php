@@ -24,6 +24,21 @@ class SiteKey_Login {
 	use Debug_Logging;
 
 	/**
+	 * WordPress admin slug for access key login
+	 */
+	const PAGE_SLUG = 'trustedlogin_access_key';
+
+	/**
+	 * Name of form nonce
+	 */
+	const NONCE_NAME = '_tl_ak_nonce';
+
+	/**
+	 * Name of form nonce action
+	 */
+	const NONCE_ACTION = 'ak-redirect';
+
+	/**
 	 * The settings for the Vendor plugin, which include whether to enable logging
 	 *
 	 * @var Settings
@@ -41,6 +56,8 @@ class SiteKey_Login {
 		$this->settings = $settings_instance;
 
 		register_activation_hook( __FILE__, array( $this, 'init' ) );
+
+		add_action( 'admin_init', array( $this, 'maybe_handle_accesskey' ) );
 
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 	}
@@ -63,7 +80,7 @@ class SiteKey_Login {
 			__( 'TrustedLogin with Site Key', 'trustedlogin-vendor' ),
 			__( 'Log In with Site Key', 'trustedlogin-vendor' ),
 			'manage_options', // TODO: Custom capabilities!
-			'trustedlogin_log',
+			self::PAGE_SLUG,
 			array( $this, 'accesskey_page' )
 		);
 	}
@@ -85,38 +102,48 @@ class SiteKey_Login {
 
 		$output = sprintf(
 			'<div class="trustedlogin-dialog accesskey">
-				  <img src="%1$s" width="400" alt="TrustedLogin">
-				  <form method="GET">
-					  <input type="text" name="ak" id="trustedlogin-access-key" placeholder="%2$s" />
-					  <button type="submit" id="trustedlogin-go" class="button button-large trustedlogin-proceed">%3$s</button>
-					  <input type="hidden" name="action" value="ak-redirect" />
-					  <input type="hidden" name="page" value="%4$s" />
+				  <img src="%s" width="400" alt="TrustedLogin">
+				  <form method="post">
+					  <input name="ak" type="text" id="trustedlogin-access-key" placeholder="%s" />
+					  <button type="submit" id="trustedlogin-go" class="button button-large trustedlogin-proceed">%s</button>
+					  %s
 				  </form>
 				</div>',
-			/* %1$s */ plugins_url( 'assets/trustedlogin-logo.png', TRUSTEDLOGIN_PLUGIN_FILE ),
-			/* %2$s */ esc_html__('Paste key received from customer', 'trustedlogin-vendor'),
-			/* %3$s */ esc_html__('Login to Site', 'trustedlogin-vendor'),
-			/* $4$s */ esc_attr( \sanitize_title( $_GET['page'] ) )
+			esc_url( plugins_url( 'assets/trustedlogin-logo.png', TRUSTEDLOGIN_PLUGIN_FILE ) ),
+			esc_html__('Paste key received from customer', 'trustedlogin-vendor'),
+			esc_html__('Login to Site', 'trustedlogin-vendor'),
+			wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, true, false )
 		);
 
 		echo $output;
 	}
 
+	/**
+	 *
+	 */
 	public function maybe_handle_accesskey() {
 
-		if ( ! isset( $_REQUEST['page'] ) || $_REQUEST['page'] !== 'trustedlogin_accesskey' ){
+		if ( empty( $_REQUEST['ak'] ) ) {
 			return;
 		}
 
-		if ( ! isset( $_REQUEST['ak'] ) ){
+		if ( empty( $_REQUEST[ self::NONCE_NAME ] ) ){
+			return;
+		}
+
+		// Referred from same screen?
+		if( add_query_arg( array() ) !== wp_get_raw_referer() ) {
+			return;
+		}
+
+		// Valid nonce?
+		$valid = wp_verify_nonce( $_REQUEST[ self::NONCE_NAME ], self::NONCE_ACTION );
+
+		if ( ! $valid ) {
 			return;
 		}
 
 		$access_key = sanitize_text_field( $_REQUEST['ak'] );
-
-		if ( empty( $access_key ) ){
-			return;
-		}
 
 		$endpoint = new Endpoint( $this->settings );
 		$endpoint->maybe_redirect_support( $access_key );
