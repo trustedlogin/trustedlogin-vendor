@@ -132,7 +132,7 @@ class Encryption {
 	 *
 	 * @see Encryption::create_keys()
 	 *
-	 * @param stdClass $keys The keys to save.
+	 * @param object $keys The keys to save.
 	 *
 	 * @return true|WP_Error True if keys saved. WP_Error if not.
 	 */
