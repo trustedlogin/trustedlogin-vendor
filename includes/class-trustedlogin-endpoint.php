@@ -327,15 +327,15 @@ class Endpoint {
 			return new WP_Error( 'data-error', __( 'Site ID cannot be empty', 'trustedlogin-vendor' ) );
 		}
 
+		if ( ! is_user_logged_in() ) {
+			return new WP_Error( 'auth-error', __( 'User not logged in.', 'trustedlogin-vendor' ) );
+		}
+
 		// The data array that will be sent to TrustedLogin to request a site's envelope
 		$data = array();
 
 		// Let's grab the user details. Logged in status already confirmed in maybe_redirect_support();
 		$current_user = wp_get_current_user();
-
-		if ( 0 == $current_user->ID ) {
-			return new WP_Error( 'auth-error', __( 'User not logged in.', 'trustedlogin-vendor' ) );
-		}
 
 		$data['user'] = array( 'id' => $current_user->ID, 'name' => $current_user->display_name );
 
