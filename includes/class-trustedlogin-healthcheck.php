@@ -164,7 +164,7 @@ class HealthCheck {
 			$result['label']          = __( 'Minimum versions required were NOT met.', 'trustedlogin-vendor' );
 			$result['description']    = sprintf(
 				'<p>%s</p><p>%s</p>',
-				__( 'Unfortunately the mimumum required versions were not met.' ),
+				__( 'Unfortunately the minimum required versions were not met.' ),
 				$failed_tests
 			);
 			$result['badge']['color'] = 'red';
