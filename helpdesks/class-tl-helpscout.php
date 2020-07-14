@@ -407,7 +407,7 @@ class HelpScout extends HelpDesk {
 
 		$calculated = base64_encode( hash_hmac( 'sha1', $data, $this->secret, true ) );
 
-		return $signature === $calculated;
+		return hash_equals( $signature, $calculated );
 	}
 
 	/**
