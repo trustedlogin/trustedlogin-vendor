@@ -149,6 +149,16 @@ class SiteKey_Login {
 
 		$envelope = $endpoint->api_get_envelope( $access_key );
 
+		// Print error
+		if ( is_wp_error( $envelope ) ) {
+
+			add_action( 'admin_notices', function () use ( $envelope ) {
+				echo '<div class="error"><h3>' . esc_html__( 'Could not log in to site using access key.', 'trustedlogin-vendor' ) . '</h3>' . wpautop( esc_html( $envelope->get_error_message() ) ) . '</div>';
+			} );
+
+			return;
+		}
+
 		$endpoint->maybe_redirect_support( $access_key, $envelope );
 	}
 

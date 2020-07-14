@@ -149,7 +149,6 @@ class API_Handler {
 		$api_response = $this->api_send( $url, $data, $method, $additional_headers );
 
 		return $this->handle_response( $api_response );
-
 	}
 
 	/**
@@ -264,28 +263,45 @@ class API_Handler {
 	 *
 	 * @param array|false|WP_Error $api_response The result from `$this->api_send()`.
 	 *
-	 * @return stdObject|bool  Either `json_decode()` of the result's body, or true if status == 204 or false if empty body or error.
+	 * @return object|true|WP_Error  Either `json_decode()` of the result's body, or true if status === 204 or WP_Error if empty body or error.
 	 */
 	public function handle_response( $api_response ) {
 
 		if ( is_wp_error( $api_response ) ) {
-			return false; // Logging intentionally left out; already logged in api_send()
+			return $api_response; // Logging intentionally left out; already logged in api_send()
 		}
 
 		if ( empty( $api_response ) || ! is_array( $api_response ) ) {
+
 			$this->dlog( 'Malformed api_response received:' . print_r( $api_response, true ), __METHOD__ );
 
-			return false;
+			return new WP_Error( 'malformed_response', __( 'Malformed API response received.', 'trustedlogin-vendor' ) );
 		}
 
 		// first check the HTTP Response code
 		$response_code = wp_remote_retrieve_response_code( $api_response );
 
+		// does not return any body content, so can bounce out successfully here
+		if( 204 === $response_code ) {
+			return true;
+		}
+
+		$body = wp_remote_retrieve_body( $api_response );
+
+		$body = json_decode( $body );
+
+		if ( empty( $body ) || ! is_object( $body ) ) {
+			$this->dlog( 'No body received:' . print_r( $body, true ), __METHOD__ );
+
+			return new WP_Error( 'empty_body', __( 'No body received.', 'trustedlogin-vendor' ) );
+		}
+
+		$body_message = isset( $body->message ) ? $body->message : null;
+
 		switch ( $response_code ) {
-			case 204:
-				// does not return any body content, so can bounce out successfully here
-				return true;
-				break;
+			case 424:
+				$this->dlog( 'Error Getting Signature Key from Vendor: ' . print_r( $api_response, true ), __METHOD__ );
+				return new WP_Error( 'signature_key_error', $body_message );
 			case 403:
 				// Problem with Token
 				// TODO: Handle this
@@ -293,20 +309,12 @@ class API_Handler {
 			default:
 		}
 
-		$body = json_decode( wp_remote_retrieve_body( $api_response ) );
-
-		if ( empty( $body ) || ! is_object( $body ) ) {
-			$this->dlog( 'No body received:' . print_r( $body, true ), __METHOD__ );
-
-			return false;
-		}
-
 		if ( isset( $body->errors ) ) {
-			foreach ( $body->errors as $error ) {
-				$this->dlog( "Error from API: $error", __METHOD__ );
-			}
+			$errors = implode( '', (array) $body->errors );
 
-			return false;
+			$this->dlog( "Error from API: {$errors}", __METHOD__ );
+
+			return new WP_Error( 'api_errors', sprintf( __( 'Errors returned from API: %s', 'trustedlogin-vendor' ), $errors ) );
 		}
 
 		return $body;

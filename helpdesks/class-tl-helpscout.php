@@ -296,24 +296,29 @@ class HelpScout extends HelpDesk {
 			/**
 			 * Expected result
 			 *
-			 * @var $response [
+			 * @var array|\WP_Error $response [
 			 *   "<license_key>" => [ <secrets> ]
 			 * ]
 			 */
 			$response = $saas_api->call( $endpoint, $data, $method );
 
-			$this->dlog( 'Response: ' . print_r( $response, true ), __METHOD__ );
+			if ( is_wp_error( $response ) ) {
+				$item_html = $response->get_error_message();
+			} else {
 
-			if ( ! empty( $response ) ) {
-				foreach ( $response as $key => $secrets ) {
-					foreach ( $secrets as $secret ) {
-						$item_html .= sprintf(
-							$item_template,
-							$this->build_action_url( 'support_redirect', $secret ),
-							__( 'TrustedLogin for ', 'tl-support-side' ),
-							$key,
-							$statuses[ $key ]
-						);
+				$this->dlog( 'Response: ' . print_r( $response, true ), __METHOD__ );
+
+				if ( ! empty( $response ) ) {
+					foreach ( $response as $key => $secrets ) {
+						foreach ( $secrets as $secret ) {
+							$item_html .= sprintf(
+								$item_template,
+								$this->build_action_url( 'support_redirect', $secret ),
+								__( 'TrustedLogin for ', 'tl-support-side' ),
+								$key,
+								$statuses[ $key ]
+							);
+						}
 					}
 				}
 			}

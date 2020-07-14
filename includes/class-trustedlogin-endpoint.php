@@ -259,6 +259,7 @@ class Endpoint {
 	 * @see endpoint_maybe_redirect()
 	 *
 	 * @param string $secret_id collected via endpoint
+	 * @param array|WP_Error Envelope, if already fetched. Optional.
 	 *
 	 * @return null
 	 */
@@ -319,6 +320,7 @@ class Endpoint {
 	 * @return array|false|WP_Error
 	 */
 	public function api_get_envelope( $secret_id ) {
+
 		if ( empty( $secret_id ) ) {
 			$this->dlog( 'Error: secret_id cannot be empty.', __METHOD__ );
 
@@ -394,7 +396,7 @@ class Endpoint {
 		 */
 		$envelope = $saas_api->call( $endpoint, $data, 'POST' );
 
-		$success = ( ! is_wp_error( $envelope ) ) ? __( 'Succcessful', 'trustedlogin-vendor' ) : __( 'Failed', 'trustedlogin-vendor' );
+		$success = ( $envelope && ! is_wp_error( $envelope ) ) ? __( 'Successful', 'trustedlogin-vendor' ) : sprintf( __( 'Failed: %s', 'trustedlogin-vendor' ), $envelope->get_error_message() );
 
 		$this->audit_log->insert( $secret_id, 'received', $success );
 
