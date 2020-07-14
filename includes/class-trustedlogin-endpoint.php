@@ -285,7 +285,7 @@ class Endpoint {
 		if ( is_wp_error( $envelope ) ) {
 			$this->dlog( 'Error: ' . $envelope->get_error_message(), __METHOD__ );
 			$this->audit_log->insert( $secret_id, 'failed', $envelope->get_error_message() );
-			wp_redirect( $redirect_url, self::REDIRECT_ERROR_STATUS );
+			wp_safe_redirect( $redirect_url, self::REDIRECT_ERROR_STATUS, 'TrustedLogin' );
 			exit;
 		}
 
@@ -293,14 +293,14 @@ class Endpoint {
 
 		if ( is_wp_error( $url ) ) {
 			$this->audit_log->insert( $secret_id, 'failed', $url->get_error_message() );
-			wp_redirect( $redirect_url, self::REDIRECT_ERROR_STATUS );
+			wp_safe_redirect( $redirect_url, self::REDIRECT_ERROR_STATUS, 'TrustedLogin' );
 			exit;
 		}
 
 		if ( $url ) {
 			// then redirect
 			$this->audit_log->insert( $secret_id, 'redirected', __( 'Successful', 'trustedlogin-vendor' ) );
-			wp_redirect( $url, self::REDIRECT_SUCCESS_STATUS );
+			wp_safe_redirect( $url, self::REDIRECT_SUCCESS_STATUS, 'TrustedLogin' );
 			exit;
 		}
 
