@@ -262,7 +262,7 @@ class Endpoint {
 	 *
 	 * @return null
 	 */
-	public function maybe_redirect_support( $secret_id ) {
+	public function maybe_redirect_support( $secret_id, $envelope = null ) {
 
 		$this->dlog( "Got here. ID: $secret_id", __METHOD__ );
 
@@ -279,8 +279,10 @@ class Endpoint {
 			return;
 		}
 
-		// then get the envelope
-		$envelope = $this->api_get_envelope( $secret_id );
+		if ( is_null( $envelope ) ) {
+			// Get the envelope
+			$envelope = $this->api_get_envelope( $secret_id );
+		}
 
 		if ( is_wp_error( $envelope ) ) {
 			$this->dlog( 'Error: ' . $envelope->get_error_message(), __METHOD__ );

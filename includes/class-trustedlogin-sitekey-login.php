@@ -146,8 +146,10 @@ class SiteKey_Login {
 		$access_key = sanitize_text_field( $_REQUEST['ak'] );
 
 		$endpoint = new Endpoint( $this->settings );
-		$endpoint->maybe_redirect_support( $access_key );
 
+		$envelope = $endpoint->api_get_envelope( $access_key );
+
+		$endpoint->maybe_redirect_support( $access_key, $envelope );
 	}
 
 }
