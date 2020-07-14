@@ -258,7 +258,6 @@ class Settings {
 
 			/**
 			 * @var string $saas_token Additional SaaS Token for authenticating API queries.
-			 * @see https://github.com/trustedlogin/trustedlogin-ecommerce/blob/master/docs/user-remote-authentication.md
 			 */
 			$saas_token  = hash( 'sha256', $public_key . $saas_auth );
 			$token_added = $saas_api->set_additional_header( 'X-TL-TOKEN', $saas_token );
