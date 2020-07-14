@@ -9,7 +9,6 @@ use \WP_Error;
 /**
  * Class: TrustedLogin API Handler
  *
- * @package tl-support-side
  * @version 0.1.0
  */
 class Endpoint {

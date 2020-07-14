@@ -10,9 +10,8 @@ namespace TrustedLogin\Vendor;
 /**
  * Class: TrustedLogin - Intercom Integration
  *
- * @package tl-support-side
  * @version 0.0
- **/
+ */
 class Intercom extends HelpDesk {
 
 	const NAME = 'Intercom';

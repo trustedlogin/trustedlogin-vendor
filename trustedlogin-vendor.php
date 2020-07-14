@@ -7,7 +7,7 @@
  * Requires PHP: 5.4
  * Author: Katz Web Services, Inc.
  * Author URI: https://www.trustedlogin.com
- * Text Domain: tl-support-side
+ * Text Domain: trustedlogin-vendor
  * License: GPL v2
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Copyright: © 2020 Katz Web Services, Inc.

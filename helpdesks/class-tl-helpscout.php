@@ -10,7 +10,6 @@ namespace TrustedLogin\Vendor;
 /**
  * Class: TrustedLogin - HelpScout Integration
  *
- * @package tl-support-side
  * @version 0.1.0
  */
 class HelpScout extends HelpDesk {
@@ -30,7 +29,7 @@ class HelpScout extends HelpDesk {
 	 *
 	 * @var string
 	 * @since 0.1.0
-	 **/
+	 */
 	protected $secret;
 
 	/**
@@ -38,7 +37,7 @@ class HelpScout extends HelpDesk {
 	 *
 	 * @var boolean
 	 * @since 0.1.0
-	 **/
+	 */
 	protected $debug_mode;
 
 	/**
@@ -46,7 +45,7 @@ class HelpScout extends HelpDesk {
 	 *
 	 * @var array
 	 * @since 0.1.0
-	 **/
+	 */
 	protected $options;
 
 	/**
@@ -54,7 +53,7 @@ class HelpScout extends HelpDesk {
 	 *
 	 * @var array
 	 * @since 0.1.0
-	 **/
+	 */
 	protected $default_options;
 
 	/**
@@ -62,7 +61,7 @@ class HelpScout extends HelpDesk {
 	 *
 	 * @var Settings
 	 * @since 0.1.0
-	 **/
+	 */
 	protected $settings;
 
 	/**
@@ -105,7 +104,7 @@ class HelpScout extends HelpDesk {
 
 		add_settings_field(
 			'trustedlogin_vendor_' . self::SLUG . '_secret',
-			self::NAME . ' ' . __( 'Secret Key', 'tl-support-side' ),
+			self::NAME . ' ' . __( 'Secret Key', 'trustedlogin-vendor' ),
 			array( $this, 'secret_field_render' ),
 			'trustedlogin_vendor_options',
 			'trustedlogin_vendor_options_section'
@@ -114,7 +113,7 @@ class HelpScout extends HelpDesk {
 		add_settings_field(
 			'trustedlogin_vendor_' . self::SLUG . '_url',
 			// translators: %s is replaced with the name of the help desk.
-			sprintf( __( '%s Callback URL', 'tl-support-side' ), self::NAME ),
+			sprintf( __( '%s Callback URL', 'trustedlogin-vendor' ), self::NAME ),
 			array( $this, 'url_field_render' ),
 			'trustedlogin_vendor_options',
 			'trustedlogin_vendor_options_section'
@@ -314,7 +313,7 @@ class HelpScout extends HelpDesk {
 							$item_html .= sprintf(
 								$item_template,
 								$this->build_action_url( 'support_redirect', $secret ),
-								__( 'TrustedLogin for ', 'tl-support-side' ),
+								__( 'TrustedLogin for ', 'trustedlogin-vendor' ),
 								$key,
 								$statuses[ $key ]
 							);
@@ -334,7 +333,7 @@ class HelpScout extends HelpDesk {
 		if ( empty( $item_html ) ) {
 			$item_html = sprintf(
 				$no_items_template,
-				__( 'No TrustedLogin sessions authorized for this user.', 'tl-support-side' )
+				__( 'No TrustedLogin sessions authorized for this user.', 'trustedlogin-vendor' )
 			);
 		}
 
@@ -360,7 +359,7 @@ class HelpScout extends HelpDesk {
 	 * @param string $email The email to check for EDD licenses.
 	 *
 	 * @return \EDD_SL_License[]|false  Array of licenses or false if none are found.
-	 **/
+	 */
 	public function edd_get_licenses( $email ) {
 
 		$licenses = array();
@@ -420,7 +419,7 @@ class HelpScout extends HelpDesk {
 	 *
 	 * @since 0.2.0
 	 * @return Boolean
-	 **/
+	 */
 	public function is_edd_store() {
 		return function_exists( 'edd' );
 	}

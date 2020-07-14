@@ -4,7 +4,7 @@
  *
  * @package trustedlogin-vendor
  * @version 0.2.0
- **/
+ */
 
 namespace TrustedLogin\Vendor;
 

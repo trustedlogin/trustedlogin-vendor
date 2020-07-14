@@ -4,7 +4,7 @@
  *
  * @package trustedlogin-vendor
  * @version 0.2.0
- **/
+ */
 
 namespace TrustedLogin\Vendor;
 
@@ -46,7 +46,7 @@ class Settings {
 	/**
 	 * @var array Current site's TrustedLogin settings
 	 * @since 0.1.0
-	 **/
+	 */
 	private $options;
 
 	/**
@@ -94,7 +94,7 @@ class Settings {
 		 * @see   `default_options` private variable.
 		 *
 		 * @param array
-		 **/
+		 */
 		$this->default_options = apply_filters( 'trustedlogin/vendor/settings/default', $this->default_options );
 
 		$this->options = get_option( 'trustedlogin_vendor', $this->default_options );
@@ -108,7 +108,7 @@ class Settings {
 		 * @since 1.0.0
 		 *
 		 * @param String either 'main' or 'submenu'
-		 **/
+		 */
 		$this->menu_location = apply_filters( 'trustedlogin/vendor/settings/menu-location', 'main' );
 	}
 
@@ -259,12 +259,12 @@ class Settings {
 			/**
 			 * @var string $saas_token Additional SaaS Token for authenticating API queries.
 			 * @see https://github.com/trustedlogin/trustedlogin-ecommerce/blob/master/docs/user-remote-authentication.md
-			 **/
+			 */
 			$saas_token  = hash( 'sha256', $public_key . $saas_auth );
 			$token_added = $saas_api->set_additional_header( 'X-TL-TOKEN', $saas_token );
 
 			if ( ! $token_added ) {
-				$error = __( 'Error setting X-TL-TOKEN header', 'tl-support-side' );
+				$error = __( 'Error setting X-TL-TOKEN header', 'trustedlogin-vendor' );
 				$this->dlog( $error, __METHOD__ );
 				throw new Exception( $error );
 			}
@@ -370,7 +370,7 @@ class Settings {
 		 *			@var bool   $active,	If false, the Helpdesks Solution is not shown in the dropdown options for selection.
 		 * 		],
 		 * ]
-		 **/
+		 */
 		$helpdesks = apply_filters( 'trustedlogin/vendor/settings/helpdesks', array(
 			''          => array(
 				'title'  => __( 'Select Your Helpdesk Software', 'trustedlogin-vendor' ),
@@ -503,7 +503,7 @@ class Settings {
 	 * @param String $setting_name The name of the setting to get the value for
 	 *
 	 * @return mixed     The value of the setting, or false if it's not found.
-	 **/
+	 */
 	public function get_setting( $setting_name ) {
 
 		if ( empty( $setting_name ) ) {

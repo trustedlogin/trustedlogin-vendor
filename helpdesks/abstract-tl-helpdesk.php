@@ -21,7 +21,7 @@ abstract class HelpDesk {
 	 *
 	 * @var string
 	 * @since 0.1.0
-	 **/
+	 */
 	protected $secret;
 
 	/**
@@ -29,7 +29,7 @@ abstract class HelpDesk {
 	 *
 	 * @var bool
 	 * @since 0.1.0
-	 **/
+	 */
 	protected $debug_mode;
 
 	/**
@@ -37,7 +37,7 @@ abstract class HelpDesk {
 	 *
 	 * @var array
 	 * @since 0.1.0
-	 **/
+	 */
 	protected $options;
 
 	protected $settings;
@@ -47,7 +47,7 @@ abstract class HelpDesk {
 	 *
 	 * @var array
 	 * @since 0.1.0
-	 **/
+	 */
 	private $default_options;
 
 	/**

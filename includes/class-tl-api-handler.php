@@ -7,7 +7,6 @@ use \Exception;
 /**
  * Class: TrustedLogin API Handler
  *
- * @package tl-support-side
  * @version 0.1.0
  */
 class API_Handler {
@@ -44,7 +43,7 @@ class API_Handler {
 
     /**
      * @var bool Whether or not debug logging is enabled
-     **/
+     */
     private $debug_mode = false;
 
     use Debug_Logging;

@@ -4,9 +4,8 @@ namespace TrustedLogin;
 /**
  * Class: TrustedLogin - HelpScout Integration
  *
- * @package tl-support-side
  * @version 0.1.0
- **/
+ */
 class License_Generators {
 
 	/**
@@ -32,7 +31,7 @@ class License_Generators {
 
 		return new $class_name;
 	}
-	
+
 	static public function get_all() {
 
 		$license_generators = apply_filters( 'trustedlogin/vendor/license/generators', array() );

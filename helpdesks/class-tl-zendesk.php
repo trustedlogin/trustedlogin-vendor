@@ -10,9 +10,8 @@ namespace TrustedLogin\Vendor;
 /**
  * Class: TrustedLogin - ZenDesk Integration
  *
- * @package tl-support-side
  * @version 0.0
- **/
+ */
 class ZenDesk extends HelpDesk {
 
 	const NAME = 'ZenDesk';
