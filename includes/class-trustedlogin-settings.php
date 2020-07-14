@@ -244,6 +244,11 @@ class Settings {
 		}
 
 		try {
+
+			if ( ! is_numeric( $input['account_id'] ) ) {
+				throw new Exception( __( 'Account ID must be numeric', 'trustedlogin-vendor' ) );
+			}
+
 			$account_id = intval( $input['account_id'] );
 			$saas_auth  = sanitize_text_field( $input['private_key'] );
 			$public_key = sanitize_text_field( $input['public_key'] );
@@ -263,9 +268,7 @@ class Settings {
 			$token_added = $saas_api->set_additional_header( 'X-TL-TOKEN', $saas_token );
 
 			if ( ! $token_added ) {
-				$error = __( 'Error setting X-TL-TOKEN header', 'trustedlogin-vendor' );
-				$this->dlog( $error, __METHOD__ );
-				throw new Exception( $error );
+				throw new Exception( __( 'Error setting X-TL-TOKEN header', 'trustedlogin-vendor' ) );
 			}
 
 			$verified = $saas_api->verify( $account_id );
@@ -304,23 +307,20 @@ class Settings {
 	}
 
 	public function private_key_field_render() {
-
 		$this->render_input_field( 'private_key', 'password', true );
-
 	}
 
 	public function public_key_field_render() {
-
 		$this->render_input_field( 'public_key', 'text', true );
-
 	}
 
 	public function account_id_field_render() {
-		$this->render_input_field( 'account_id', 'text', true );
+		$this->render_input_field( 'account_id', 'number', true );
 	}
 
 	public function render_input_field( $setting, $type = 'text', $required = false ) {
-		if ( ! in_array( $type, array( 'password', 'text' ) ) ) {
+
+		if ( ! in_array( $type, array( 'password', 'text', 'number' ) ) ) {
 			$type = 'text';
 		}
 
