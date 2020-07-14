@@ -558,7 +558,7 @@ class HealthCheck {
 	 * @since 1.0.0
 	 * @return string
 	 */
-	static function get_wp_version() {
+	static public function get_wp_version() {
 		global $wp_version;
 
 		return $wp_version;
