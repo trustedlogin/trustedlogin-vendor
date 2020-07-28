@@ -219,6 +219,15 @@ class Settings {
 	}
 
 	/**
+	 * Returns whether required settings are set yet. Does not check whether they are valid.
+	 *
+	 * @return bool
+	 */
+	public function exists() {
+		return $this->settings_get_value( 'account_id' ) && $this->settings_get_value( 'private_key' ) && $this->settings_get_value( 'public_key' );
+	}
+
+	/**
 	 * Hooks into settings sanitization to verify API details
 	 *
 	 * Note: Although hooked up to `sanitize_callback`, this function does NOT sanitize data provided.
@@ -229,7 +238,10 @@ class Settings {
 	 *
 	 * @param array $input Data saved on Settings page.
 	 *
+	 *
 	 * @return array Output of sanitized data.
+	 *
+	 * @throws Exception When account ID isn't numeric or error setting X-TL-TOKEN header
 	 */
 	public function verify_api_details( $input ) {
 

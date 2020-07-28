@@ -62,6 +62,10 @@ class TrustedLogin_Audit_Log {
 	 */
 	public function add_admin_menu() {
 
+		if( ! $this->settings->exists() ) {
+			return;
+		}
+
 		$audit_log_enabled = $this->settings->setting_is_toggled( 'enable_audit_log' );
 
 		if ( ! $audit_log_enabled ) {

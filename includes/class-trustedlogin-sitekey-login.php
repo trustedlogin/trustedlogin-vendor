@@ -69,6 +69,10 @@ class SiteKey_Login {
 	 */
 	public function add_admin_menu() {
 
+		if( ! $this->settings->exists() ) {
+			return;
+		}
+
 		$endpoint = new Endpoint( $this->settings );
 
 		if( ! $endpoint->auth_verify_user() ) {
