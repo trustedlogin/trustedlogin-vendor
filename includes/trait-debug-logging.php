@@ -39,7 +39,7 @@ trait Debug_Logging {
 		}
 		// open log file
 		try {
-			$filename = "tl-debug-log.txt";
+			$filename = "tl-debug-log.log";
 			$fh       = fopen( plugin_dir_path( dirname( __FILE__ ) ) . $filename, "a" );
 
 			if ( false == $fh ) {
