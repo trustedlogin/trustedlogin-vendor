@@ -305,6 +305,7 @@ class API_Handler {
 				// Problem with Token
 				// TODO: Handle this
 			case 404:
+				return new WP_Error( 'not_found', __( 'Not found.', 'trustedlogin-vendor' ) );
 			default:
 		}
 

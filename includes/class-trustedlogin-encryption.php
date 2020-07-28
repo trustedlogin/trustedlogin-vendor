@@ -77,7 +77,7 @@ class Encryption {
 	 *
 	 * @param bool $update Whether to update the database with the new keys. Default: true
 	 *
-	 * @return  stdClass|WP_Error  $keys or WP_Error if any issues
+	 * @return  \stdClass|WP_Error  $keys or WP_Error if any issues
 	 *    $keys = [
 	 *        'private_key'     => (string)  The private key used for encrypt/decrypt.
 	 *        'public_key'         => (string)  The public key used for encrypt/decrypt.
