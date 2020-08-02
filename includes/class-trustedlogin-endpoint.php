@@ -412,7 +412,7 @@ class Endpoint {
 	 *   @type string $siteUrl Encrypted site URL
 	 *   @type string $identifier Encrypted site identifier, used to generate endpoint
 	 *   @type string $publicKey @TODO
-	 *   @type string $nonce @TODO
+	 *   @type string $nonce Nonce from Client {@see \TrustedLogin\Envelope::generate_nonce()} converted to string using \sodium_bin2hex().
 	 * }
 	 *
 	 * @return string|false
@@ -442,9 +442,12 @@ class Endpoint {
 		$trustedlogin_encryption = new Encryption();
 
 		try {
+
+			$nonce = \sodium_hex2bin( $envelope['nonce'] );
+
 			$parts = array(
-				'siteurl'    => $trustedlogin_encryption->decrypt( $envelope['siteUrl'], $envelope['nonce'], $envelope['publicKey'] ),
-				'identifier' => $trustedlogin_encryption->decrypt( $envelope['identifier'], $envelope['nonce'], $envelope['publicKey'] ),
+				'siteurl'    => $trustedlogin_encryption->decrypt( $envelope['siteUrl'], $nonce, $envelope['publicKey'] ),
+				'identifier' => $trustedlogin_encryption->decrypt( $envelope['identifier'], $nonce, $envelope['publicKey'] ),
 			);
 
 		} catch ( \Exception $e ) {
