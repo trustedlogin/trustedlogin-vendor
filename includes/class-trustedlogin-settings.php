@@ -593,4 +593,73 @@ class Settings {
 		return $value = ( array_key_exists( $setting, $this->options ) ) ? $this->options[ $setting ] : false;
 	}
 
+	/**
+	 * Respond to actions piped through the URL to our settings page.
+	 * 
+	 * @return void
+	 */
+	public function handle_admin_actions(){
+
+		if ( ! isset( $_REQUEST['action'] ) || ! isset( $_REQUEST['page'] ) ){
+			return;
+		}
+
+		if ( 'trustedlogin_vendor' !== sanitize_text_field( $_REQUEST['page'] ) ){
+			return;
+		}
+
+		$action = sanitize_text_field( $_REQUEST['action'] );
+
+		if ( 'reset_complete' == $action ){
+			add_action( 'admin_notices', function () {
+				echo '<div class="notice notice-warning"><h3>' . esc_html__( 'Encryption keys reset.', 'trustedlogin-vendor' ) . '</h3>' . esc_html__( 'All previous authorizations are now inaccessible via TrustedLogin', 'trustedlogin-vendor' ) . '</div>';
+			} );
+			return;
+		}
+
+
+		if ( 'reset_keys' !== $action ){
+			return;
+		}
+
+		check_admin_referer( 'reset-keys');
+
+		if ( ! current_user_can( 'administrator' ) ){
+			return;
+		}
+
+		$reset = $this->reset_encryption_keys();
+
+		if ( is_wp_error( $reset ) ){
+			add_action( 'admin_notices', function () use ( $reset ) {
+				echo '<div class="notice notice-error error"><h3>' . esc_html__( 'Encryption keys reset.', 'trustedlogin-vendor' ) . '</h3>' . wpautop( esc_html( $reset->get_error_message() ) ) . '</div>';
+			} );
+
+			return;
+		}
+
+		/**
+		 * Redirect to avoid resetting keys on subsequent saves.
+		 */
+		
+		$redirect_url = add_query_arg( 
+			array( 
+				'page' => sanitize_text_field( $_GET['page'] ), 
+				'action' => 'reset_complete' 
+			),
+			admin_url( 'admin.php' )
+		);
+		wp_safe_redirect( $redirect_url );
+
+	}
+
+	private function reset_encryption_keys(){
+
+		$trustedlogin_encryption = new Encryption();
+		$reset = $trustedlogin_encryption->reset_keys();
+
+		return $reset;
+
+	}
+
 }

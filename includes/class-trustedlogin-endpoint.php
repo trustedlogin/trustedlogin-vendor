@@ -603,29 +603,4 @@ class Endpoint {
 		return false;
 	}
 
-	public function maybe_reset_keys(){
-
-		if ( ! current_user_can( 'administrator' ) ){
-			$this->dlog( 'User does not have permissions to reset keys.', __METHOD__ );
-			return;
-		}
-
-		$trustedlogin_encryption = new Encryption();
-
-		$reset = $trustedlogin_encryption->reset_keys();
-
-		if ( is_wp_error( $reset ) ){
-			$this->dlog( 'Could not reset keys. ' . $reset->get_error_message() , __METHOD__ );
-			return;
-		}
-
-		add_action( 'admin_notices', function () {
-				echo '<div class="notice notice-warning"><h3>' . esc_html__( 'Encryption keys reset.', 'trustedlogin-vendor' ) . '</h3>' . esc_html__( 'All previous authorizations are now inaccessible via TrustedLogin', 'trustedlogin-vendor' ) . '</div>';
-			} );
-
-
-
-
-	}
-
 }
