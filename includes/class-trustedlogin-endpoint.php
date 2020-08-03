@@ -341,6 +341,70 @@ class Endpoint {
 	}
 
 	/**
+	 * Gets the secretId's associated with an access or license key.
+	 *
+	 * @since  1.0.0
+	 * 
+	 * @param  string $access_key The key we're checking for connected sites
+	 * 
+	 * @return array|WP_Error Array of siteIds or WP_Error on issue.
+	 */
+	public function api_get_secret_ids( $access_key ){
+
+		if ( empty( $access_key ) ) {
+			$this->dlog( 'Error: access_key cannot be empty.', __METHOD__ );
+
+			return new WP_Error( 'data-error', __( 'Access Key cannot be empty', 'trustedlogin-vendor' ) );
+		}
+
+		if ( ! is_user_logged_in() ) {
+			return new WP_Error( 'auth-error', __( 'User not logged in.', 'trustedlogin-vendor' ) );
+		}
+
+		$saas_auth  = $this->settings->get_setting( 'private_key' );
+		$account_id = $this->settings->get_setting( 'account_id' );
+		$public_key = $this->settings->get_setting( 'public_key' );
+
+		if ( empty( $saas_auth ) || empty( $account_id ) || empty( $public_key ) ) {
+			$this->dlog( "no api_key, public_key or account_id provided", __METHOD__ );
+
+			return new WP_Error( 'setup-error', __( 'No auth, public key or account_id data found', 'trustedlogin-vendor' ) );
+		}
+
+		$saas_attr = array(
+			'type'       => 'saas',
+			'auth'       => $saas_auth,
+			'debug_mode' => $this->settings->debug_mode_enabled(),
+		);
+
+		$saas_api = new API_Handler( $saas_attr );
+		$endpoint = 'accounts/' . $account_id . '/sites/';
+		$method   = 'POST';
+		$data     = array( 'accessKeys' => array( $access_key ) );
+
+		$response = $saas_api->call( $endpoint, $data, $method );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		} 
+
+		$access_keys = array();
+
+		$this->dlog( 'Response: ' . print_r( $response, true ), __METHOD__ );
+
+		if ( ! empty( $response ) ) {
+			foreach ( $response as $key => $secrets ) {
+				foreach ( $secrets as $secret ) {
+					$access_keys[] = $secret;
+				}
+			}
+		}
+
+		return $access_keys;
+
+	}
+
+	/**
 	 * API Wrapper: Get the envelope for a specified site ID
 	 *
 	 * @since 0.2.0
