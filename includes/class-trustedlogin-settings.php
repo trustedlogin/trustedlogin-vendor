@@ -216,6 +216,21 @@ class Settings {
 			'trustedlogin_vendor_options_section'
 		);
 
+		add_settings_section(
+			'trustedlogin_vendor_danger_zone',
+			__( 'Danger Zone', 'trustedlogin-vendor' ),
+			array( $this, 'section_callback' ),
+			'trustedlogin_vendor_danger'
+		);
+
+		add_settings_field(
+			'trustedlogin_vendor_enable_audit_log',
+			__( 'Reset encryption keys?', 'trustedlogin-vendor' ),
+			array( $this, 'reset_encryption_field_render' ),
+			'trustedlogin_vendor_danger',
+			'trustedlogin_vendor_danger_zone'
+		);
+
 	}
 
 	/**
@@ -433,6 +448,13 @@ class Settings {
 
 	}
 
+	public function reset_encryption_field_render() {
+
+		$other_attributes = array( 'id' => 'trustedlogin-reset-button' );
+		submit_button( __( 'Reset Keys', 'trustedlogin-vendor' ), 'secondary', 'trustedlogin-reset-button', false, $other_attributes );;
+
+	}
+
 	public function settings_output_toggle( $setting ) {
 
 		$value = ( array_key_exists( $setting, $this->options ) ) ? $this->options[ $setting ] : 'off';
@@ -474,6 +496,12 @@ class Settings {
 
 		echo '</form>';
 
+		echo '<div id="trustedlogin-danger-zone">';
+
+		do_settings_sections( 'trustedlogin_vendor_danger' );
+
+		echo '</div>';
+
 		do_action( 'trustedlogin/vendor/settings/form/after' );
 
 	}
@@ -504,6 +532,15 @@ class Settings {
 			$this->plugin_version,
 			true
 		);
+
+		// Localize the script with new data
+		$translation_array = array(
+		    'confirm_reset' => __( 'Are you sure? Resetting encryption keys will irrevokably disable ALL existing TrustedLogin authentications.', 'trustedlogin-vendor' ),
+		);
+
+		wp_localize_script( 'trustedlogin-settings', 'tl_obj', $translation_array );
+
+
 	}
 
 	/**
