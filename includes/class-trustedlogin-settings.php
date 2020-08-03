@@ -535,12 +535,22 @@ class Settings {
 			true
 		);
 
-		// Localize the script with new data
-		$translation_array = array(
-		    'confirm_reset' => __( 'Are you sure? Resetting encryption keys will irrevokably disable ALL existing TrustedLogin authentications.', 'trustedlogin-vendor' ),
+		
+		$redirect_url = add_query_arg( 
+			array( 
+				'page' => sanitize_text_field( $_GET['page'] ), 
+				'action' => 'reset_keys' 
+			),
+			admin_url( 'admin.php' )
+		);
+		$settings_args = array(
+			'reset_keys_url'=> wp_nonce_url( $redirect_url, 'reset-keys' ),
+			'lang' => array(
+		    	'confirm_reset' => __( 'Are you sure? Resetting encryption keys will irrevokably disable ALL existing TrustedLogin authentications.', 'trustedlogin-vendor' ),
+		    ),
 		);
 
-		wp_localize_script( 'trustedlogin-settings', 'tl_obj', $translation_array );
+		wp_localize_script( 'trustedlogin-settings', 'tl_obj', $settings_args );
 
 
 	}
