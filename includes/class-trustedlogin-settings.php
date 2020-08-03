@@ -74,6 +74,8 @@ class Settings {
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts' ) );
 
+		add_action( 'admin_init', array( $this, 'handle_admin_actions' ) );
+
 		do_action( 'trustedlogin/vendor/add_hooks/after' );
 	}
 
