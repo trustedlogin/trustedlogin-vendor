@@ -606,7 +606,7 @@ class Settings {
 	}
 
 	/**
-	 * Respond to actions piped through the URL to our settings page.
+	 * Responds to actions piped through the URL to our settings page.
 	 * 
 	 * @return void
 	 */
@@ -665,6 +665,11 @@ class Settings {
 
 	}
 
+	/**
+	 * Resets the encryption key via admin action.
+	 * 
+	 * @return true|WP_Error If successfully returns true, otherwise WP_Error.
+	 */
 	private function reset_encryption_keys(){
 
 		$trustedlogin_encryption = new Encryption();
