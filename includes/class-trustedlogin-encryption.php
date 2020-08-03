@@ -420,4 +420,21 @@ class Encryption {
 			return new WP_Error( 'sodium-error', $e->getMessage() );
 		}
 	}
+
+	/**
+	 * Resets the encryption keys. 
+	 * 
+	 * @return true|WP_Error
+	 */
+	public function reset_keys(){
+
+		$reset = $this->generate_keys( true );
+
+		if ( is_wp_error( $reset ) ){
+			return $reset;
+		}
+
+		return true; 
+
+	}
 }
