@@ -61,7 +61,7 @@ class Endpoint {
 
 		$this->audit_log = new TrustedLogin_Audit_Log( $this->settings );
 
-		add_action( 'template_redirect', array( $this, 'handle_admin_actions' ), 99 );
+		add_action( 'template_redirect', array( $this, 'maybe_handle_redirect' ), 99 );
 		add_action( 'rest_api_init', array( $this, 'register_endpoints' ) );
 	}
 
