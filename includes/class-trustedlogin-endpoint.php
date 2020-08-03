@@ -198,7 +198,7 @@ class Endpoint {
 	 *
 	 * @since 1.0.0
 	 */
-	public function handle_admin_actions() {
+	public function maybe_handle_redirect() {
 
 		if ( ! isset( $_REQUEST[ self::REDIRECT_ENDPOINT ] ) ) {
 			return;
@@ -214,6 +214,8 @@ class Endpoint {
 
 		$required_args = array(
 			'action',
+			'provider',
+			'ak'
 		);
 
 		foreach ( $required_args as $required_arg ) {
@@ -284,13 +286,6 @@ class Endpoint {
 				$this->maybe_redirect_support( $secret_id );
 
 				break;
-
-			case 'reset_keys':
-
-				$this->maybe_reset_keys();
-
-				break;
-
 			default:
 
 		}
