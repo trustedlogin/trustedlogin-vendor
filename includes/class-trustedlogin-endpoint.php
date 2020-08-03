@@ -235,9 +235,40 @@ class Endpoint {
 
 
 		switch ( $_REQUEST['action'] ) {
-			case 'support_redirect':
+			case 'accesskey_login':
 
 				$access_key = sanitize_text_field( $_REQUEST['ak'] );
+				$secret_ids = $this->api_get_secret_ids( $access_key );
+
+				if ( is_wp_error( $secret_ids ) ){
+					$this->dlog( 
+						'Could not get secret ids. ' .$secret_ids->get_error_message(),
+						__METHOD__ 
+					);
+					return;
+				}
+
+				if ( empty( $secret_ids ) ){
+					$this->dlog( 
+						sprintf( 'No secret ids returned for access_key (%s).', $access_key ),
+						__METHOD__ 
+						);
+					return;
+				}
+
+				if ( is_array( $secret_ids ) ){
+					/**
+					 * TODO: Handle multiple secret_ids.
+					 * @see  https://github.com/trustedlogin/trustedlogin-vendor/issues/47
+					 */
+				}
+
+				$this->maybe_redirect_support( $secret_ids[0] );
+				break;
+
+			case 'support_redirect':
+
+				
 				$this->maybe_redirect_support( $access_key );
 
 				break;
