@@ -61,7 +61,7 @@ class Endpoint {
 
 		$this->audit_log = new TrustedLogin_Audit_Log( $this->settings );
 
-		add_action( 'template_redirect', array( $this, 'maybe_action_redirect' ), 99 );
+		add_action( 'template_redirect', array( $this, 'handle_admin_actions' ), 99 );
 		add_action( 'rest_api_init', array( $this, 'register_endpoints' ) );
 	}
 
@@ -198,7 +198,7 @@ class Endpoint {
 	 *
 	 * @since 1.0.0
 	 */
-	public function maybe_action_redirect() {
+	public function handle_admin_actions() {
 
 		if ( ! isset( $_REQUEST[ self::REDIRECT_ENDPOINT ] ) ) {
 			return;
@@ -214,8 +214,6 @@ class Endpoint {
 
 		$required_args = array(
 			'action',
-			'provider',
-			'ak', // Access key
 		);
 
 		foreach ( $required_args as $required_arg ) {
@@ -225,17 +223,25 @@ class Endpoint {
 			}
 		}
 
-		$active_helpdesk = $this->settings->get_setting( 'helpdesk' );
 
-		if( $active_helpdesk !== $_REQUEST['provider'] ) {
-			$this->dlog( 'Active helpdesk doesn\'t match passed provider. Helpdesk: ' . esc_attr( $active_helpdesk ) . ', Provider: ' . esc_attr( $_REQUEST['provider'] ), __METHOD__ );
+		if ( isset( $_REQUEST[ 'provider' ] ) ) {
+			$active_helpdesk = $this->settings->get_setting( 'helpdesk' );
 
-			return;
+			if( $active_helpdesk !== $_REQUEST['provider'] ) {
+				$this->dlog( 'Active helpdesk doesn\'t match passed provider. Helpdesk: ' . esc_attr( $active_helpdesk ) . ', Provider: ' . esc_attr( $_REQUEST['provider'] ), __METHOD__ );
+
+				return;
+			}
 		}
 
 
 		switch ( $_REQUEST['action'] ) {
 			case 'accesskey_login':
+
+				if ( ! isset( $_REQUEST['ak'] ) ){
+					$this->dlog( 'Required arg ak missing.', __METHOD__ );
+					return;
+				}
 
 				$access_key = sanitize_text_field( $_REQUEST['ak'] );
 				$secret_ids = $this->api_get_secret_ids( $access_key );
@@ -268,10 +274,23 @@ class Endpoint {
 
 			case 'support_redirect':
 
+				if ( ! isset( $_REQUEST['ak'] ) ){
+					$this->dlog( 'Required arg ak missing.', __METHOD__ );
+					return;
+				}
+
+				$secret_id = sanitize_text_field( $_REQUEST['ak'] );
 				
-				$this->maybe_redirect_support( $access_key );
+				$this->maybe_redirect_support( $secret_id );
 
 				break;
+
+			case 'reset_keys':
+
+				$this->maybe_reset_keys();
+
+				break;
+
 			default:
 
 		}
@@ -587,6 +606,31 @@ class Endpoint {
 		}
 
 		return false;
+	}
+
+	public function maybe_reset_keys(){
+
+		if ( ! current_user_can( 'administrator' ) ){
+			$this->dlog( 'User does not have permissions to reset keys.', __METHOD__ );
+			return;
+		}
+
+		$trustedlogin_encryption = new Encryption();
+
+		$reset = $trustedlogin_encryption->reset_keys();
+
+		if ( is_wp_error( $reset ) ){
+			$this->dlog( 'Could not reset keys. ' . $reset->get_error_message() , __METHOD__ );
+			return;
+		}
+
+		add_action( 'admin_notices', function () {
+				echo '<div class="notice notice-warning"><h3>' . esc_html__( 'Encryption keys reset.', 'trustedlogin-vendor' ) . '</h3>' . esc_html__( 'All previous authorizations are now inaccessible via TrustedLogin', 'trustedlogin-vendor' ) . '</div>';
+			} );
+
+
+
+
 	}
 
 }
