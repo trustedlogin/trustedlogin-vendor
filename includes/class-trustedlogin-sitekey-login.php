@@ -151,7 +151,30 @@ class SiteKey_Login {
 
 		$endpoint = new Endpoint( $this->settings );
 
-		$envelope = $endpoint->api_get_envelope( $access_key );
+		$site_ids = $endpoint->api_get_secret_ids( $access_key );
+
+		if ( is_wp_error( $endpoint ) ){
+			add_action( 'admin_notices', function () use ( $site_ids ) {
+				echo '<div class="error"><h3>' . esc_html__( 'Could not log in to site using access key.', 'trustedlogin-vendor' ) . '</h3>' . wpautop( esc_html( $site_ids->get_error_message() ) ) . '</div>';
+			} );
+
+			return;
+		}
+
+		if ( empty( $site_ids ) ){
+			add_action( 'admin_notices', function () {
+				echo '<div class="error"><h3>' . esc_html__( 'Could not log in to site using access key.', 'trustedlogin-vendor' ) . '</h3>' . __( 'No sites found.', 'trustedlogin-vendor' ) . '</div>';
+			} );
+
+			return;
+		}
+
+		/**
+		 * TODO: Add handling for multiple siteIds
+		 * @see  https://github.com/trustedlogin/trustedlogin-vendor/issues/47
+		 */
+
+		$envelope = $endpoint->api_get_envelope( $site_ids[0] );
 
 		// Print error
 		if ( is_wp_error( $envelope ) ) {
