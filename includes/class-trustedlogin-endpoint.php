@@ -347,7 +347,7 @@ class Endpoint {
 		if ( $url ) {
 			// then redirect
 			$this->audit_log->insert( $secret_id, 'redirected', __( 'Successful', 'trustedlogin-vendor' ) );
-			wp_safe_redirect( $url, self::REDIRECT_SUCCESS_STATUS, 'TrustedLogin' );
+			wp_redirect( $url, self::REDIRECT_SUCCESS_STATUS, 'TrustedLogin' );
 			exit;
 		}
 
