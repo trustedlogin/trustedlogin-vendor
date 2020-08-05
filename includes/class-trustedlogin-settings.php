@@ -66,7 +66,7 @@ class Settings {
 
 	public function add_hooks() {
 
-		if( did_action( 'trustedlogin/vendor/add_hooks/after' ) ) {
+		if ( did_action( 'trustedlogin/vendor/add_hooks/after' ) ) {
 			return;
 		}
 
@@ -130,22 +130,22 @@ class Settings {
 			add_submenu_page( $args['submenu_page'], $args['menu_title'], $args['page_title'], $args['capabilities'], $args['slug'], $args['callback'] );
 		} else {
 			add_menu_page(
-                $args['menu_title'],
-                $args['page_title'],
-                $args['capabilities'],
-                $args['slug'],
-                $args['callback'],
-                $args['icon']
-            );
+				$args['menu_title'],
+				$args['page_title'],
+				$args['capabilities'],
+				$args['slug'],
+				$args['callback'],
+				$args['icon']
+			);
 
-             add_submenu_page(
-                $args['slug'],
-                $args['page_title'],
-                $args['menu_title'],
-                $args['capabilities'],
-                $args['slug'],
-                $args['callback']
-            );
+			add_submenu_page(
+				$args['slug'],
+				$args['page_title'],
+				$args['menu_title'],
+				$args['capabilities'],
+				$args['slug'],
+				$args['callback']
+			);
 
 		}
 
@@ -153,7 +153,12 @@ class Settings {
 
 	public function admin_init() {
 
-		register_setting( 'trustedlogin_vendor_options', 'trustedlogin_vendor', array( 'sanitize_callback' => array( $this, 'verify_api_details' ) ) );
+		register_setting( 'trustedlogin_vendor_options', 'trustedlogin_vendor', array(
+			'sanitize_callback' => array(
+				$this,
+				'verify_api_details'
+			)
+		) );
 
 		add_settings_section(
 			'trustedlogin_vendor_options_section',
@@ -268,7 +273,7 @@ class Settings {
 
 		static $api_creds_verified = false;
 
-		if( $api_creds_verified ) {
+		if ( $api_creds_verified ) {
 			return $input;
 		}
 
@@ -284,7 +289,7 @@ class Settings {
 			$debug_mode = isset( $input['debug_enabled'] );
 
 			$saas_attr = array(
-				'auth' => $saas_auth,
+				'auth'       => $saas_auth,
 				'debug_mode' => $debug_mode
 			);
 
@@ -390,14 +395,14 @@ class Settings {
 		/**
 		 * Filter: The array of TrustLogin supported HelpDesks
 		 *
+		 * @var string $title ,    Translated title of the Helpdesk software, and title of dropdown option.
+		 * @var bool $active ,    If false, the Helpdesks Solution is not shown in the dropdown options for selection.
+		 *        ],
+		 * ]
 		 * @since 0.1.0
 		 *
 		 * @param array [
-		 * 		$slug => [					Slug is the identifier of the Helpdesk software, and is the value of the dropdown option.
-		 *			@var string $title,  	Translated title of the Helpdesk software, and title of dropdown option.
-		 *			@var bool   $active,	If false, the Helpdesks Solution is not shown in the dropdown options for selection.
-		 * 		],
-		 * ]
+		 *        $slug => [                    Slug is the identifier of the Helpdesk software, and is the value of the dropdown option.
 		 */
 		$helpdesks = apply_filters( 'trustedlogin/vendor/settings/helpdesks', array(
 			''          => array(
@@ -535,23 +540,22 @@ class Settings {
 			true
 		);
 
-		
-		$redirect_url = add_query_arg( 
-			array( 
-				'action' => 'reset_keys' 
+		$redirect_url  = add_query_arg(
+			array(
 				'page'   => ( isset( $_GET['page'] ) ? sanitize_text_field( $_GET['page'] ) : null ),
+				'action' => 'reset_keys'
 			),
 			admin_url( 'admin.php' )
 		);
+
 		$settings_args = array(
-			'reset_keys_url'=> wp_nonce_url( $redirect_url, 'reset-keys' ),
-			'lang' => array(
-		    	'confirm_reset' => __( 'Are you sure? Resetting encryption keys will irrevokably disable ALL existing TrustedLogin authentications.', 'trustedlogin-vendor' ),
-		    ),
+			'reset_keys_url' => wp_nonce_url( $redirect_url, 'reset-keys' ),
+			'lang'           => array(
+				'confirm_reset' => __( 'Are you sure? Resetting encryption keys will irrevokably disable ALL existing TrustedLogin authentications.', 'trustedlogin-vendor' ),
+			),
 		);
 
 		wp_localize_script( 'trustedlogin-settings', 'tl_obj', $settings_args );
-
 
 	}
 
@@ -576,6 +580,7 @@ class Settings {
 				break;
 			case 'helpdesk':
 				$helpdesk = $this->get_selected_values( 'helpdesk' );
+
 				return empty( $helpdesk ) ? null : $helpdesk[0];
 				break;
 			case 'debug_enabled':
@@ -607,42 +612,47 @@ class Settings {
 
 	/**
 	 * Responds to actions piped through the URL to our settings page.
-	 * 
+	 *
 	 * @return void
 	 */
-	public function handle_admin_actions(){
+	public function handle_admin_actions() {
 
-		if ( ! isset( $_REQUEST['action'] ) || ! isset( $_REQUEST['page'] ) ){
+		if ( ! isset( $_REQUEST['action'] ) || ! isset( $_REQUEST['page'] ) ) {
 			return;
 		}
 
-		if ( 'trustedlogin_vendor' !== sanitize_text_field( $_REQUEST['page'] ) ){
+		if ( 'trustedlogin_vendor' !== sanitize_text_field( $_REQUEST['page'] ) ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'administrator' ) ) {
 			return;
 		}
 
 		$action = sanitize_text_field( $_REQUEST['action'] );
 
-		if ( 'reset_complete' == $action ){
+		if ( 'reset_complete' === $action ) {
 			add_action( 'admin_notices', function () {
 				echo '<div class="notice notice-warning"><h3>' . esc_html__( 'Encryption keys reset.', 'trustedlogin-vendor' ) . '</h3>' . esc_html__( 'All previous authorizations are now inaccessible via TrustedLogin', 'trustedlogin-vendor' ) . '</div>';
 			} );
+
 			return;
 		}
 
-
-		if ( 'reset_keys' !== $action ){
+		if ( 'reset_keys' !== $action ) {
 			return;
 		}
 
-		check_admin_referer( 'reset-keys');
+		// Will normally die(), but can return value.
+		$nonce_check = check_admin_referer( 'reset-keys' );
 
-		if ( ! current_user_can( 'administrator' ) ){
+		if ( ! $nonce_check ) {
 			return;
 		}
 
 		$reset = $this->reset_encryption_keys();
 
-		if ( is_wp_error( $reset ) ){
+		if ( is_wp_error( $reset ) ) {
 			add_action( 'admin_notices', function () use ( $reset ) {
 				echo '<div class="notice notice-error error"><h3>' . esc_html__( 'Encryption keys reset.', 'trustedlogin-vendor' ) . '</h3>' . wpautop( esc_html( $reset->get_error_message() ) ) . '</div>';
 			} );
@@ -653,30 +663,27 @@ class Settings {
 		/**
 		 * Redirect to avoid resetting keys on subsequent saves.
 		 */
-		
-		$redirect_url = add_query_arg( 
-			array( 
-				'page' => sanitize_text_field( $_GET['page'] ), 
-				'action' => 'reset_complete' 
+		$redirect_url = add_query_arg(
+			array(
+				'page'   => sanitize_text_field( $_GET['page'] ),
+				'action' => 'reset_complete'
 			),
 			admin_url( 'admin.php' )
 		);
-		wp_safe_redirect( $redirect_url );
 
+		wp_safe_redirect( $redirect_url );
 	}
 
 	/**
 	 * Resets the encryption key via admin action.
-	 * 
+	 *
 	 * @return true|WP_Error If successfully returns true, otherwise WP_Error.
 	 */
-	private function reset_encryption_keys(){
+	private function reset_encryption_keys() {
 
 		$trustedlogin_encryption = new Encryption();
-		$reset = $trustedlogin_encryption->reset_keys();
 
-		return $reset;
-
+		return $trustedlogin_encryption->reset_keys();
 	}
 
 }
