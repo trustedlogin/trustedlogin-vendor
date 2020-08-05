@@ -538,8 +538,8 @@ class Settings {
 		
 		$redirect_url = add_query_arg( 
 			array( 
-				'page' => sanitize_text_field( $_GET['page'] ), 
 				'action' => 'reset_keys' 
+				'page'   => ( isset( $_GET['page'] ) ? sanitize_text_field( $_GET['page'] ) : null ),
 			),
 			admin_url( 'admin.php' )
 		);
