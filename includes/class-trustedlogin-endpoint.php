@@ -264,14 +264,14 @@ class Endpoint {
 					return;
 				}
 
-				if ( is_array( $secret_ids ) ){
-					/**
-					 * TODO: Handle multiple secret_ids.
-					 * @see  https://github.com/trustedlogin/trustedlogin-vendor/issues/47
-					 */
-				}
+				if ( 1  == count( $secret_ids ) ){
 
-				$this->maybe_redirect_support( $secret_ids[0] );
+					$this->maybe_redirect_support( $secret_ids[0] );
+					
+				}
+				
+				$this->handle_multiple_secret_ids( $secret_ids );
+
 				break;
 
 			case 'support_redirect':
@@ -291,6 +291,65 @@ class Endpoint {
 		}
 
 		return;
+	}
+
+	/**
+	 * Helper: Handles the case where a single accessKey returns more than 1 secretId.
+	 * 
+	 * @param  array $secret_ids [
+	 *   @type string $siteurl  The url of the site the secretId is for.
+	 *   @type string $loginurl The vendor-side redirect link to login via secretId.
+ 	 * ]
+ 	 * 
+	 * @return void.
+	 */
+	private function handle_multiple_secret_ids( $secret_ids ){
+
+		if ( !is_array( $secret_ids ) || empty( $secret_ids ) ){
+			return;
+		}
+
+		$urls_output  = '';
+		$url_template = '<li><a href="%1$s" class="%2$s">%3$s</a></li>';
+
+		foreach ( $secret_ids as $secret_id ){
+
+			$envelope = $this->api_get_envelope( $secret_id );
+			
+			if ( is_wp_error( $envelope ) ) {
+				$this->dlog( 'Error: ' . $envelope->get_error_message(), __METHOD__ );
+				continue;
+			}
+
+			$url_parts = ( $envelope ) ? $this->envelope_to_url( $envelope, true ) : false;
+
+			if ( is_wp_error( $url_parts ) ) {
+				$this->dlog( 'Error: ' . $url_parts->get_error_message(), __METHOD__ );
+				continue;
+			}
+
+			if ( $url_parts ) {
+				$urls_output .= sprintf( 
+					$url_template, 
+					/* %1$s */ esc_url( $url_parts['loginurl'] ), 
+					/* %2$s */ esc_attr( 'trustedlogin-authlink' ), 
+					/* %3$s */ sprintf( 
+						__( 'Login to %s', 'trustedlogin-vendor' ), 
+						/* %s */ esc_html( $url_parts['siteurl'] )
+						)
+				);
+			}
+
+		}
+
+		if ( empty( $urls_output ) ){
+			return;
+		}
+
+		add_action( 'admin_notices', function () use ( $urls_output ) {
+			echo '<div class="notice notice-warning"><h3>' . esc_html__( 'Please pick a site to log into.', 'trustedlogin-vendor' ) . '</h3><ul>' . $urls_output . '</ul></div>';
+		} );
+
 	}
 
 
