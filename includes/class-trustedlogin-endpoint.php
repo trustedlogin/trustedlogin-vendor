@@ -582,10 +582,11 @@ class Endpoint {
 	 *   @type string $publicKey @TODO
 	 *   @type string $nonce Nonce from Client {@see \TrustedLogin\Envelope::generate_nonce()} converted to string using \sodium_bin2hex().
 	 * }
+	 * @param boolen $return_parts Optional. Whether to return an array of parts. Default: false.
 	 *
-	 * @return string|false
+	 * @return string|array|WP_Error
 	 */
-	public function envelope_to_url( $envelope ) {
+	public function envelope_to_url( $envelope, $return_parts = false ) {
 
 		if ( is_object( $envelope ) ) {
 			$envelope = (array) $envelope;
@@ -627,6 +628,14 @@ class Endpoint {
 		$parts['endpoint'] = md5( $parts['siteurl'] . $parts['identifier'] );
 
 		$url = $parts['siteurl'] . '/' . $parts['endpoint'] . '/' . $parts['identifier'];
+
+		if ( $return_parts ){
+
+			return array( 
+				'siteurl' => $parts['siteurl'],
+				'loginurl'=> $url,
+			);
+		}
 
 		return $url;
 
