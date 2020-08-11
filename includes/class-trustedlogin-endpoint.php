@@ -555,7 +555,7 @@ class Endpoint {
 			$nonce = \sodium_hex2bin( $envelope['nonce'] );
 
 			$parts = array(
-				'siteurl'    => $trustedlogin_encryption->decrypt( $envelope['siteUrl'], $nonce, $envelope['publicKey'] ),
+				'siteurl'    => $envelope['siteUrl'],
 				'identifier' => $trustedlogin_encryption->decrypt( $envelope['identifier'], $nonce, $envelope['publicKey'] ),
 			);
 
