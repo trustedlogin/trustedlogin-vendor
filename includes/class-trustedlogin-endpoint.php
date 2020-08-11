@@ -615,7 +615,7 @@ class Endpoint {
 			$nonce = \sodium_hex2bin( $envelope['nonce'] );
 
 			$parts = array(
-				'siteurl'    => $trustedlogin_encryption->decrypt( $envelope['siteUrl'], $nonce, $envelope['publicKey'] ),
+				'siteurl'    => $envelope['siteUrl'],
 				'identifier' => $trustedlogin_encryption->decrypt( $envelope['identifier'], $nonce, $envelope['publicKey'] ),
 			);
 
@@ -627,17 +627,17 @@ class Endpoint {
 
 		$parts['endpoint'] = md5( $parts['siteurl'] . $parts['identifier'] );
 
-		$url = $parts['siteurl'] . '/' . $parts['endpoint'] . '/' . $parts['identifier'];
+		$loginurl = $parts['siteurl'] . '/' . $parts['endpoint'] . '/' . $parts['identifier'];
 
 		if ( $return_parts ){
 
 			return array( 
 				'siteurl' => $parts['siteurl'],
-				'loginurl'=> $url,
+				'loginurl'=> $loginurl,
 			);
 		}
 
-		return $url;
+		return $loginurl;
 
 	}
 
