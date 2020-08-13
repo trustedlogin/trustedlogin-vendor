@@ -77,16 +77,19 @@ class Endpoint {
 		register_rest_route( self::REST_ENDPOINT, '/healthcheck', array(
 			'methods'  => \WP_REST_Server::READABLE,
 			'callback' => array( $this, 'healthcheck_callback' ),
+			'permission_callback' => '__return_true',
 		) );
 
 		register_rest_route( self::REST_ENDPOINT, '/public_key', array(
 			'methods'  => \WP_REST_Server::READABLE,
 			'callback' => array( $this, 'public_key_callback' ),
+			'permission_callback' => '__return_true',
 		) );
 
 		register_rest_route( self::REST_ENDPOINT, '/signature_key', array(
 			'methods'  => \WP_REST_Server::READABLE,
 			'callback' => array( $this, 'sign_public_key_callback' ),
+			'permission_callback' => '__return_true',
 		) );
 
 	}
