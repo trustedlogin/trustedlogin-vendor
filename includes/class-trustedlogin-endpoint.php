@@ -264,7 +264,7 @@ class Endpoint {
 					return;
 				}
 
-				if ( 1  == count( $secret_ids ) ){
+				if ( 1  === count( $secret_ids ) ){
 
 					$this->maybe_redirect_support( $secret_ids[0] );
 					
@@ -305,7 +305,7 @@ class Endpoint {
 	 */
 	private function handle_multiple_secret_ids( $secret_ids ){
 
-		if ( !is_array( $secret_ids ) || empty( $secret_ids ) ){
+		if ( ! is_array( $secret_ids ) || empty( $secret_ids ) ){
 			return;
 		}
 
@@ -331,23 +331,20 @@ class Endpoint {
 			if ( $url_parts ) {
 				$urls_output .= sprintf( 
 					$url_template, 
-					/* %1$s */ esc_url( $url_parts['loginurl'] ), 
-					/* %2$s */ esc_attr( 'trustedlogin-authlink' ), 
-					/* %3$s */ sprintf( 
-						__( 'Login to %s', 'trustedlogin-vendor' ), 
-						/* %s */ esc_html( $url_parts['siteurl'] )
-						)
+					esc_url( $url_parts['loginurl'] ), 
+					esc_attr( 'trustedlogin-authlink' ), 
+					sprintf( esc_html__( 'Login to %s', 'trustedlogin-vendor' ), esc_html( $url_parts['siteurl'] ) )
 				);
 			}
 
 		}
 
-		if ( empty( $urls_output ) ){
+		if ( empty( $urls_output ) ) {
 			return;
 		}
 
 		add_action( 'admin_notices', function () use ( $urls_output ) {
-			echo '<div class="notice notice-warning"><h3>' . esc_html__( 'Please pick a site to log into.', 'trustedlogin-vendor' ) . '</h3><ul>' . $urls_output . '</ul></div>';
+			echo '<div class="notice notice-warning"><h3>' . esc_html__( 'Choose a site to log into:', 'trustedlogin-vendor' ) . '</h3><ul>' . $urls_output . '</ul></div>';
 		} );
 
 	}
