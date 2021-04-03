@@ -155,6 +155,9 @@ class EncryptionTest extends \WP_UnitTestCase {
 	 */
 	function test_create_identity_nonce() {
 
+		// Load in Sodium_Compat
+		include_once plugin_dir_path( TRUSTEDLOGIN_PLUGIN_FILE ) . 'vendor/autoload.php';
+
 		$nonces = $this->encryption->create_identity_nonce();
 
 		$this->assertTrue( is_array( $nonces ), 'create_identity_nonce should return an array' );
