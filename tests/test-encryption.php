@@ -10,12 +10,12 @@ use TrustedLogin\Vendor\Encryption;
 /**
  * Tests for Audit Logging
  */
-class EncryptionTest extends WP_UnitTestCase {
+class EncryptionTest extends \WP_UnitTestCase {
 
-	/** @var TrustedLogin_Support_Side */
+	/** @var TrustedLogin\Vendor\Plugin */
 	private $TL;
 
-	/** @var TrustedLogin_Encryption  */
+	/** @var TrustedLogin\Encryption  */
 	private $encryption;
 
 	/**
@@ -227,9 +227,9 @@ class EncryptionTest extends WP_UnitTestCase {
 
 		$decrypted = $this->encryption->decrypt( 'Very encrypted.', $nonce, $keys->public_key );
 
-		$this->assertNotEquals( 'sodium-error', $decrypted->get_error_code(), 'The sodium process requires specific parameters that were not met.' );
+		$this->assertNotEquals( 'sodium-error', $decrypted->get_error_code(), 'The sodium process requires specific parameters that were not met: ' . $decrypted->get_error_message() );
 
-		$this->assertEquals( 'decryption_failed', $decrypted->get_error_code() );
+		$this->assertEquals( 'decryption_failed', $decrypted->get_error_code(), $decrypted->get_error_message() );
 
 		// TODO: Actual decryption test :facepalm:
 	}
