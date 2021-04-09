@@ -163,7 +163,7 @@ class SiteKey_Login {
 
 		if ( empty( $site_ids ) ){
 			add_action( 'admin_notices', function () {
-				echo '<div class="error"><h3>' . esc_html__( 'Could not log in to site using access key.', 'trustedlogin-vendor' ) . '</h3>' . __( 'No sites found.', 'trustedlogin-vendor' ) . '</div>';
+				echo '<div class="error"><h3>' . esc_html__( 'Could not log in to site using access key.', 'trustedlogin-vendor' ) . '</h3>' . wpautop( esc_html__( 'No sites found.', 'trustedlogin-vendor' ) ) . '</div>';
 			} );
 
 			return;

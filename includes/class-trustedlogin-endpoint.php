@@ -459,13 +459,18 @@ class Endpoint {
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
-		} 
-
-		$access_keys = array();
+		}
 
 		$this->dlog( 'Response: ' . print_r( $response, true ), __METHOD__ );
 
-		if ( ! empty( $response ) && is_array( $response ) ) {
+		// 204 response: no sites found.
+		if ( true === $response ) {
+			return array();
+		}
+
+		$access_keys = array();
+
+		if ( ! empty( $response ) ) {
 			foreach ( $response as $key => $secrets ) {
 				foreach ( $secrets as $secret ) {
 					$access_keys[] = $secret;
