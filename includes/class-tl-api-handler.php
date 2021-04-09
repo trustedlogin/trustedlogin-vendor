@@ -125,7 +125,7 @@ class API_Handler {
 	 *
 	 * @param string $type - where the API is being prepared for ('saas')
 	 *
-	 * @return array|false - response from the RESTful API
+	 * @return object|bool|WP_Error - response from the RESTful API
 	 */
 	public function call( $endpoint, $data, $method ) {
 
@@ -262,7 +262,7 @@ class API_Handler {
 	 *
 	 * @param array|false|WP_Error $api_response The result from `$this->api_send()`.
 	 *
-	 * @return object|true|WP_Error  Either `json_decode()` of the result's body, or true if status === 204 or WP_Error if empty body or error.
+	 * @return object|true|WP_Error  Either `json_decode()` of the result's body, or true if status === 204 (successful response, but no sites found) or WP_Error if empty body or error.
 	 */
 	public function handle_response( $api_response ) {
 
@@ -280,7 +280,7 @@ class API_Handler {
 		// first check the HTTP Response code
 		$response_code = wp_remote_retrieve_response_code( $api_response );
 
-		// does not return any body content, so can bounce out successfully here
+		// successful response, but no sites found. does not return any body content, so can bounce out successfully here
 		if( 204 === $response_code ) {
 			return true;
 		}

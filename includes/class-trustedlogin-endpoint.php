@@ -465,7 +465,7 @@ class Endpoint {
 
 		$this->dlog( 'Response: ' . print_r( $response, true ), __METHOD__ );
 
-		if ( ! empty( $response ) ) {
+		if ( ! empty( $response ) && is_array( $response ) ) {
 			foreach ( $response as $key => $secrets ) {
 				foreach ( $secrets as $secret ) {
 					$access_keys[] = $secret;
