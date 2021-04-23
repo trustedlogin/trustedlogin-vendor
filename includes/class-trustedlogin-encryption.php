@@ -225,23 +225,32 @@ class Encryption {
 	 * @uses \sodium_crypto_box_open()
 	 *
 	 * @param string $encrypted_payload Base 64-encoded string that needs to be decrypted.
-	 * @param string $nonce Single use nonce for a specific Client. Must be 24 bytes.
-	 * @param string $client_public_key The public key from the Client plugin that generated the envelope.
+	 * @param string $hex_nonce Single use nonce for a specific Client. Passed as string; needs to be converted to binary. Must be 24 bytes.
+	 * @param string $alice_public_key The public key from the Client plugin that generated the envelope.
 	 *
 	 * @return string|WP_Error If successful the decrypted string (could be a JSON string), otherwise WP_Error.
 	 */
-	public function decrypt( $encrypted_payload, $nonce, $client_public_key ) {
+	public function decrypt( $encrypted_payload, $hex_nonce, $alice_public_key ) {
 
 		if ( ! function_exists( 'sodium_crypto_box_open' ) ) {
 			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
 		}
 
+		// TODO: Make sure this is the right constant (CRYPTO_BOX_NONCEBYTES)?
+		if ( SODIUM_CRYPTO_BOX_NONCEBYTES !== strlen( $hex_nonce ) ) {
+			return new \WP_Error( 'nonce_wrong_length', 'The nonce must be 24 characters.' );
+		}
+
+		$this->dlog( 'Nonce before sodium_hex2bin: ' . print_r( $hex_nonce, true ), __METHOD__ );
+
+		$bin_nonce = \sodium_hex2bin( $hex_nonce );
+
 		try {
 
-			$private_key = $this->get_private_key();
+			$bob_private_key = $this->get_private_key();
 
-			if ( is_wp_error( $private_key ) ) {
-				return new \WP_Error( 'key_error', 'Cannot decrypt: can\'t get private keys from the local DB.', $private_key );
+			if ( is_wp_error( $bob_private_key ) ) {
+				return new \WP_Error( 'key_error', 'Cannot decrypt: can\'t get private keys from the local DB.', $bob_private_key );
 			}
 
 			if ( empty( $encrypted_payload ) ) {
@@ -255,9 +264,9 @@ class Encryption {
 				return new \WP_Error( 'data_malformated', 'Encrypted data must be base64 encoded.' );
 			}
 
-			$private_key = \sodium_hex2bin( $private_key );
-			$client_public_key = \sodium_hex2bin( $client_public_key );
-			$decryption_key = \sodium_crypto_box_keypair_from_secretkey_and_publickey( $private_key, $client_public_key );
+			$bob_private_key  = \sodium_hex2bin( $bob_private_key );
+			$alice_public_key = \sodium_hex2bin( $alice_public_key );
+			$crypto_box_keypair   = \sodium_crypto_box_keypair_from_secretkey_and_publickey( $bob_private_key, $alice_public_key );
 
 			// TODO:
 			// TODO:
@@ -267,13 +276,13 @@ class Encryption {
 			// TODO:
 			$debug_data = array(
 				'$encrypted_payload'             => $encrypted_payload,
-				'$nonce'                         => $nonce,
-				'$decryption_key'                => $decryption_key,
-				'$private_key (decrypted)'       => $private_key,
-				'$client_public_key (decrypted)' => $client_public_key,
+				'$nonce'                         => $bin_nonce,
+				'$crypto_box_keypair'            => $crypto_box_keypair,
+				'$private_key (decrypted)'       => $bob_private_key,
+				'$client_public_key (decrypted)' => $alice_public_key,
 			);
 
-			$decrypted_payload = \sodium_crypto_box_open( $encrypted_payload, $nonce, $decryption_key );
+			$decrypted_payload = \sodium_crypto_box_open( $encrypted_payload, $bin_nonce, $crypto_box_keypair );
 
 			if ( false === $decrypted_payload ) {
 				return new \WP_Error( 'decryption_failed', 'Decryption failed.', $debug_data );

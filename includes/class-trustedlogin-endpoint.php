@@ -625,11 +625,7 @@ class Endpoint {
 
 			$this->dlog( 'Starting to decrypt envelope. Envelope: ' . print_r( $envelope, true ), __METHOD__ );
 
-			$nonce = \sodium_hex2bin( $envelope['nonce'] );
-
-			$this->dlog( 'Nonce after sodium_hex2bin: ' . print_r( $nonce, true ), __METHOD__ );
-
-			$decrypted_identifier = $trustedlogin_encryption->decrypt( $envelope['identifier'], $nonce, $envelope['publicKey'] );
+			$decrypted_identifier = $trustedlogin_encryption->decrypt( $envelope['identifier'], $envelope['nonce'], $envelope['publicKey'] );
 
 			if ( is_wp_error( $decrypted_identifier ) ) {
 
