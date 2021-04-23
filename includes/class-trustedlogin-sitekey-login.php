@@ -127,6 +127,28 @@ class SiteKey_Login {
 	 */
 	public function maybe_handle_accesskey() {
 
+		add_action( 'admin_notices', function () {
+
+			if ( empty( $_GET['tl-error'] ) ) {
+				return;
+			}
+
+			if ( ! isset( $_GET['page'] ) ||  self::PAGE_SLUG !== $_GET['page'] ) {
+				return;
+			}
+
+			$audit_log_enabled = $this->settings->setting_is_toggled( 'enable_audit_log' );
+
+			echo '<div class="error">';
+			echo '<h3>' . esc_html__( 'There was an error decrypting the response.', 'trustedlogin-vendor' ) . '</h3>';
+
+			if ( $audit_log_enabled ) {
+				echo wpautop( '<h4>' . sprintf( esc_html__( '%sCheck the Activity Log%s for more information', 'trustedlogin-vendor' ), '<a href="' . esc_url( admin_url( 'admin.php?page=trustedlogin_activity_log' ) ) . '">', '</a>' ) . '</h4>' );
+			}
+
+			echo '</div>';
+		} );
+
 		if ( empty( $_REQUEST['ak'] ) ) {
 			return;
 		}
