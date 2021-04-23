@@ -388,6 +388,11 @@ class Endpoint {
 			$envelope = $this->api_get_envelope( $secret_id );
 		}
 
+		if ( empty( $envelope ) ) {
+			$this->audit_log->insert( $secret_id, 'failed', __( 'Empty envelope.', 'trustedlogin-vendor' ) );
+			wp_safe_redirect( $redirect_url, self::REDIRECT_ERROR_STATUS, 'TrustedLogin' );
+		}
+
 		if ( is_wp_error( $envelope ) ) {
 			$this->dlog( 'Error: ' . $envelope->get_error_message(), __METHOD__ );
 			$this->audit_log->insert( $secret_id, 'failed', $envelope->get_error_message() );
@@ -568,7 +573,7 @@ class Endpoint {
 		 */
 		$envelope = $saas_api->call( $endpoint, $data, 'POST' );
 
-		$success = ( $envelope && ! is_wp_error( $envelope ) ) ? __( 'Successful', 'trustedlogin-vendor' ) : sprintf( __( 'Failed: %s', 'trustedlogin-vendor' ), $envelope->get_error_message() );
+		$success = ( $envelope && ! is_wp_error( $envelope ) ) ? __( 'Successfully fetched envelope.', 'trustedlogin-vendor' ) : sprintf( __( 'Failed: %s', 'trustedlogin-vendor' ), $envelope->get_error_message() );
 
 		$this->audit_log->insert( $secret_id, 'received', $success );
 

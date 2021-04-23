@@ -137,6 +137,7 @@ class SiteKey_Login {
 
 		// Referred from same screen?
 		if( add_query_arg( array() ) !== wp_get_raw_referer() ) {
+			$this->dlog( 'Referrer does not match; could be insecure request.',__METHOD__ );
 			return;
 		}
 
@@ -144,6 +145,7 @@ class SiteKey_Login {
 		$valid = wp_verify_nonce( $_REQUEST[ self::NONCE_NAME ], self::NONCE_ACTION );
 
 		if ( ! $valid ) {
+			$this->dlog( 'Nonce is invalid; could be insecure request. Refresh the page and try again.',__METHOD__ );
 			return;
 		}
 
