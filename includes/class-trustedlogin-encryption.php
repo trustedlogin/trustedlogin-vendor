@@ -265,12 +265,16 @@ class Encryption {
 			// TODO: DO NOT SHIP THIS.
 			// TODO:
 			// TODO:
-			$this->dlog( 'Parameters used for sodium_crypto_box_open(): ' . print_r( compact( "encrypted_payload", "nonce", "decryption_key" ) ), __METHOD__ );
+			$debug_data = array(
+				'$encrypted_payload' => $encrypted_payload,
+				'$nonce'             => $nonce,
+				'$decryption_key'    => $decryption_key,
+			);
 
 			$decrypted_payload = \sodium_crypto_box_open( $encrypted_payload, $nonce, $decryption_key );
 
 			if ( false === $decrypted_payload ) {
-				return new \WP_Error( 'decryption_failed', 'Decryption failed.' );
+				return new \WP_Error( 'decryption_failed', 'Decryption failed.', $debug_data );
 			}
 
 			return $decrypted_payload;
