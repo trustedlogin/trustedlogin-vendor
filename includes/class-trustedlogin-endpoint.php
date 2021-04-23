@@ -591,6 +591,7 @@ class Endpoint {
 	 *   @type string $identifier Encrypted site identifier, used to generate endpoint
 	 *   @type string $publicKey @TODO
 	 *   @type string $nonce Nonce from Client {@see \TrustedLogin\Envelope::generate_nonce()} converted to string using \sodium_bin2hex().
+	 *   @type string $siteUrl URL of the site to access.
 	 * }
 	 * @param bool $return_parts Optional. Whether to return an array of parts. Default: false.
 	 *
@@ -626,13 +627,18 @@ class Endpoint {
 
 			$nonce = \sodium_hex2bin( $envelope['nonce'] );
 
+			$this->dlog( 'Nonce after sodium_hex2bin: ' . print_r( $nonce ), __METHOD__ );
+
 			$decrypted_identifier = $trustedlogin_encryption->decrypt( $envelope['identifier'], $nonce, $envelope['publicKey'] );
 
-			$this->dlog( 'Decrypted identifier: ' . print_r( $decrypted_identifier, true ), __METHOD__ );
-
 			if ( is_wp_error( $decrypted_identifier ) ) {
+
+				$this->dlog( 'There was an error decrypting the envelope.' . print_r( $decrypted_identifier, true ), __METHOD__ );
+
 				return $decrypted_identifier;
 			}
+
+			$this->dlog( 'Decrypted identifier: ' . print_r( $decrypted_identifier, true ), __METHOD__ );
 
 			$parts = array(
 				'siteurl'    => $envelope['siteUrl'],

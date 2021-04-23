@@ -259,9 +259,17 @@ class Encryption {
 			$client_public_key = \sodium_hex2bin( $client_public_key );
 			$decryption_key = \sodium_crypto_box_keypair_from_secretkey_and_publickey( $private_key, $client_public_key );
 
+			// TODO:
+			// TODO:
+			// TODO:
+			// TODO: DO NOT SHIP THIS.
+			// TODO:
+			// TODO:
+			$this->dlog( 'Parameters used for sodium_crypto_box_open(): ' . print_r( compact( "encrypted_payload", "nonce", "decryption_key" ) ), __METHOD__ );
+
 			$decrypted_payload = \sodium_crypto_box_open( $encrypted_payload, $nonce, $decryption_key );
 
-			if ( empty( $decrypted_payload ) ) {
+			if ( false === $decrypted_payload ) {
 				return new \WP_Error( 'decryption_failed', 'Decryption failed.' );
 			}
 

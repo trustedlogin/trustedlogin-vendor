@@ -173,7 +173,7 @@ class TrustedLogin_Audit_Log {
 		<tr>
 	        <th scope="col" id="time" class="column-time">' . esc_html__( 'Time', 'trustedlogin-vendor' ) . '</th>
 	        <th scope="col" id="user-id" class="column-user-id">' . esc_html__( 'User', 'trustedlogin-vendor' ) . '</th>
-	        <th scope="col" id="site-id" class="column-site-id">' . esc_html__( 'Site ID', 'trustedlogin-vendor' ) . '</th>
+	        <th scope="col" id="site-id" class="column-site-id">' . esc_html__( 'Site ID & Vault Secret ID', 'trustedlogin-vendor' ) . '</th>
 	        <th scope="col" id="action" class="column-action">' . esc_html__( 'Action', 'trustedlogin-vendor' ) . '</th>
 	        <th scope="col" id="notes" class="column-notes">' . esc_html__( 'Notes', 'trustedlogin-vendor' ) . '</th>
         </tr>
