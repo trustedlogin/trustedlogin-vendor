@@ -626,7 +626,7 @@ class Endpoint {
 			$this->dlog( 'Decrypted identifier: ' . print_r( $decrypted_identifier, true ), __METHOD__ );
 
 			if ( is_wp_error( $decrypted_identifier ) ) {
-				throw new \Exception( $decrypted_identifier->get_error_code(), $decrypted_identifier->get_error_message() );
+				throw new \Exception( $decrypted_identifier->get_error_message(), $decrypted_identifier->get_error_code() );
 			}
 
 			$parts = array(
