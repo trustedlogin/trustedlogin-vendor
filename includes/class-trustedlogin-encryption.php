@@ -224,13 +224,13 @@ class Encryption {
 	 * @uses \sodium_crypto_box_keypair_from_secretkey_and_publickey()
 	 * @uses \sodium_crypto_box_open()
 	 *
-	 * @param string $encrypted_payload Base 64-encoded string that needs to be decrypted.
+	 * @param string $encoded_and_encrypted_payload Base 64-encoded string that needs to be decrypted.
 	 * @param string $hex_nonce Single use nonce for a specific Client. Passed as string; needs to be converted to binary. Must be 24 bytes.
 	 * @param string $alice_public_key The public key from the Client plugin that generated the envelope.
 	 *
 	 * @return string|WP_Error If successful the decrypted string (could be a JSON string), otherwise WP_Error.
 	 */
-	public function decrypt( $encrypted_payload, $hex_nonce, $alice_public_key ) {
+	public function decrypt( $encoded_and_encrypted_payload, $hex_nonce, $alice_public_key ) {
 
 		if ( ! function_exists( 'sodium_crypto_box_open' ) ) {
 			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
@@ -238,7 +238,7 @@ class Encryption {
 
 		// TODO: Make sure this is the right constant (CRYPTO_BOX_NONCEBYTES)?
 		if ( SODIUM_CRYPTO_BOX_NONCEBYTES !== strlen( $hex_nonce ) ) {
-			return new \WP_Error( 'nonce_wrong_length', 'The nonce must be 24 characters.' );
+			return new \WP_Error( 'nonce_wrong_length', sprintf( 'The nonce must be %d characters. Instead it\'s ', SODIUM_CRYPTO_BOX_NONCEBYTES ) . $hex_nonce );
 		}
 
 		$this->dlog( 'Nonce before sodium_hex2bin: ' . print_r( $hex_nonce, true ), __METHOD__ );
@@ -253,11 +253,11 @@ class Encryption {
 				return new \WP_Error( 'key_error', 'Cannot decrypt: can\'t get private keys from the local DB.', $bob_private_key );
 			}
 
-			if ( empty( $encrypted_payload ) ) {
+			if ( empty( $encoded_and_encrypted_payload ) ) {
 				return new \WP_Error( 'data_empty', 'Will not decrypt an empty payload.' );
 			}
 
-			$encrypted_payload = base64_decode( $encrypted_payload );
+			$encrypted_payload = base64_decode( $encoded_and_encrypted_payload );
 
 			if ( false === $encrypted_payload ) {
 				// Data was not successfully base64_decode'd
