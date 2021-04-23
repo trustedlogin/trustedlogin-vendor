@@ -609,7 +609,7 @@ class Endpoint {
 			if ( ! array_key_exists( $required_key, $envelope ) ) {
 				$this->dlog( 'Error: malformed envelope. e:' . print_r( $envelope, true ), __METHOD__ );
 
-				return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly' );
+				return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly or there was a server error.' );
 			}
 		}
 
@@ -617,11 +617,21 @@ class Endpoint {
 
 		try {
 
+			$this->dlog( 'Starting to decrypt envelope. Envelope: ' . print_r( $envelope, true ), __METHOD__ );
+
 			$nonce = \sodium_hex2bin( $envelope['nonce'] );
+
+			$decrypted_identifier = $trustedlogin_encryption->decrypt( $envelope['identifier'], $nonce, $envelope['publicKey'] );
+
+			$this->dlog( 'Decrypted identifier: ' . print_r( $decrypted_identifier, true ), __METHOD__ );
+
+			if ( is_wp_error( $decrypted_identifier ) ) {
+				throw new \Exception( $decrypted_identifier->get_error_code(), $decrypted_identifier->get_error_message() );
+			}
 
 			$parts = array(
 				'siteurl'    => $envelope['siteUrl'],
-				'identifier' => $trustedlogin_encryption->decrypt( $envelope['identifier'], $nonce, $envelope['publicKey'] ),
+				'identifier' => $decrypted_identifier,
 			);
 
 		} catch ( \Exception $e ) {
