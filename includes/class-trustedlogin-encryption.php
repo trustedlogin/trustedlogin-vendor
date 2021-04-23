@@ -266,9 +266,11 @@ class Encryption {
 			// TODO:
 			// TODO:
 			$debug_data = array(
-				'$encrypted_payload' => $encrypted_payload,
-				'$nonce'             => $nonce,
-				'$decryption_key'    => $decryption_key,
+				'$encrypted_payload'             => $encrypted_payload,
+				'$nonce'                         => $nonce,
+				'$decryption_key'                => $decryption_key,
+				'$private_key (decrypted)'       => $private_key,
+				'$client_public_key (decrypted)' => $client_public_key,
 			);
 
 			$decrypted_payload = \sodium_crypto_box_open( $encrypted_payload, $nonce, $decryption_key );
