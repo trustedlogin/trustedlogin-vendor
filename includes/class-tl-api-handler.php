@@ -301,6 +301,9 @@ class API_Handler {
 			case 424:
 				$this->dlog( 'Error Getting Signature Key from Vendor: ' . print_r( $api_response, true ), __METHOD__ );
 				return new WP_Error( 'signature_key_error', $body_message );
+			case 410:
+				$this->dlog( 'Error Getting Signature Key from Vendor: ' . print_r( $api_response, true ), __METHOD__ );
+				return new WP_Error( 'gone', 'This support request is gone. Please create a new request. (SecretNotFoundInVaultException)' );
 			case 403:
 				// Problem with Token
 				// TODO: Handle this
