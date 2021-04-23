@@ -53,7 +53,7 @@ abstract class License_Generator {
 	 *
 	 * @param string $email Email of user to check licenses against
 	 *
-	 * @return string[]
+	 * @return string[]|null Return array of emails if found. Null if integration is not enabled.
 	 */
 	abstract public function get_license_keys_by_email( $email );
 

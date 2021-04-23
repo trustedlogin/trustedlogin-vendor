@@ -252,17 +252,17 @@ class Endpoint {
 				$secret_ids = $this->api_get_secret_ids( $access_key );
 
 				if ( is_wp_error( $secret_ids ) ){
-					$this->dlog( 
+					$this->dlog(
 						'Could not get secret ids. ' .$secret_ids->get_error_message(),
-						__METHOD__ 
+						__METHOD__
 					);
 					return;
 				}
 
 				if ( empty( $secret_ids ) ){
-					$this->dlog( 
+					$this->dlog(
 						sprintf( 'No secret ids returned for access_key (%s).', $access_key ),
-						__METHOD__ 
+						__METHOD__
 						);
 					return;
 				}
@@ -270,9 +270,9 @@ class Endpoint {
 				if ( 1  === count( $secret_ids ) ){
 
 					$this->maybe_redirect_support( $secret_ids[0] );
-					
+
 				}
-				
+
 				$this->handle_multiple_secret_ids( $secret_ids );
 
 				break;
@@ -285,7 +285,7 @@ class Endpoint {
 				}
 
 				$secret_id = sanitize_text_field( $_REQUEST['ak'] );
-				
+
 				$this->maybe_redirect_support( $secret_id );
 
 				break;
@@ -298,12 +298,12 @@ class Endpoint {
 
 	/**
 	 * Helper: Handles the case where a single accessKey returns more than 1 secretId.
-	 * 
+	 *
 	 * @param  array $secret_ids [
 	 *   @type string $siteurl  The url of the site the secretId is for.
 	 *   @type string $loginurl The vendor-side redirect link to login via secretId.
  	 * ]
- 	 * 
+ 	 *
 	 * @return void.
 	 */
 	private function handle_multiple_secret_ids( $secret_ids ){
@@ -318,7 +318,7 @@ class Endpoint {
 		foreach ( $secret_ids as $secret_id ){
 
 			$envelope = $this->api_get_envelope( $secret_id );
-			
+
 			if ( is_wp_error( $envelope ) ) {
 				$this->dlog( 'Error: ' . $envelope->get_error_message(), __METHOD__ );
 				continue;
@@ -332,10 +332,10 @@ class Endpoint {
 			}
 
 			if ( $url_parts ) {
-				$urls_output .= sprintf( 
-					$url_template, 
-					esc_url( $url_parts['loginurl'] ), 
-					esc_attr( 'trustedlogin-authlink' ), 
+				$urls_output .= sprintf(
+					$url_template,
+					esc_url( $url_parts['loginurl'] ),
+					esc_attr( 'trustedlogin-authlink' ),
 					sprintf( esc_html__( 'Login to %s', 'trustedlogin-vendor' ), esc_html( $url_parts['siteurl'] ) )
 				);
 			}
@@ -417,9 +417,9 @@ class Endpoint {
 	 * Gets the secretId's associated with an access or license key.
 	 *
 	 * @since  1.0.0
-	 * 
+	 *
 	 * @param  string $access_key The key we're checking for connected sites
-	 * 
+	 *
 	 * @return array|WP_Error Array of siteIds or WP_Error on issue.
 	 */
 	public function api_get_secret_ids( $access_key ){
@@ -587,7 +587,7 @@ class Endpoint {
 	 *   @type string $publicKey @TODO
 	 *   @type string $nonce Nonce from Client {@see \TrustedLogin\Envelope::generate_nonce()} converted to string using \sodium_bin2hex().
 	 * }
-	 * @param boolen $return_parts Optional. Whether to return an array of parts. Default: false.
+	 * @param bool $return_parts Optional. Whether to return an array of parts. Default: false.
 	 *
 	 * @return string|array|WP_Error
 	 */
@@ -635,9 +635,7 @@ class Endpoint {
 			);
 
 		} catch ( \Exception $e ) {
-
 			return new WP_Error( $e->getCode(), $e->getMessage() );
-
 		}
 
 		$parts['endpoint'] = md5( $parts['siteurl'] . $parts['identifier'] );
@@ -646,7 +644,7 @@ class Endpoint {
 
 		if ( $return_parts ){
 
-			return array( 
+			return array(
 				'siteurl' => $parts['siteurl'],
 				'loginurl'=> $loginurl,
 			);

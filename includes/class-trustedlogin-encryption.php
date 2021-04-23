@@ -225,7 +225,7 @@ class Encryption {
 	 * @uses \sodium_crypto_box_open()
 	 *
 	 * @param string $encrypted_payload Base 64-encoded string that needs to be decrypted.
-	 * @param string $nonce Single use nonce for a specific Client.
+	 * @param string $nonce Single use nonce for a specific Client. Must be 24 bytes.
 	 * @param string $client_public_key The public key from the Client plugin that generated the envelope.
 	 *
 	 * @return string|WP_Error If successful the decrypted string (could be a JSON string), otherwise WP_Error.
@@ -268,7 +268,7 @@ class Encryption {
 			return $decrypted_payload;
 
 		} catch ( \SodiumException $e ) {
-			return new WP_Error( 'sodium-error', $e->getMessage() );
+			return new WP_Error( 'sodium-error', $e->getMessage(), $e );
 		}
 
 	}
@@ -422,8 +422,8 @@ class Encryption {
 	}
 
 	/**
-	 * Resets the encryption keys. 
-	 * 
+	 * Resets the encryption keys.
+	 *
 	 * @return true|WP_Error
 	 */
 	public function reset_keys(){
@@ -434,7 +434,7 @@ class Encryption {
 			return $reset;
 		}
 
-		return true; 
+		return true;
 
 	}
 }
