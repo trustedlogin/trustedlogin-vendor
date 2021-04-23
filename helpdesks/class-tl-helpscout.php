@@ -363,13 +363,31 @@ class HelpScout extends HelpDesk {
 	public function edd_get_licenses( $email ) {
 
 		$licenses = array();
-		$user     = get_user_by( 'email', $email );
 
-		if ( ! $user ) {
+		if ( ! function_exists( 'EDD' ) ) {
+			$this->dlog( 'EDD is not loaded.', __METHOD__ );
 			return false;
 		}
 
-		$licenses = edd_software_licensing()->get_license_keys_of_user( $user->ID, 0, 'all', true );
+		// EDD exists but somehow isn't instantiated.
+		if( ! class_exists( '\EDD_Customer' ) ) {
+			EDD();
+		}
+
+		// Sanity check.
+		if( ! class_exists( '\EDD_Customer' ) ) {
+			$this->dlog( 'EDD_Customer is not found.', __METHOD__ );
+			return false;
+		}
+
+		$Customer = new \EDD_Customer( $email );
+
+		if ( ! $Customer ) {
+			$this->dlog( 'No customer exists for email.', __METHOD__ );
+			return false;
+		}
+
+		$licenses = edd_software_licensing()->get_license_keys_of_user( $Customer->user_id );
 
 		foreach ( $licenses as $license ) {
 			$children = edd_software_licensing()->get_child_licenses( $license->ID );
