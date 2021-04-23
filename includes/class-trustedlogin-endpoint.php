@@ -627,7 +627,7 @@ class Endpoint {
 
 			$nonce = \sodium_hex2bin( $envelope['nonce'] );
 
-			$this->dlog( 'Nonce after sodium_hex2bin: ' . print_r( $nonce ), __METHOD__ );
+			$this->dlog( 'Nonce after sodium_hex2bin: ' . print_r( $nonce, true ), __METHOD__ );
 
 			$decrypted_identifier = $trustedlogin_encryption->decrypt( $envelope['identifier'], $nonce, $envelope['publicKey'] );
 
