@@ -57,9 +57,9 @@ class HelpScoutTest extends WP_UnitTestCase {
 		$this->assertTrue( $this->HelpScout->has_secret() );
 
 		$this->assertTrue( $verify_request->invoke( $this->HelpScout, $data, $expected ), 'The secrets match; this should have worked' );
-		$this->assertFalse( $verify_request->invoke( $this->HelpScout, 'asd', $expected ) );
-		$this->assertFalse( $verify_request->invoke( $this->HelpScout, $data, 'asdasd' ) );
-		$this->assertFalse( $verify_request->invoke( $this->HelpScout, $data, 1 ) );
+		$this->assertFalse( $verify_request->invoke( $this->HelpScout, 'asd', $expected ), $data );
+		$this->assertFalse( $verify_request->invoke( $this->HelpScout, $data, 'asdasd' ), $data );
+		$this->assertFalse( $verify_request->invoke( $this->HelpScout, $data, 1 ), $data );
 		$this->assertFalse( $verify_request->invoke( $this->HelpScout, 1, $expected ) );
 
 		// Let's break some things
