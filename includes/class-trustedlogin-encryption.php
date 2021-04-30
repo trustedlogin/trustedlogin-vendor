@@ -280,6 +280,7 @@ class Encryption {
 				'$crypto_box_keypair'            => $crypto_box_keypair,
 				'$private_key (decrypted)'       => $bob_private_key,
 				'$client_public_key (decrypted)' => $alice_public_key,
+				'do-not-ship'                    => true,
 			);
 
 			$decrypted_payload = \sodium_crypto_box_open( $encrypted_payload, $bin_nonce, $crypto_box_keypair );
