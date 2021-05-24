@@ -611,7 +611,7 @@ class Endpoint {
 			return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly' );
 		}
 
-		$required_keys = array( 'identifier', 'nonce', 'publicKey', 'siteUrl' );
+		$required_keys = array( 'identifier', 'siteUrl', 'publicKey', 'nonce' );
 
 		foreach ( $required_keys as $required_key ) {
 			if ( ! array_key_exists( $required_key, $envelope ) ) {
