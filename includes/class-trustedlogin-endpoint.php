@@ -304,7 +304,7 @@ class Endpoint {
  	 *
 	 * @return void.
 	 */
-	private function handle_multiple_secret_ids( $secret_ids ){
+	public function handle_multiple_secret_ids( $secret_ids = array() ){
 
 		if ( ! is_array( $secret_ids ) || empty( $secret_ids ) ){
 			return;
@@ -481,8 +481,9 @@ class Endpoint {
 			}
 		}
 
-		return $access_keys;
+		$access_keys = array_reverse( $access_keys );
 
+		return $access_keys;
 	}
 
 	/**
