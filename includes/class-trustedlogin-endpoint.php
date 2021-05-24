@@ -645,7 +645,7 @@ class Endpoint {
 			return new WP_Error( $e->getCode(), $e->getMessage() );
 		}
 
-		$parts['endpoint'] = md5( $parts['siteurl'] . $parts['identifier'] );
+		$parts['endpoint'] = $trustedlogin_encryption::hash( $parts['siteurl'] . $parts['identifier'] );
 
 		$loginurl = $parts['siteurl'] . '/' . $parts['endpoint'] . '/' . $parts['identifier'];
 
