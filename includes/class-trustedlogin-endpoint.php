@@ -268,12 +268,10 @@ class Endpoint {
 				}
 
 				if ( 1  === count( $secret_ids ) ){
-
 					$this->maybe_redirect_support( $secret_ids[0] );
-
+				} else {
+					$this->handle_multiple_secret_ids( $secret_ids );
 				}
-
-				$this->handle_multiple_secret_ids( $secret_ids );
 
 				break;
 
@@ -573,9 +571,13 @@ class Endpoint {
 		 */
 		$envelope = $saas_api->call( $endpoint, $data, 'POST' );
 
-		$success = ( $envelope && ! is_wp_error( $envelope ) ) ? __( 'Successfully fetched envelope.', 'trustedlogin-vendor' ) : sprintf( __( 'Failed: %s', 'trustedlogin-vendor' ), $envelope->get_error_message() );
+		if ( $envelope && ! is_wp_error( $envelope ) ) {
+			$success = __( 'Successfully fetched envelope.', 'trustedlogin-vendor' );
+		} else {
+			$success = sprintf( __( 'Failed: %s', 'trustedlogin-vendor' ), $envelope->get_error_message() );
+		}
 
-		$this->audit_log->insert( $secret_id, 'received', $success );
+		$this->audit_log->insert( $secret_id, 'received', \json_encode( $envelope ) );
 
 		return $envelope;
 
@@ -587,11 +589,10 @@ class Endpoint {
 	 * @since 0.1.0
 	 *
 	 * @param array $envelope Received from encrypted TrustedLogin storage {
-	 *   @type string $siteUrl Encrypted site URL
 	 *   @type string $identifier Encrypted site identifier, used to generate endpoint
-	 *   @type string $publicKey @TODO
 	 *   @type string $nonce Nonce from Client {@see \TrustedLogin\Envelope::generate_nonce()} converted to string using \sodium_bin2hex().
-	 *   @type string $siteUrl URL of the site to access.
+	 *   @type string $publicKey @TODO
+	 *   @type string $siteUrl Plaintext URL of the site to access.
 	 * }
 	 * @param bool $return_parts Optional. Whether to return an array of parts. Default: false.
 	 *
@@ -609,7 +610,7 @@ class Endpoint {
 			return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly' );
 		}
 
-		$required_keys = array( 'identifier', 'siteUrl', 'publicKey', 'nonce' );
+		$required_keys = array( 'identifier', 'nonce', 'publicKey', 'siteUrl' );
 
 		foreach ( $required_keys as $required_key ) {
 			if ( ! array_key_exists( $required_key, $envelope ) ) {
@@ -662,7 +663,6 @@ class Endpoint {
 		}
 
 		return $loginurl;
-
 	}
 
 	/**
