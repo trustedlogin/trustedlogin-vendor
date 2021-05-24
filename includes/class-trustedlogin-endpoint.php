@@ -273,9 +273,9 @@ class Endpoint {
 
 				if ( 1 === count( $secret_ids ) ) {
 					$this->maybe_redirect_support( $secret_ids[0] );
-				} else {
-					$this->handle_multiple_secret_ids( $secret_ids );
 				}
+
+				$this->handle_multiple_secret_ids( $secret_ids );
 
 				break;
 
