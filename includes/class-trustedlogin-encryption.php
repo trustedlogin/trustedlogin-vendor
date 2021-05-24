@@ -236,14 +236,14 @@ class Encryption {
 			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
 		}
 
-		// TODO: Make sure this is the right constant (CRYPTO_BOX_NONCEBYTES)?
-		if ( SODIUM_CRYPTO_BOX_NONCEBYTES !== strlen( $hex_nonce ) ) {
-			return new \WP_Error( 'nonce_wrong_length', sprintf( 'The nonce must be %d characters. Instead it\'s ', SODIUM_CRYPTO_BOX_NONCEBYTES ) . $hex_nonce );
-		}
-
 		$this->dlog( 'Nonce before sodium_hex2bin: ' . print_r( $hex_nonce, true ), __METHOD__ );
 
 		$bin_nonce = \sodium_hex2bin( $hex_nonce );
+
+		// TODO: Make sure this is the right constant (CRYPTO_BOX_NONCEBYTES)?
+		if ( SODIUM_CRYPTO_BOX_NONCEBYTES !== strlen( $bin_nonce ) ) {
+			return new \WP_Error( 'nonce_wrong_length', sprintf( 'The nonce must be %d characters. Instead it\'s ', SODIUM_CRYPTO_BOX_NONCEBYTES ) . $bin_nonce );
+		}
 
 		try {
 
