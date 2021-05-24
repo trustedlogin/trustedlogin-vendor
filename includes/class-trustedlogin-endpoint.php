@@ -75,20 +75,20 @@ class Endpoint {
 	public function register_endpoints() {
 
 		register_rest_route( self::REST_ENDPOINT, '/healthcheck', array(
-			'methods'  => \WP_REST_Server::READABLE,
-			'callback' => array( $this, 'healthcheck_callback' ),
+			'methods'             => \WP_REST_Server::READABLE,
+			'callback'            => array( $this, 'healthcheck_callback' ),
 			'permission_callback' => '__return_true',
 		) );
 
 		register_rest_route( self::REST_ENDPOINT, '/public_key', array(
-			'methods'  => \WP_REST_Server::READABLE,
-			'callback' => array( $this, 'public_key_callback' ),
+			'methods'             => \WP_REST_Server::READABLE,
+			'callback'            => array( $this, 'public_key_callback' ),
 			'permission_callback' => '__return_true',
 		) );
 
 		register_rest_route( self::REST_ENDPOINT, '/signature_key', array(
-			'methods'  => \WP_REST_Server::READABLE,
-			'callback' => array( $this, 'sign_public_key_callback' ),
+			'methods'             => \WP_REST_Server::READABLE,
+			'callback'            => array( $this, 'sign_public_key_callback' ),
 			'permission_callback' => '__return_true',
 		) );
 
@@ -218,21 +218,22 @@ class Endpoint {
 		$required_args = array(
 			'action',
 			'provider',
-			'ak'
+			'ak',
 		);
 
 		foreach ( $required_args as $required_arg ) {
 			if ( ! isset( $_REQUEST[ $required_arg ] ) ) {
 				$this->dlog( 'Required arg ' . $required_arg . ' missing.', __METHOD__ );
+
 				return;
 			}
 		}
 
 
-		if ( isset( $_REQUEST[ 'provider' ] ) ) {
+		if ( isset( $_REQUEST['provider'] ) ) {
 			$active_helpdesk = $this->settings->get_setting( 'helpdesk' );
 
-			if( $active_helpdesk !== $_REQUEST['provider'] ) {
+			if ( $active_helpdesk !== $_REQUEST['provider'] ) {
 				$this->dlog( 'Active helpdesk doesn\'t match passed provider. Helpdesk: ' . esc_attr( $active_helpdesk ) . ', Provider: ' . esc_attr( $_REQUEST['provider'] ), __METHOD__ );
 
 				return;
@@ -243,31 +244,34 @@ class Endpoint {
 		switch ( $_REQUEST['action'] ) {
 			case 'accesskey_login':
 
-				if ( ! isset( $_REQUEST['ak'] ) ){
+				if ( ! isset( $_REQUEST['ak'] ) ) {
 					$this->dlog( 'Required arg ak missing.', __METHOD__ );
+
 					return;
 				}
 
 				$access_key = sanitize_text_field( $_REQUEST['ak'] );
 				$secret_ids = $this->api_get_secret_ids( $access_key );
 
-				if ( is_wp_error( $secret_ids ) ){
+				if ( is_wp_error( $secret_ids ) ) {
 					$this->dlog(
-						'Could not get secret ids. ' .$secret_ids->get_error_message(),
+						'Could not get secret ids. ' . $secret_ids->get_error_message(),
 						__METHOD__
 					);
+
 					return;
 				}
 
-				if ( empty( $secret_ids ) ){
+				if ( empty( $secret_ids ) ) {
 					$this->dlog(
 						sprintf( 'No secret ids returned for access_key (%s).', $access_key ),
 						__METHOD__
-						);
+					);
+
 					return;
 				}
 
-				if ( 1  === count( $secret_ids ) ){
+				if ( 1 === count( $secret_ids ) ) {
 					$this->maybe_redirect_support( $secret_ids[0] );
 				} else {
 					$this->handle_multiple_secret_ids( $secret_ids );
@@ -277,8 +281,9 @@ class Endpoint {
 
 			case 'support_redirect':
 
-				if ( ! isset( $_REQUEST['ak'] ) ){
+				if ( ! isset( $_REQUEST['ak'] ) ) {
 					$this->dlog( 'Required arg ak missing.', __METHOD__ );
+
 					return;
 				}
 
@@ -306,7 +311,7 @@ class Endpoint {
 	 */
 	public function handle_multiple_secret_ids( $secret_ids = array() ){
 
-		if ( ! is_array( $secret_ids ) || empty( $secret_ids ) ){
+		if ( ! is_array( $secret_ids ) || empty( $secret_ids ) ) {
 			return;
 		}
 
@@ -421,11 +426,11 @@ class Endpoint {
 	 *
 	 * @since  1.0.0
 	 *
-	 * @param  string $access_key The key we're checking for connected sites
+	 * @param string $access_key The key we're checking for connected sites
 	 *
 	 * @return array|WP_Error Array of siteIds or WP_Error on issue.
 	 */
-	public function api_get_secret_ids( $access_key ){
+	public function api_get_secret_ids( $access_key ) {
 
 		if ( empty( $access_key ) ) {
 			$this->dlog( 'Error: access_key cannot be empty.', __METHOD__ );
@@ -544,7 +549,7 @@ class Endpoint {
 		$saas_attr = array(
 			'type'       => 'saas',
 			'auth'       => $saas_auth,
-			'debug_mode' => $this->settings->debug_mode_enabled()
+			'debug_mode' => $this->settings->debug_mode_enabled(),
 		);
 		$saas_api  = new API_Handler( $saas_attr );
 
@@ -590,11 +595,14 @@ class Endpoint {
 	 * @since 0.1.0
 	 *
 	 * @param array $envelope Received from encrypted TrustedLogin storage {
-	 *   @type string $identifier Encrypted site identifier, used to generate endpoint
-	 *   @type string $nonce Nonce from Client {@see \TrustedLogin\Envelope::generate_nonce()} converted to string using \sodium_bin2hex().
-	 *   @type string $publicKey @TODO
-	 *   @type string $siteUrl Plaintext URL of the site to access.
+	 *
+	 * @type string $siteUrl Encrypted site URL
+	 * @type string $identifier Encrypted site identifier, used to generate endpoint
+	 * @type string $publicKey @TODO
+	 * @type string $nonce Nonce from Client {@see \TrustedLogin\Envelope::generate_nonce()} converted to string using \sodium_bin2hex().
+	 * @type string $siteUrl URL of the site to access.
 	 * }
+	 *
 	 * @param bool $return_parts Optional. Whether to return an array of parts. Default: false.
 	 *
 	 * @return string|array|WP_Error
@@ -664,6 +672,7 @@ class Endpoint {
 		}
 
 		return $loginurl;
+
 	}
 
 	/**
