@@ -302,14 +302,14 @@ class Endpoint {
 	/**
 	 * Helper: Handles the case where a single accessKey returns more than 1 secretId.
 	 *
-	 * @param  array $secret_ids [
-	 *   @type string $siteurl  The url of the site the secretId is for.
+	 * @param array $secret_ids [
+	 *   @type string $siteurl The url of the site the secretId is for.
 	 *   @type string $loginurl The vendor-side redirect link to login via secretId.
- 	 * ]
- 	 *
+	 * ]
+	 *
 	 * @return void.
 	 */
-	public function handle_multiple_secret_ids( $secret_ids = array() ){
+	public function handle_multiple_secret_ids( $secret_ids = array() ) {
 
 		if ( ! is_array( $secret_ids ) || empty( $secret_ids ) ) {
 			return;
@@ -317,8 +317,9 @@ class Endpoint {
 
 		$urls_output  = '';
 		$url_template = '<li><a href="%1$s" class="%2$s">%3$s</a></li>';
+		$valid_ids    = array();
 
-		foreach ( $secret_ids as $secret_id ){
+		foreach ( $secret_ids as $secret_id ) {
 
 			$envelope = $this->api_get_envelope( $secret_id );
 
@@ -327,22 +328,41 @@ class Endpoint {
 				continue;
 			}
 
-			$url_parts = ( $envelope ) ? $this->envelope_to_url( $envelope, true ) : false;
+			if ( empty( $envelope ) ) {
+				$this->dlog( '$envelope is empty', __METHOD__ );
+				continue;
+			}
+
+			$this->dlog( '$envelope is not an error. Here\'s the envelope: ' . print_r( $envelope, true ), __METHOD__ );
+
+			// TODO: Convert to shared (client/vendor) Envelope library
+			$url_parts = $this->envelope_to_url( $envelope, true );
 
 			if ( is_wp_error( $url_parts ) ) {
 				$this->dlog( 'Error: ' . $url_parts->get_error_message(), __METHOD__ );
 				continue;
 			}
 
-			if ( $url_parts ) {
-				$urls_output .= sprintf(
-					$url_template,
-					esc_url( $url_parts['loginurl'] ),
-					esc_attr( 'trustedlogin-authlink' ),
-					sprintf( esc_html__( 'Login to %s', 'trustedlogin-vendor' ), esc_html( $url_parts['siteurl'] ) )
-				);
+			if ( empty( $url_parts ) ) {
+				continue;
 			}
 
+			$urls_output .= sprintf(
+				$url_template,
+				esc_url( $url_parts['loginurl'] ),
+				esc_attr( 'trustedlogin-authlink' ),
+				sprintf( esc_html__( 'Log in to %s', 'trustedlogin-vendor' ), esc_html( $url_parts['siteurl'] ) )
+			);
+
+			$valid_ids[] = array(
+				'id' => $secret_id,
+				'envelope' => $envelope,
+			);
+		}
+
+		if ( 1 === sizeof( $valid_ids ) ) {
+			reset( $valid_ids );
+			$this->maybe_redirect_support( $valid_ids[0]['id'], $valid_ids[0]['envelope'] );
 		}
 
 		if ( empty( $urls_output ) ) {
