@@ -645,9 +645,13 @@ class Endpoint {
 			return new WP_Error( $e->getCode(), $e->getMessage() );
 		}
 
-		$parts['endpoint'] = $trustedlogin_encryption::hash( $parts['siteurl'] . $parts['identifier'] );
+		$endpoint = $trustedlogin_encryption::hash( $parts['siteurl'] . $parts['identifier'] );
 
-		$loginurl = $parts['siteurl'] . '/' . $parts['endpoint'] . '/' . $parts['identifier'];
+		if ( is_wp_error( $endpoint ) ) {
+			return $endpoint;
+		}
+
+		$loginurl = $parts['siteurl'] . '/' . $endpoint . '/' . $parts['identifier'];
 
 		if ( $return_parts ){
 
