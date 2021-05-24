@@ -240,7 +240,6 @@ class Encryption {
 
 		$bin_nonce = \sodium_hex2bin( $hex_nonce );
 
-		// TODO: Make sure this is the right constant (CRYPTO_BOX_NONCEBYTES)?
 		if ( SODIUM_CRYPTO_BOX_NONCEBYTES !== strlen( $bin_nonce ) ) {
 			return new \WP_Error( 'nonce_wrong_length', sprintf( 'The nonce must be %d characters. Instead it\'s ', SODIUM_CRYPTO_BOX_NONCEBYTES ) . $bin_nonce );
 		}
@@ -268,25 +267,10 @@ class Encryption {
 			$alice_public_key = \sodium_hex2bin( $alice_public_key );
 			$crypto_box_keypair   = \sodium_crypto_box_keypair_from_secretkey_and_publickey( $bob_private_key, $alice_public_key );
 
-			// TODO:
-			// TODO:
-			// TODO:
-			// TODO: DO NOT SHIP THIS.
-			// TODO:
-			// TODO:
-			$debug_data = array(
-				'$encrypted_payload'             => $encrypted_payload,
-				'$nonce'                         => $bin_nonce,
-				'$crypto_box_keypair'            => $crypto_box_keypair,
-				'$private_key (decrypted)'       => $bob_private_key,
-				'$client_public_key (decrypted)' => $alice_public_key,
-				'do-not-ship'                    => true,
-			);
-
 			$decrypted_payload = \sodium_crypto_box_open( $encrypted_payload, $bin_nonce, $crypto_box_keypair );
 
 			if ( false === $decrypted_payload ) {
-				return new \WP_Error( 'decryption_failed', 'Decryption failed.', $debug_data );
+				return new \WP_Error( 'decryption_failed', 'Decryption failed.' );
 			}
 
 			return $decrypted_payload;
