@@ -285,9 +285,11 @@ class HelpScout extends HelpDesk {
 
 		foreach ( $licenses as $license ) {
 
-			$data['searchKeys'][]      = $license->key;
-			$statuses[ $license->key ] = $license->status;
+			// We look up the licenses by their hash, not plaintext
+			$license_hash = hash( 'sha256', $license->key );
 
+			$data['searchKeys'][]      = $license_hash;
+			$statuses[ $license_hash ] = $license->status;
 		} // foreach($licenses)
 
 		if ( ! empty( $data['searchKeys'] ) ) {
@@ -309,7 +311,7 @@ class HelpScout extends HelpDesk {
 
 				if ( ! empty( $response ) ) {
 					foreach ( $response as $key => $secrets ) {
-						foreach ( $secrets as $secret ) {
+						foreach ( (array) $secrets as $secret ) {
 
 							$url = $this->build_action_url( 'support_redirect', $secret );
 
@@ -334,7 +336,7 @@ class HelpScout extends HelpDesk {
 
 		} else {
 
-			$this->dlog( 'No searchKeys found.', __METHOD__ );
+			$this->dlog( 'No license keys found for email ' . esc_attr( $email ), __METHOD__ );
 
 		}
 
