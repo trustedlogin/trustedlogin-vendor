@@ -119,7 +119,7 @@ abstract class HelpDesk {
 	 * @param string $action What action the link should do. eg 'support_redirect'.
 	 * @param string $access_key (Optional) The key for the access being requested.
 	 *
-	 * @return string The url with GET variables.
+	 * @return string|\WP_Error The url with GET variables.
 	 */
 	public function build_action_url( $action, $access_key = '' ) {
 

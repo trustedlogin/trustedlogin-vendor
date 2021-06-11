@@ -123,7 +123,7 @@ class SiteKey_Login {
 	}
 
 	/**
-	 *
+	 * @TODO Write docblock
 	 */
 	public function maybe_handle_accesskey() {
 

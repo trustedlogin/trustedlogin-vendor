@@ -481,7 +481,7 @@ class Endpoint {
 		$saas_api = new API_Handler( $saas_attr );
 		$endpoint = 'accounts/' . $account_id . '/sites/';
 		$method   = 'POST';
-		$data     = array( 'accessKeys' => array( $access_key ) );
+		$data     = array( 'searchKeys' => array( $access_key ) );
 
 		$response = $saas_api->call( $endpoint, $data, $method );
 
@@ -500,15 +500,13 @@ class Endpoint {
 
 		if ( ! empty( $response ) ) {
 			foreach ( $response as $key => $secrets ) {
-				foreach ( $secrets as $secret ) {
+				foreach ( (array) $secrets as $secret ) {
 					$access_keys[] = $secret;
 				}
 			}
 		}
 
-		$access_keys = array_reverse( $access_keys );
-
-		return $access_keys;
+		return array_reverse( $access_keys );
 	}
 
 	/**

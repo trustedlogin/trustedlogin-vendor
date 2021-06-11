@@ -264,7 +264,7 @@ class HelpScout extends HelpDesk {
 		 */
 		$item_template = apply_filters(
 			'trustedlogin/vendor/helpdesk/' . self::SLUG . '/template/item',
-			'<li class="c-sb-list-item"><a href="%1$s" target="_blank">%2$s %3$s</a> (%4$s)</li>'
+			'<li class="c-sb-list-item"><a href="%1$s" target="_blank">%2$s %3$s</a><ul class="unstyled"><li><span class="muted">(%4$s)</span></li></ul></li>'
 		);
 
 		/**
@@ -279,18 +279,18 @@ class HelpScout extends HelpDesk {
 
 		$endpoint = 'accounts/' . $account_id . '/sites/';
 		$method   = 'POST';
-		$data     = array( 'accessKeys' => array() );
+		$data     = array( 'searchKeys' => array() );
 
 		$statuses = array();
 
 		foreach ( $licenses as $license ) {
 
-			$data['accessKeys'][]      = $license->key;
+			$data['searchKeys'][]      = $license->key;
 			$statuses[ $license->key ] = $license->status;
 
 		} // foreach($licenses)
 
-		if ( ! empty( $data['accessKeys'] ) ) {
+		if ( ! empty( $data['searchKeys'] ) ) {
 
 			/**
 			 * Expected result
@@ -310,9 +310,17 @@ class HelpScout extends HelpDesk {
 				if ( ! empty( $response ) ) {
 					foreach ( $response as $key => $secrets ) {
 						foreach ( $secrets as $secret ) {
+
+							$url = $this->build_action_url( 'support_redirect', $secret );
+
+							if ( is_wp_error( $url ) ) {
+								$this->dlog( 'Error building item HTML. ' . $url->get_error_code() . ': ' . $url->get_error_message() );
+								continue;
+							}
+
 							$item_html .= sprintf(
 								$item_template,
-								$this->build_action_url( 'support_redirect', $secret ),
+								$url,
 								__( 'TrustedLogin for ', 'trustedlogin-vendor' ),
 								$key,
 								$statuses[ $key ]
@@ -326,7 +334,7 @@ class HelpScout extends HelpDesk {
 
 		} else {
 
-			$this->dlog( 'No accessKeys found.', __METHOD__ );
+			$this->dlog( 'No searchKeys found.', __METHOD__ );
 
 		}
 
