@@ -153,12 +153,11 @@ class Settings {
 
 	public function admin_init() {
 
-		register_setting( 'trustedlogin_vendor_options', 'trustedlogin_vendor', array(
-			'sanitize_callback' => array(
-				$this,
-				'verify_api_details'
-			)
-		) );
+		register_setting(
+			'trustedlogin_vendor_options',
+			'trustedlogin_vendor',
+			array( 'sanitize_callback' => array( $this, 'verify_api_details' ) )
+		);
 
 		add_settings_section(
 			'trustedlogin_vendor_options_section',
@@ -193,7 +192,7 @@ class Settings {
 
 		add_settings_field(
 			'approved_roles',
-			__( 'Which WP roles can automatically be logged into customer sites?', 'trustedlogin-vendor' ),
+			__( 'What user roles provide support?', 'trustedlogin-vendor' ) . '<span class="description">' . esc_html__( 'Which users should be able to log into customers&rsquo; sites if they have an Access Key?', 'trustedlogin-vendor' ) . '</span>',
 			array( $this, 'approved_roles_field_render' ),
 			'trustedlogin_vendor_options',
 			'trustedlogin_vendor_options_section'
@@ -561,7 +560,7 @@ class Settings {
 			true
 		);
 
-		$redirect_url  = add_query_arg(
+		$redirect_url = add_query_arg(
 			array(
 				'page'   => ( isset( $_GET['page'] ) ? sanitize_text_field( $_GET['page'] ) : null ),
 				'action' => 'reset_keys'

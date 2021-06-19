@@ -141,11 +141,23 @@
 .toplevel_page_trustedlogin_vendor div.notice h2 {
 	margin-top: 10px;
 }
+.toplevel_page_trustedlogin_vendor div.notice h3 {
+	font-weight: normal;
+	font-size: 16px;
+}
+
+.toplevel_page_trustedlogin_vendor .form-table th,
+.toplevel_page_trustedlogin_vendor .form-table td {
+	font-size: 16px;
+}
 
 .toplevel_page_trustedlogin_vendor th .howto,
 .toplevel_page_trustedlogin_vendor th .description {
 	font-weight: normal;
 	display: block;
+}
+.toplevel_page_trustedlogin_vendor th .description {
+	padding: .5em 0;
 }
 .toplevel_page_trustedlogin_vendor th {
 	width: 350px;
