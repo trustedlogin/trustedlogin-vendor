@@ -108,8 +108,8 @@ class SiteKey_Login {
 			'<div class="trustedlogin-dialog accesskey">
 				  <img src="%s" width="400" alt="TrustedLogin">
 				  <form method="post" target="_blank">
-					  <input name="ak" type="text" id="trustedlogin-access-key" placeholder="%s" />
-					  <button type="submit" id="trustedlogin-go" class="button button-large trustedlogin-proceed">%s</button>
+					  <input name="ak" type="text" id="trustedlogin-access-key" placeholder="%s" required aria-required="true" minlength="32" maxlength="64" />
+					  <button type="submit" id="trustedlogin-go" class="button button-large button-primary trustedlogin-proceed">%s</button>
 					  %s
 				  </form>
 				</div>',
