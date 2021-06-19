@@ -151,11 +151,11 @@ class API_Handler {
 	}
 
 	/**
-	 * Verfies the provided credentials.
+	 * Verifies the provided credentials.
 	 *
 	 * @since 0.9.1
 	 *
-	 * @return true|WP_Error If 204 status received, returns true, otherwise a WP_Error for the status code provided.
+	 * @return \stdClass|WP_Error If valid status received, returns object with a few details, otherwise a WP_Error for the status code provided.
 	 */
 	public function verify( $account_id ='' ){
 
@@ -251,8 +251,7 @@ class API_Handler {
 		    );
 	    }
 
-	    return true;
-
+	    return $body;
 	}
 
 	/**
