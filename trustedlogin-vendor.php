@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
 }
 // Exit if accessed directly
 
-define( 'TRUSTEDLOGIN_PLUGIN_VERSION', '0.9.0-refactor' );
+define( 'TRUSTEDLOGIN_PLUGIN_VERSION', '0.9.1' );
 define( 'TRUSTEDLOGIN_PLUGIN_FILE', __FILE__ );
 
 /** @define "$path" "./" */
