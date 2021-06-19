@@ -125,5 +125,6 @@ add_action( 'plugins_loaded', function() {
 register_deactivation_hook( __FILE__, 'trustedlogin_vendor_deactivate' );
 
 function trustedlogin_vendor_deactivate() {
-    delete_option('tl_permalinks_flushed');
+	delete_option( 'tl_permalinks_flushed' );
+	delete_option( 'trustedlogin_vendor_config' );
 }

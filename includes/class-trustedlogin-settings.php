@@ -307,11 +307,7 @@ class Settings {
 
 			$verified = $saas_api->verify( $account_id );
 
-			if ( is_wp_error( $verified ) ) {
-				throw new Exception( $verified->get_error_message() );
-			}
-
-			$api_creds_verified = true;
+			update_site_option( 'trustedlogin_vendor_config', $verified );
 
 		} catch ( Exception $e ) {
 
@@ -325,15 +321,6 @@ class Settings {
 				'trustedlogin_auth',
 				$error,
 				'error'
-			);
-		}
-
-		if ( $api_creds_verified ) {
-			add_settings_error(
-				'trustedlogin_vendor_options',
-				'trustedlogin_auth',
-				__( 'TrustedLogin API credentials verified.', 'trustedlogin-vendor' ),
-				'updated'
 			);
 		}
 
@@ -487,11 +474,46 @@ class Settings {
 
 		echo '<form method="post" action="options.php">';
 
-		echo sprintf( '<h1>%1$s</h1>', __( 'TrustedLogin Settings', 'trustedlogin-vendor' ) );
+		printf( '<img src="%s" width="400" alt="TrustedLogin">', esc_url( plugins_url( 'assets/trustedlogin-logo.png', TRUSTEDLOGIN_PLUGIN_FILE ) ) );
 
-		esc_html_e( 'Settings for how your site and support agents are connected to TrustedLogin.', 'trustedlogin-vendor' );
+		echo sprintf( '<h1 class="screen-reader-text">%1$s</h1>', __( 'TrustedLogin Settings', 'trustedlogin-vendor' ) );
 
 		settings_errors( 'trustedlogin_vendor_options' );
+
+		$status = get_site_option( 'trustedlogin_vendor_config' );
+
+		switch( true ) {
+			case is_wp_error( $status ):
+				if ( ! $wp_settings_errors ) {
+					echo '<div class="notice notice-error">';
+					echo '<h2>⚠️ ' . esc_html__( 'Could not verify TrustedLogin credentials.', 'trustedlogin-vendor' ) . '</h2>';
+					echo '<h3 class="description">' . esc_html( $status->get_error_message() ) . '</h3>';
+					echo '</div>';
+				}
+				break;
+			case is_object( $status ):
+				echo '<div class="notice notice-success">';
+				echo '<h2>✅ ' . esc_html__( 'You&rsquo;re connected to TrustedLogin!', 'trustedlogin-vendor' ) . '</h2>';
+
+				if ( isset( $status->id ) ) {
+					$url = sprintf( 'https://app.trustedlogin.com/settings/teams/%d', $status->id );
+					$link_text = sprintf( esc_html__( 'Manage the %s team at TrustedLogin.com', 'trustedlogin-vendor' ), '<strong>' . esc_html( $status->name ) . '</strong>' );
+				} else {
+					$url = 'https://app.trustedlogin.com/login';
+					$link_text = __( 'Log in to TrustedLogin', 'trustedlogin-vendor' );
+				}
+
+				echo '<h3 class="description"><a href="' . esc_url( $url ) .'">' . $link_text . '</a></h3>';
+				echo '</div>';
+				break;
+			case false:
+				echo '<div class="notice notice-success">';
+				echo '<h2>' . esc_html__( 'Connect your site to the TrustedLogin service.', 'trustedlogin-vendor' ) . '</h2>';
+				echo '<h3 class="description"><a href="https://app.trustedlogin.com">' . esc_html__( 'Sign up at TrustedLogin.com') . '</a></h3>';
+				echo '</div>';
+				break;
+		}
+
 
 		do_action( 'trustedlogin/vendor/settings/sections/before' );
 
