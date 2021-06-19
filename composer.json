@@ -2,7 +2,7 @@
   "name": "trustedlogin/trustedlogin-vendor",
   "type": "wordpress-plugin",
   "description": "Secure logins for developers, agencies, and hosts.",
-  "license": "GPL-2.0+",
+  "license": "GPL-2.0",
   "require": {
     "php": ">=5.6",
     "katzgrau/klogger": "dev-master"
