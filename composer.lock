@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5a45b486903ead65952ed885c4e370b0",
+    "content-hash": "32fe66a8fbd01cff10c6ea7e7e032183",
     "packages": [
         {
             "name": "katzgrau/klogger",
@@ -120,12 +120,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Dealerdirect/phpcodesniffer-composer-installer.git",
-                "reference": "c960cf4629fab7155caca18c038ca7257b7595e3"
+                "reference": "ce4370ee5a2b1642bca908d4b54a369e845bb678"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Dealerdirect/phpcodesniffer-composer-installer/zipball/c960cf4629fab7155caca18c038ca7257b7595e3",
-                "reference": "c960cf4629fab7155caca18c038ca7257b7595e3",
+                "url": "https://api.github.com/repos/Dealerdirect/phpcodesniffer-composer-installer/zipball/ce4370ee5a2b1642bca908d4b54a369e845bb678",
+                "reference": "ce4370ee5a2b1642bca908d4b54a369e845bb678",
                 "shasum": ""
             },
             "require": {
@@ -183,7 +183,7 @@
                 "issues": "https://github.com/dealerdirect/phpcodesniffer-composer-installer/issues",
                 "source": "https://github.com/dealerdirect/phpcodesniffer-composer-installer"
             },
-            "time": "2021-03-14T13:49:41+00:00"
+            "time": "2021-06-13T15:16:43+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -393,12 +393,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "d2574b9185cdde7185132647d0c9121da3e59f90"
+                "reference": "39649310a0f463b23a44bd36eb42dae8ccdb9ab7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/d2574b9185cdde7185132647d0c9121da3e59f90",
-                "reference": "d2574b9185cdde7185132647d0c9121da3e59f90",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/39649310a0f463b23a44bd36eb42dae8ccdb9ab7",
+                "reference": "39649310a0f463b23a44bd36eb42dae8ccdb9ab7",
                 "shasum": ""
             },
             "require": {
@@ -442,7 +442,7 @@
                 "source": "https://github.com/squizlabs/PHP_CodeSniffer",
                 "wiki": "https://github.com/squizlabs/PHP_CodeSniffer/wiki"
             },
-            "time": "2021-05-27T06:21:27+00:00"
+            "time": "2021-06-17T23:24:54+00:00"
         },
         {
             "name": "trustedlogin/trustedlogin-client",
@@ -450,12 +450,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/trustedlogin/trustedlogin-client.git",
-                "reference": "5ec315d02c73c1cdeb8b143586d3850ba55402b7"
+                "reference": "bbb122eced66abbf4ed78e8b6ccab3d2e557bd98"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/trustedlogin/trustedlogin-client/zipball/5ec315d02c73c1cdeb8b143586d3850ba55402b7",
-                "reference": "5ec315d02c73c1cdeb8b143586d3850ba55402b7",
+                "url": "https://api.github.com/repos/trustedlogin/trustedlogin-client/zipball/bbb122eced66abbf4ed78e8b6ccab3d2e557bd98",
+                "reference": "bbb122eced66abbf4ed78e8b6ccab3d2e557bd98",
                 "shasum": ""
             },
             "require": {
@@ -466,6 +466,7 @@
                 "paragonie/sodium_compat": "^1.12",
                 "php": ">=5.3.0"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -493,7 +494,7 @@
                 "source": "https://github.com/trustedlogin/trustedlogin-client/tree/develop",
                 "issues": "https://github.com/trustedlogin/trustedlogin-client/issues"
             },
-            "time": "2020-06-02T22:18:18+00:00"
+            "time": "2021-06-19T19:46:44+00:00"
         }
     ],
     "aliases": [],
@@ -505,7 +506,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.6"
+        "php": ">=5.6 <8"
     },
     "platform-dev": [],
     "plugin-api-version": "2.0.0"
