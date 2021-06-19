@@ -176,17 +176,17 @@ class Settings {
 		);
 
 		add_settings_field(
-			'private_key',
-			__( 'TrustedLogin Private Key ', 'trustedlogin-vendor' ),
-			array( $this, 'private_key_field_render' ),
+			'public_key',
+			__( 'TrustedLogin Public Key ', 'trustedlogin-vendor' ),
+			array( $this, 'public_key_field_render' ),
 			'trustedlogin_vendor_options',
 			'trustedlogin_vendor_options_section'
 		);
 
 		add_settings_field(
-			'public_key',
-			__( 'TrustedLogin Public Key ', 'trustedlogin-vendor' ),
-			array( $this, 'public_key_field_render' ),
+			'private_key',
+			__( 'TrustedLogin Private Key ', 'trustedlogin-vendor' ),
+			array( $this, 'private_key_field_render' ),
 			'trustedlogin_vendor_options',
 			'trustedlogin_vendor_options_section'
 		);
@@ -209,7 +209,7 @@ class Settings {
 
 		add_settings_field(
 			'trustedlogin_vendor_debug_enabled',
-			__( 'Enable debug logging?', 'trustedlogin-vendor' ),
+			__( 'Enable debug logging?', 'trustedlogin-vendor' ) . '<span class="description">' . sprintf( esc_html__( 'When enabled, logs will be saved to the %s directory.', 'trustedlogin-vendor' ), '<code>wp-content/uploads/trustedlogin-logs</code>' ) . '</span>',
 			array( $this, 'debug_enabled_field_render' ),
 			'trustedlogin_vendor_options',
 			'trustedlogin_vendor_options_section'
@@ -217,7 +217,7 @@ class Settings {
 
 		add_settings_field(
 			'trustedlogin_vendor_enable_audit_log',
-			__( 'Enable Activity Log?', 'trustedlogin-vendor' ),
+			__( 'Enable Activity Log?', 'trustedlogin-vendor' ) . '<span class="description">' . sprintf( esc_html__( 'Activity Log shows a log of users attempting to log into customer sites using Access Keys.', 'trustedlogin-vendor' ), '<code>wp-content/uploads/trustedlogin-logs</code>' ) . '</span>',
 			array( $this, 'enable_audit_log_field_render' ),
 			'trustedlogin_vendor_options',
 			'trustedlogin_vendor_options_section'
@@ -225,14 +225,14 @@ class Settings {
 
 		add_settings_section(
 			'trustedlogin_vendor_danger_zone',
-			__( 'Danger Zone', 'trustedlogin-vendor' ),
+			esc_html__( 'Danger Zone', 'trustedlogin-vendor' ),
 			array( $this, 'section_callback' ),
 			'trustedlogin_vendor_danger'
 		);
 
 		add_settings_field(
 			'trustedlogin_vendor_enable_audit_log',
-			__( 'Reset encryption keys?', 'trustedlogin-vendor' ),
+			__( 'Reset encryption keys?', 'trustedlogin-vendor' ).'<span class="howto">' . esc_html__( 'If you reset the encryption keys, all previous authorized logins will be inaccessible.', 'trustedlogin-vendor' ) . '</span>',
 			array( $this, 'reset_encryption_field_render' ),
 			'trustedlogin_vendor_danger',
 			'trustedlogin_vendor_danger_zone'
@@ -375,7 +375,7 @@ class Settings {
 		// I mean, really. No one wants this.
 		unset( $roles['subscriber'] );
 
-		$select = '<select name="' . self::SETTING_NAME . '[approved_roles][]" size="5" id="trustedlogin_vendor_approved_roles" class="postform regular-text ltr" multiple="multiple" regular-text>';
+		$select = '<select name="' . self::SETTING_NAME . '[approved_roles][]" size="5" id="trustedlogin_vendor_approved_roles" class="regular-text" multiple="multiple" regular-text>';
 
 		foreach ( $roles as $role_slug => $role_info ) {
 
@@ -457,8 +457,10 @@ class Settings {
 
 	public function reset_encryption_field_render() {
 
-		$other_attributes = array( 'id' => 'trustedlogin-reset-button' );
-		submit_button( __( 'Reset Keys', 'trustedlogin-vendor' ), 'secondary', 'trustedlogin-reset-button', false, $other_attributes );;
+		$other_attributes = array(
+			'id' => 'trustedlogin-reset-button',
+		);
+		submit_button( __( 'Reset Keys', 'trustedlogin-vendor' ), 'is-destructive is-primary button-large', 'trustedlogin-reset-button', false, $other_attributes );;
 
 	}
 
@@ -503,12 +505,9 @@ class Settings {
 
 		echo '</form>';
 
-		echo '<div id="trustedlogin-danger-zone">';
-
+		echo '<div id="trustedlogin-danger-zone" class="notice notice-error">';
 		do_settings_sections( 'trustedlogin_vendor_danger' );
-
 		echo '</div>';
-
 		do_action( 'trustedlogin/vendor/settings/form/after' );
 
 	}
@@ -610,6 +609,10 @@ class Settings {
 		return $value = ( array_key_exists( $setting, $this->options ) ) ? $this->options[ $setting ] : false;
 	}
 
+	private function is_vendor_settings_page() {
+		return 'trustedlogin_vendor' !== sanitize_text_field( $_REQUEST['page'] );
+	}
+
 	/**
 	 * Responds to actions piped through the URL to our settings page.
 	 *
@@ -621,7 +624,7 @@ class Settings {
 			return;
 		}
 
-		if ( 'trustedlogin_vendor' !== sanitize_text_field( $_REQUEST['page'] ) ) {
+		if ( $this->is_vendor_settings_page() ) {
 			return;
 		}
 
@@ -633,7 +636,7 @@ class Settings {
 
 		if ( 'reset_complete' === $action ) {
 			add_action( 'admin_notices', function () {
-				echo '<div class="notice notice-warning"><h3>' . esc_html__( 'Encryption keys reset.', 'trustedlogin-vendor' ) . '</h3>' . esc_html__( 'All previous authorizations are now inaccessible via TrustedLogin', 'trustedlogin-vendor' ) . '</div>';
+				echo '<div class="notice notice-warning warning"><h2>' . esc_html__( 'Encryption keys reset.', 'trustedlogin-vendor' ) . '</h2><p>' . esc_html__( 'All previous authorizations are now inaccessible via TrustedLogin', 'trustedlogin-vendor' ) . '</p></div>';
 			} );
 
 			return;
