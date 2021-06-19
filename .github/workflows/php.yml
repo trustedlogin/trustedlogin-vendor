@@ -31,7 +31,7 @@ jobs:
       with:
         php_version: 7.4
         dev: no
-        args: --prefer-dist --no-progress
+        args: --no-dev --prefer-dist --no-progress
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
