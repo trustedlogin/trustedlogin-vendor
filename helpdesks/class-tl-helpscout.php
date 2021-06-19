@@ -225,7 +225,7 @@ class HelpScout extends HelpDesk {
 		if ( ! $saas_auth || ! $public_key ) {
 			$error = __( 'TrustedLogin has not been properly configured : both the API Key and Private Key must be entered.', 'trustedlogin-vendor' );
 
-			$this->dlog( $error, __METHOD__ );
+			$this->log( $error, __METHOD__ );
 
 			// translators: %s is replaced with the domain name of the website
 			$error = sprintf( '<h4 class="red">%s</h4><p><a href="%s">%s</a></p>',
@@ -310,7 +310,7 @@ class HelpScout extends HelpDesk {
 				$item_html = $response->get_error_message();
 			} else {
 
-				$this->dlog( 'Response: ' . print_r( $response, true ), __METHOD__ );
+				$this->log( 'Response: ' . print_r( $response, true ), __METHOD__ );
 
 				if ( ! empty( $response ) ) {
 					foreach ( $response as $key => $secrets ) {
@@ -326,7 +326,7 @@ class HelpScout extends HelpDesk {
 							$url = $this->build_action_url( 'support_redirect', $secret );
 
 							if ( is_wp_error( $url ) ) {
-								$this->dlog( 'Error building item HTML. ' . $url->get_error_code() . ': ' . $url->get_error_message() );
+								$this->log( 'Error building item HTML. ' . $url->get_error_code() . ': ' . $url->get_error_message() );
 								continue;
 							}
 
@@ -342,11 +342,11 @@ class HelpScout extends HelpDesk {
 				}
 			}
 
-			$this->dlog( 'item_html: ' . $item_html, __METHOD__ );
+			$this->log( 'item_html: ' . $item_html, __METHOD__ );
 
 		} else {
 
-			$this->dlog( 'No license keys found for email ' . esc_attr( $email ), __METHOD__ );
+			$this->log( 'No license keys found for email ' . esc_attr( $email ), __METHOD__ );
 
 		}
 
@@ -385,7 +385,7 @@ class HelpScout extends HelpDesk {
 		$licenses = array();
 
 		if ( ! function_exists( 'EDD' ) ) {
-			$this->dlog( 'EDD is not loaded.', __METHOD__ );
+			$this->log( 'EDD is not loaded.', __METHOD__ );
 			return false;
 		}
 
@@ -396,14 +396,14 @@ class HelpScout extends HelpDesk {
 
 		// Sanity check.
 		if( ! class_exists( '\EDD_Customer' ) ) {
-			$this->dlog( 'EDD_Customer is not found.', __METHOD__ );
+			$this->log( 'EDD_Customer is not found.', __METHOD__ );
 			return false;
 		}
 
 		$Customer = new \EDD_Customer( $email );
 
 		if ( ! $Customer ) {
-			$this->dlog( 'No customer exists for email.', __METHOD__ );
+			$this->log( 'No customer exists for email.', __METHOD__ );
 			return false;
 		}
 
@@ -436,13 +436,13 @@ class HelpScout extends HelpDesk {
 	private function verify_request( $data, $signature = null ) {
 
 		if ( ! $this->has_secret() ) {
-			$this->dlog( 'No secret is set.', __METHOD__ );
+			$this->log( 'No secret is set.', __METHOD__ );
 
 			return false;
 		}
 
 		if ( is_null( $signature ) ) {
-			$this->dlog( 'No signature provided. Here is the $_SERVER output' . print_r( $_SERVER, true ), __METHOD__ );
+			$this->log( 'No signature provided. Here is the $_SERVER output' . print_r( $_SERVER, true ), __METHOD__ );
 
 			return false;
 		}
