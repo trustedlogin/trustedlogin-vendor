@@ -1,7 +1,4 @@
 name: PHP Composer
-with:
-  php-version: '7.4'
-  tools: php-cs-fixer, phpunit
 on:
   push:
     branches: [ develop, main ]
