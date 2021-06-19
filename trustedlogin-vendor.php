@@ -37,6 +37,8 @@ require_once $path . 'includes/class-trustedlogin-encryption.php';
 
 require_once $path . 'includes/class-trustedlogin-healthcheck.php';
 
+require_once $path . 'vendor/autoload.php';
+
 class Plugin {
 
 	use \TrustedLogin\Vendor\Debug_Logging;
