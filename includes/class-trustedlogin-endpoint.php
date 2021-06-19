@@ -208,9 +208,11 @@ class Endpoint {
 		}
 
 		if ( 1 !== intval( $_REQUEST[ self::REDIRECT_ENDPOINT ] ) ) {
-			$this->dlog(
-				'Incorrect parameter for trustedlogin provided: ' . sanitize_text_field( $_REQUEST[ self::REDIRECT_ENDPOINT ] ),
-				__METHOD__ );
+			$this->log(
+				'Incorrect parameter for TrustedLogin provided: ' . sanitize_text_field( $_REQUEST[ self::REDIRECT_ENDPOINT ] ),
+				__METHOD__,
+				'error'
+			);
 
 			return;
 		}
@@ -223,7 +225,7 @@ class Endpoint {
 
 		foreach ( $required_args as $required_arg ) {
 			if ( ! isset( $_REQUEST[ $required_arg ] ) ) {
-				$this->dlog( 'Required arg ' . $required_arg . ' missing.', __METHOD__ );
+				$this->log( 'Required arg ' . $required_arg . ' missing.', __METHOD__, 'error' );
 
 				return;
 			}
@@ -234,7 +236,7 @@ class Endpoint {
 			$active_helpdesk = $this->settings->get_setting( 'helpdesk' );
 
 			if ( $active_helpdesk !== $_REQUEST['provider'] ) {
-				$this->dlog( 'Active helpdesk doesn\'t match passed provider. Helpdesk: ' . esc_attr( $active_helpdesk ) . ', Provider: ' . esc_attr( $_REQUEST['provider'] ), __METHOD__ );
+				$this->log( 'Active helpdesk doesn\'t match passed provider. Helpdesk: ' . esc_attr( $active_helpdesk ) . ', Provider: ' . esc_attr( $_REQUEST['provider'] ), __METHOD__, 'warning' );
 
 				return;
 			}
@@ -245,7 +247,7 @@ class Endpoint {
 			case 'accesskey_login':
 
 				if ( ! isset( $_REQUEST['ak'] ) ) {
-					$this->dlog( 'Required arg ak missing.', __METHOD__ );
+					$this->log( 'Required arg `ak` missing.', __METHOD__, 'error' );
 
 					return;
 				}
@@ -254,18 +256,20 @@ class Endpoint {
 				$secret_ids = $this->api_get_secret_ids( $access_key );
 
 				if ( is_wp_error( $secret_ids ) ) {
-					$this->dlog(
+					$this->log(
 						'Could not get secret ids. ' . $secret_ids->get_error_message(),
-						__METHOD__
+						__METHOD__,
+						'error'
 					);
 
 					return;
 				}
 
 				if ( empty( $secret_ids ) ) {
-					$this->dlog(
+					$this->log(
 						sprintf( 'No secret ids returned for access_key (%s).', $access_key ),
-						__METHOD__
+						__METHOD__,
+						'error'
 					);
 
 					return;
@@ -282,7 +286,7 @@ class Endpoint {
 			case 'support_redirect':
 
 				if ( ! isset( $_REQUEST['ak'] ) ) {
-					$this->dlog( 'Required arg ak missing.', __METHOD__ );
+					$this->log( 'Required arg ak missing.', __METHOD__, 'error' );
 
 					return;
 				}
@@ -324,22 +328,22 @@ class Endpoint {
 			$envelope = $this->api_get_envelope( $secret_id );
 
 			if ( is_wp_error( $envelope ) ) {
-				$this->dlog( 'Error: ' . $envelope->get_error_message(), __METHOD__ );
+				$this->log( 'Error: ' . $envelope->get_error_message(), __METHOD__, 'error' );
 				continue;
 			}
 
 			if ( empty( $envelope ) ) {
-				$this->dlog( '$envelope is empty', __METHOD__ );
+				$this->log( '$envelope is empty', __METHOD__, 'error' );
 				continue;
 			}
 
-			$this->dlog( '$envelope is not an error. Here\'s the envelope: ' . print_r( $envelope, true ), __METHOD__ );
+			$this->log( '$envelope is not an error. Here\'s the envelope: ' . print_r( $envelope, true ), __METHOD__, 'debug' );
 
 			// TODO: Convert to shared (client/vendor) Envelope library
 			$url_parts = $this->envelope_to_url( $envelope, true );
 
 			if ( is_wp_error( $url_parts ) ) {
-				$this->dlog( 'Error: ' . $url_parts->get_error_message(), __METHOD__ );
+				$this->log( 'Error: ' . $url_parts->get_error_message(), __METHOD__, 'error' );
 				continue;
 			}
 
@@ -391,7 +395,7 @@ class Endpoint {
 	 */
 	public function maybe_redirect_support( $secret_id, $envelope = null ) {
 
-		$this->dlog( "Got here. ID: $secret_id", __METHOD__ );
+		$this->log( "Got to maybe_redirect_support. ID: $secret_id", __METHOD__, 'debug' );
 
 		if ( ! is_admin() ) {
 			$redirect_url = get_site_url();
@@ -401,7 +405,7 @@ class Endpoint {
 
 		// first check if user can be redirected.
 		if ( ! $this->auth_verify_user() ) {
-			$this->dlog( "User cannot be redirected.", __METHOD__ );
+			$this->log( "User cannot be redirected due to auth_verify_user() returning false.", __METHOD__, 'warning' );
 
 			return;
 		}
@@ -417,7 +421,7 @@ class Endpoint {
 		}
 
 		if ( is_wp_error( $envelope ) ) {
-			$this->dlog( 'Error: ' . $envelope->get_error_message(), __METHOD__ );
+			$this->log( 'Error: ' . $envelope->get_error_message(), __METHOD__, 'error' );
 			$this->audit_log->insert( $secret_id, 'failed', $envelope->get_error_message() );
 			wp_safe_redirect( add_query_arg( array( 'tl-error' => self::REDIRECT_ERROR_STATUS ), $redirect_url ), self::REDIRECT_ERROR_STATUS, 'TrustedLogin' );
 			exit;
@@ -438,7 +442,7 @@ class Endpoint {
 			exit;
 		}
 
-		$this->dlog( "Got to end of function, with no action.", __METHOD__ );
+		$this->log( "Got to end of function, with no action.", __METHOD__, 'debug' );
 	}
 
 	/**
@@ -453,7 +457,7 @@ class Endpoint {
 	public function api_get_secret_ids( $access_key ) {
 
 		if ( empty( $access_key ) ) {
-			$this->dlog( 'Error: access_key cannot be empty.', __METHOD__ );
+			$this->log( 'Error: access_key cannot be empty.', __METHOD__, 'error' );
 
 			return new WP_Error( 'data-error', __( 'Access Key cannot be empty', 'trustedlogin-vendor' ) );
 		}
@@ -467,7 +471,7 @@ class Endpoint {
 		$public_key = $this->settings->get_setting( 'public_key' );
 
 		if ( empty( $saas_auth ) || empty( $account_id ) || empty( $public_key ) ) {
-			$this->dlog( "no api_key, public_key or account_id provided", __METHOD__ );
+			$this->log( "Account ID, Public Key, and Private Key must all be provided.", __METHOD__, 'critical' );
 
 			return new WP_Error( 'setup-error', __( 'No auth, public key or account_id data found', 'trustedlogin-vendor' ) );
 		}
@@ -489,7 +493,7 @@ class Endpoint {
 			return $response;
 		}
 
-		$this->dlog( 'Response: ' . print_r( $response, true ), __METHOD__ );
+		$this->log( 'Response: ' . print_r( $response, true ), __METHOD__, 'debug' );
 
 		// 204 response: no sites found.
 		if ( true === $response ) {
@@ -521,7 +525,7 @@ class Endpoint {
 	public function api_get_envelope( $secret_id ) {
 
 		if ( empty( $secret_id ) ) {
-			$this->dlog( 'Error: secret_id cannot be empty.', __METHOD__ );
+			$this->log( 'Error: secret_id cannot be empty.', __METHOD__, 'error' );
 
 			return new WP_Error( 'data-error', __( 'Site ID cannot be empty', 'trustedlogin-vendor' ) );
 		}
@@ -544,7 +548,7 @@ class Endpoint {
 		$public_key = $this->settings->get_setting( 'public_key' );
 
 		if ( empty( $saas_auth ) || empty( $account_id ) || empty( $public_key ) ) {
-			$this->dlog( "no api_key, public_key or account_id provided", __METHOD__ );
+			$this->log( "Public Key, Private Key, and Account ID must be provided.", __METHOD__ );
 
 			return new WP_Error( 'setup-error', __( 'No auth, public key or account_id data found', 'trustedlogin-vendor' ) );
 		}
@@ -580,7 +584,7 @@ class Endpoint {
 
 		if ( ! $token_added ) {
 			$error = __( 'Error setting X-TL-TOKEN header', 'trustedlogin-vendor' );
-			$this->dlog( $error, __METHOD__ );
+			$this->log( $error, __METHOD__, 'error' );
 
 			return new WP_Error( 'x-tl-token-error', $error );
 		}
@@ -601,7 +605,7 @@ class Endpoint {
 			$success = sprintf( __( 'Failed: %s', 'trustedlogin-vendor' ), $envelope->get_error_message() );
 		}
 
-		$this->audit_log->insert( $secret_id, 'received', \json_encode( $envelope ) );
+		$this->audit_log->insert( $secret_id, 'received', print_r( $envelope, true ) );
 
 		return $envelope;
 
@@ -632,7 +636,7 @@ class Endpoint {
 		}
 
 		if ( ! is_array( $envelope ) ) {
-			$this->dlog( 'Error: envelope not an array. e:' . print_r( $envelope, true ), __METHOD__ );
+			$this->log( 'Error: envelope not an array. e:' . print_r( $envelope, true ), __METHOD__, 'error' );
 
 			return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly' );
 		}
@@ -641,7 +645,7 @@ class Endpoint {
 
 		foreach ( $required_keys as $required_key ) {
 			if ( ! array_key_exists( $required_key, $envelope ) ) {
-				$this->dlog( 'Error: malformed envelope. e:' . print_r( $envelope, true ), __METHOD__ );
+				$this->log( 'Error: malformed envelope.', __METHOD__, 'error', $envelope );
 
 				return new WP_Error( 'malformed_envelope', 'The data received is not formatted correctly or there was a server error.' );
 			}
@@ -651,18 +655,18 @@ class Endpoint {
 
 		try {
 
-			$this->dlog( 'Starting to decrypt envelope. Envelope: ' . print_r( $envelope, true ), __METHOD__ );
+			$this->log( 'Starting to decrypt envelope. Envelope: ' . print_r( $envelope, true ), __METHOD__, 'debug' );
 
 			$decrypted_identifier = $trustedlogin_encryption->decrypt( $envelope['identifier'], $envelope['nonce'], $envelope['publicKey'] );
 
 			if ( is_wp_error( $decrypted_identifier ) ) {
 
-				$this->dlog( 'There was an error decrypting the envelope.' . print_r( $decrypted_identifier, true ), __METHOD__ );
+				$this->log( 'There was an error decrypting the envelope.' . print_r( $decrypted_identifier, true ), __METHOD__ );
 
 				return $decrypted_identifier;
 			}
 
-			$this->dlog( 'Decrypted identifier: ' . print_r( $decrypted_identifier, true ), __METHOD__ );
+			$this->log( 'Decrypted identifier: ' . print_r( $decrypted_identifier, true ), __METHOD__, 'debug' );
 
 			$parts = array(
 				'siteurl'    => $envelope['siteUrl'],

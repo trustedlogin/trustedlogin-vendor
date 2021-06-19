@@ -224,7 +224,7 @@ class TrustedLogin_Audit_Log {
 		$user_id = get_current_user_id();
 
 		if ( empty( $user_id ) ) {
-			$this->dlog( 'Error: user_id = 0', __METHOD__ );
+			$this->log( 'User is not logged-in (heartbeat timeout?)', __METHOD__, 'error' );
 
 			return null;
 		}
@@ -243,7 +243,7 @@ class TrustedLogin_Audit_Log {
 		);
 
 		if ( ! $inserted ) {
-			$this->dlog( 'Error: Could not save this to audit log. u:' . $user_id . ' | s:' . $site_id . ' | a:' . $action, __METHOD__ );
+			$this->log( 'Error: Could not save this to audit log.', __METHOD__, 'error', $values );
 
 			return false;
 		}

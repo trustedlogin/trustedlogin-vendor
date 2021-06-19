@@ -37,7 +37,7 @@ trait Licensing {
 
 		$license = new EDD_SL_License( $key );
 
-		$this->dlog( 'license: ' . print_r( $license, true ), __METHOD__ );
+		$this->log( 'License: ' . print_r( $license, true ), __METHOD__, 'debug' );
 
 		return $license->exists;
 	}
@@ -64,7 +64,7 @@ trait Licensing {
 
 	public function get_licenses_by( $type, $value ) {
 
-		$this->dlog( "type: $type | value: $value", __METHOD__ );
+		$this->log( 'Getting licenses', __METHOD__, 'debug', array( 'type' => $type, 'value' => $value ) );
 
 		if ( ! in_array( $type, array( 'email', 'key' ) ) ) {
 			return false;

@@ -138,12 +138,12 @@ class API_Handler {
 		}
 
 		if ( $this->auth_required && empty( $additional_headers ) ) {
-			$this->dlog( "Auth required for API call", __METHOD__ );
+			$this->log( "Auth required for API call", __METHOD__, 'error' );
 
 			return false;
 		}
 
-		$this->dlog( "Sending $method API call to $url", __METHOD__ );
+		$this->log( "Sending $method API call to $url", __METHOD__, 'debug' );
 
 		$api_response = $this->api_send( $url, $data, $method, $additional_headers );
 
@@ -272,7 +272,7 @@ class API_Handler {
 
 		if ( empty( $api_response ) || ! is_array( $api_response ) ) {
 
-			$this->dlog( 'Malformed api_response received:' . print_r( $api_response, true ), __METHOD__ );
+			$this->log( 'Malformed api_response received:' . print_r( $api_response, true ), __METHOD__, 'error' );
 
 			return new WP_Error( 'malformed_response', __( 'Malformed API response received.', 'trustedlogin-vendor' ) );
 		}
@@ -290,7 +290,7 @@ class API_Handler {
 		$body = json_decode( $body );
 
 		if ( empty( $body ) || ! is_object( $body ) ) {
-			$this->dlog( 'No body received:' . print_r( $body, true ), __METHOD__ );
+			$this->log( 'No body received:' . print_r( $body, true ), __METHOD__, 'error' );
 
 			return new WP_Error( 'empty_body', __( 'No body received.', 'trustedlogin-vendor' ) );
 		}
@@ -299,10 +299,10 @@ class API_Handler {
 
 		switch ( $response_code ) {
 			case 424:
-				$this->dlog( 'Error Getting Signature Key from Vendor: ' . print_r( $api_response, true ), __METHOD__ );
+				$this->log( 'Error Getting Signature Key from Vendor: ' . print_r( $api_response, true ), __METHOD__, 'error' );
 				return new WP_Error( 'signature_key_error', $body_message );
 			case 410:
-				$this->dlog( 'Error Getting Signature Key from Vendor: ' . print_r( $api_response, true ), __METHOD__ );
+				$this->log( 'Error Getting Signature Key from Vendor: ' . print_r( $api_response, true ), __METHOD__, 'error' );
 				return new WP_Error( 'gone', 'This support request is gone. Please create a new request. (SecretNotFoundInVaultException)' );
 			case 403:
 				// Problem with Token
@@ -315,7 +315,7 @@ class API_Handler {
 		if ( isset( $body->errors ) ) {
 			$errors = implode( '', (array) $body->errors );
 
-			$this->dlog( "Error from API: {$errors}", __METHOD__ );
+			$this->log( "Error from API: {$errors}", __METHOD__, 'error' );
 
 			return new WP_Error( 'api_errors', sprintf( __( 'Errors returned from API: %s', 'trustedlogin-vendor' ), $errors ) );
 		}
@@ -339,7 +339,7 @@ class API_Handler {
 	public function api_send( $url, $data, $method, $additional_headers ) {
 
 		if ( ! in_array( $method, array( 'POST', 'PUT', 'GET', 'PUSH', 'DELETE' ) ) ) {
-			$this->dlog( "Error: Method not in allowed array list ($method)", __METHOD__ );
+			$this->log( "Error: Method not in allowed array list ($method)", __METHOD__, 'error' );
 
 			return false;
 		}
@@ -371,12 +371,12 @@ class API_Handler {
 
 		if ( is_wp_error( $response ) ) {
 
-			$this->dlog( sprintf( "%s - Something went wrong (%s): %s", __METHOD__, $response->get_error_code(), $response->get_error_message() ) );
+			$this->log( sprintf( "%s - Something went wrong (%s): %s", __METHOD__, $response->get_error_code(), $response->get_error_message() ), __METHOD__, 'error' );
 
 			return $response;
 		}
 
-		$this->dlog( __METHOD__ . " - result " . print_r( $response['response'], true ) );
+		$this->log( __METHOD__ . " - result " . print_r( $response['response'], true ) );
 
 		return $response;
 

@@ -604,7 +604,7 @@ class HealthCheck {
 			$results[ $key ] = $passed;
 		}
 
-		$this->dlog( "results: " . print_r( $results, true ), __METHOD__ );
+		$this->log( "Check Versions results: ", __METHOD__, 'debug', $results );
 
 		return $results;
 
@@ -648,7 +648,7 @@ class HealthCheck {
 
 		}
 
-		$this->dlog( "results: " . print_r( $results, true ), __METHOD__ );
+		$this->log( 'Check Functions results: ', __METHOD__, 'debug', $results );
 
 		return $results;
 	}
@@ -685,7 +685,7 @@ class HealthCheck {
 
 		}
 
-		$this->dlog( "results: " . print_r( $results, true ), __METHOD__ );
+		$this->log( 'Check Constants results: ', __METHOD__, 'debug', $results );
 
 		return $results;
 	}
@@ -750,7 +750,7 @@ class HealthCheck {
 			$results[ $callback ] = $passed;
 		}
 
-		$this->dlog( "results: " . print_r( $results, true ), __METHOD__ );
+		$this->log( 'Check Callbacks results: ', __METHOD__, 'debug', $results );
 
 		return $results;
 	}

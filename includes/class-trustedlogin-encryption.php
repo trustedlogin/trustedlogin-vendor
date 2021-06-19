@@ -53,7 +53,7 @@ class Encryption {
 			$keys = json_decode( $value );
 
 			if ( ! $keys ) {
-				$this->dlog( "Keys were not decoded properly: " . print_r( $value, true ), __METHOD__ );
+				$this->log( "Keys were not decoded properly.", __METHOD__, 'error', $value );
 			}
 		}
 
@@ -236,7 +236,7 @@ class Encryption {
 			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );
 		}
 
-		$this->dlog( 'Nonce before sodium_hex2bin: ' . print_r( $hex_nonce, true ), __METHOD__ );
+		$this->log( 'Nonce before sodium_hex2bin: ' . print_r( $hex_nonce, true ), __METHOD__, 'debug' );
 
 		$bin_nonce = \sodium_hex2bin( $hex_nonce );
 
@@ -352,7 +352,7 @@ class Encryption {
 				$unsigned_nonce,
 				\sodium_hex2bin( $sign_public_key )
 			);
-			$this->dlog( "message_valid: " . print_r( $message_valid, true ), __METHOD__ );
+			$this->log( "message_valid: " . print_r( $message_valid, true ), __METHOD__, 'debug' );
 
 			if ( ! $message_valid ) {
 				return new WP_Error( 'signature-failure', 'Signature will not pass verification' );
