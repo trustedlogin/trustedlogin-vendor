@@ -375,7 +375,7 @@ class Settings {
 		// I mean, really. No one wants this.
 		unset( $roles['subscriber'] );
 
-		$select = '<select name="' . self::SETTING_NAME . '[approved_roles][]" size="5" id="trustedlogin_vendor_approved_roles" class="regular-text" multiple="multiple" regular-text>';
+		$select = '<select name="' . self::SETTING_NAME . '[approved_roles][]" size="5" id="trustedlogin_vendor_approved_roles" class="regular-text chosen" multiple="multiple" regular-text>';
 
 		foreach ( $roles as $role_slug => $role_info ) {
 
@@ -482,8 +482,6 @@ class Settings {
 
 	public function settings_options_page() {
 
-		wp_enqueue_script( 'chosen' );
-		wp_enqueue_style( 'chosen' );
 		wp_enqueue_script( 'trustedlogin-settings' );
 		wp_enqueue_style( 'trustedlogin-settings' );
 
@@ -515,11 +513,11 @@ class Settings {
 	public function register_scripts() {
 
 		wp_register_style(
-			'chosen',
+			'trustedlogin-vendor-chosen',
 			plugins_url( '/assets/chosen/chosen.min.css', dirname( __FILE__ ) )
 		);
 		wp_register_script(
-			'chosen',
+			'trustedlogin-vendor-chosen',
 			plugins_url( '/assets/chosen/chosen.jquery.min.js', dirname( __FILE__ ) ),
 			array( 'jquery' ),
 			false,
@@ -528,13 +526,13 @@ class Settings {
 
 		wp_register_style( 'trustedlogin-settings',
 			plugins_url( '/assets/trustedlogin-settings.css', dirname( __FILE__ ) ),
-			array(),
+			array( 'trustedlogin-vendor-chosen' ),
 			$this->plugin_version
 		);
 
 		wp_register_script( 'trustedlogin-settings',
 			plugins_url( '/assets/trustedlogin-settings.js', dirname( __FILE__ ) ),
-			array( 'jquery' ),
+			array( 'jquery', 'trustedlogin-vendor-chosen' ),
 			$this->plugin_version,
 			true
 		);

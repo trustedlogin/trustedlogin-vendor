@@ -1,10 +1,10 @@
 jQuery(document).ready(function( $ ) {
 
-	$('#tls_approved_roles').chosen();
+	$('.chosen').chosen();
 
 	$('#trustedlogin-access-key').focus();
 
-	$('#trustedlogin-reset-button').click( function( event ) {
+	$('.is-destructive').click( function( event ) {
 		event.preventDefault();
 
         if ( confirm( tl_obj.lang.confirm_reset ) ) {
