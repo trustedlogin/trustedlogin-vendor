@@ -288,7 +288,10 @@ class HelpScout extends HelpDesk {
 			// We look up the licenses by their hash, not plaintext
 			$license_hash = hash( 'sha256', $license->key );
 
-			$data['searchKeys'][]      = $license_hash;
+			if ( ! in_array( $license_hash, $data['searchKeys'], true ) ) {
+				$data['searchKeys'][]      = $license_hash;
+			}
+
 			$statuses[ $license_hash ] = $license->status;
 		} // foreach($licenses)
 
