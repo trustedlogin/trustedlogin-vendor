@@ -162,7 +162,7 @@ class Settings {
 
 		add_settings_section(
 			'trustedlogin_vendor_options_section',
-			__( 'Settings for how your site and support agents are connected to TrustedLogin', 'trustedlogin-vendor' ),
+			'',
 			array( $this, 'section_callback' ),
 			'trustedlogin_vendor_options'
 		);
@@ -489,6 +489,8 @@ class Settings {
 
 		echo sprintf( '<h1>%1$s</h1>', __( 'TrustedLogin Settings', 'trustedlogin-vendor' ) );
 
+		esc_html_e( 'Settings for how your site and support agents are connected to TrustedLogin.', 'trustedlogin-vendor' );
+
 		settings_errors( 'trustedlogin_vendor_options' );
 
 		do_action( 'trustedlogin/vendor/settings/sections/before' );
@@ -499,7 +501,7 @@ class Settings {
 
 		do_action( 'trustedlogin/vendor/settings/sections/after' );
 
-		submit_button();
+		submit_button( esc_html__( 'Update Settings', 'trustedlogin-vendor' ), 'primary button-hero');
 
 		echo '</form>';
 
