@@ -483,12 +483,10 @@ class Settings {
 
 		switch( true ) {
 			case is_wp_error( $status ):
-				if ( ! $wp_settings_errors ) {
-					echo '<div class="notice notice-error">';
-					echo '<h2>⚠️ ' . esc_html__( 'Could not verify TrustedLogin credentials.', 'trustedlogin-vendor' ) . '</h2>';
-					echo '<h3 class="description">' . esc_html( $status->get_error_message() ) . '</h3>';
-					echo '</div>';
-				}
+				echo '<div class="notice notice-error">';
+				echo '<h2>⚠️ ' . esc_html__( 'Could not verify TrustedLogin credentials.', 'trustedlogin-vendor' ) . '</h2>';
+				echo '<h3 class="description">' . esc_html( $status->get_error_message() ) . '</h3>';
+				echo '</div>';
 				break;
 			case is_object( $status ):
 				echo '<div class="notice notice-success">';
