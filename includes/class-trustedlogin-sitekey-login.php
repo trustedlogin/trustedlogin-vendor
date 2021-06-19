@@ -82,7 +82,7 @@ class SiteKey_Login {
 		add_submenu_page(
 			'trustedlogin_vendor',
 			__( 'TrustedLogin with Site Key', 'trustedlogin-vendor' ),
-			__( 'Log In with Site Key', 'trustedlogin-vendor' ),
+			__( 'Access Key Log-In', 'trustedlogin-vendor' ),
 			'manage_options', // TODO: Custom capabilities!
 			self::PAGE_SLUG,
 			array( $this, 'accesskey_page' )
