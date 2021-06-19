@@ -27,10 +27,11 @@ jobs:
           ${{ runner.os }}-php-
 
     - name: Install dependencies
-      uses: nanasess/setup-php@v3.0.6
+      uses: php-actions/composer@v6
       with:
-        php-version: '7.4'
-      run: composer install --no-dev --prefer-dist --no-progress
+        php_version: 7.4
+        dev: no
+        args: --prefer-dist --no-progress
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
