@@ -314,7 +314,14 @@ class HelpScout extends HelpDesk {
 
 				if ( ! empty( $response ) ) {
 					foreach ( $response as $key => $secrets ) {
-						foreach ( (array) $secrets as $secret ) {
+
+						if ( ! is_array( $secrets ) ) {
+							continue;
+						}
+
+						$secrets_reversed = array_reverse( $secrets, true );
+
+						foreach ( $secrets_reversed as $secret ) {
 
 							$url = $this->build_action_url( 'support_redirect', $secret );
 
