@@ -177,7 +177,7 @@ class SiteKey_Login {
 
 		$site_ids = $endpoint->api_get_secret_ids( $access_key );
 
-		if ( is_wp_error( $endpoint ) ){
+		if ( is_wp_error( $site_ids ) ){
 			add_action( 'admin_notices', function () use ( $site_ids ) {
 				echo '<div class="error"><h3>' . esc_html__( 'Could not log in to site using access key.', 'trustedlogin-vendor' ) . '</h3>' . wpautop( esc_html( $site_ids->get_error_message() ) ) . '</div>';
 			} );
