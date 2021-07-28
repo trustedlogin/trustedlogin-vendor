@@ -241,7 +241,7 @@ class Encryption {
 		$bin_nonce = \sodium_hex2bin( $hex_nonce );
 
 		if ( SODIUM_CRYPTO_BOX_NONCEBYTES !== strlen( $bin_nonce ) ) {
-			return new \WP_Error( 'nonce_wrong_length', sprintf( 'The nonce must be %d characters. Instead it\'s ', SODIUM_CRYPTO_BOX_NONCEBYTES ) . $bin_nonce );
+			return new \WP_Error( 'nonce_wrong_length', sprintf( 'The nonce must be %d characters. Instead it\'s %d.', SODIUM_CRYPTO_BOX_NONCEBYTES, strlen( $bin_nonce ) ) );
 		}
 
 		try {
