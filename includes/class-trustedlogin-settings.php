@@ -230,7 +230,7 @@ class Settings {
 		);
 
 		add_settings_field(
-			'trustedlogin_vendor_enable_audit_log',
+			'trustedlogin_vendor_reset_keys',
 			__( 'Reset encryption keys?', 'trustedlogin-vendor' ).'<span class="howto">' . esc_html__( 'If you reset the encryption keys, all previous authorized logins will be inaccessible.', 'trustedlogin-vendor' ) . '</span>',
 			array( $this, 'reset_encryption_field_render' ),
 			'trustedlogin_vendor_danger',
@@ -446,8 +446,8 @@ class Settings {
 		$other_attributes = array(
 			'id' => 'trustedlogin-reset-button',
 		);
-		submit_button( __( 'Reset Keys', 'trustedlogin-vendor' ), 'is-destructive is-primary button-large', 'trustedlogin-reset-button', false, $other_attributes );;
 
+		submit_button( __( 'Reset Keys', 'trustedlogin-vendor' ), 'is-destructive is-primary button-large', 'trustedlogin-reset-button', false, $other_attributes );;
 	}
 
 	public function settings_output_toggle( $setting ) {
