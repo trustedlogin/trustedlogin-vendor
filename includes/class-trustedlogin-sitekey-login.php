@@ -175,6 +175,12 @@ class SiteKey_Login {
 
 		$endpoint = new Endpoint( $this->settings );
 
+		// First check if user can be here at all.
+		if ( ! $endpoint->auth_verify_user() ) {
+			$this->log( 'User cannot be redirected due to Endpoint::auth_verify_user() returning false.', __METHOD__, 'warning' );
+			return;
+		}
+
 		$site_ids = $endpoint->api_get_secret_ids( $access_key );
 
 		if ( is_wp_error( $site_ids ) ){
