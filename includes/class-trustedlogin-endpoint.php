@@ -566,7 +566,7 @@ class Endpoint {
 
 		$this->audit_log->insert( $secret_id, 'requested' );
 
-		$endpoint = 'sites/' . $secret_id . '/get-envelope';
+		$endpoint = 'sites/' . $account_id . '/' . $secret_id . '/get-envelope';
 
 		$saas_attr = array(
 			'type'       => 'saas',
