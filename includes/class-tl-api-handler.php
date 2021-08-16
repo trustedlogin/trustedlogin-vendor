@@ -22,9 +22,9 @@ class API_Handler {
 	private $api_url = 'https://app.trustedlogin.com/api/v1/';
 
 	/**
-	 * @var string The API/Auth Key for authenticating API calls
+	 * @var string The API private key for authenticating API calls
 	 */
-	private $auth_key;
+	private $private_key;
 
 	/**
 	 * @var bool Whether an Auth token is required.
@@ -51,7 +51,7 @@ class API_Handler {
     public function __construct( $data ) {
 
 		$defaults = array(
-			'auth' => null,
+			'private_key' => null,
 			'debug_mode' => false,
 			'type' => 'saas',
 		);
@@ -60,7 +60,7 @@ class API_Handler {
 
 		$this->type = $atts['type'];
 
-		$this->auth_key = $atts['auth'];
+		$this->private_key = $atts['private_key'];
 
 		$this->debug_mode = (bool) $atts['debug_mode'];
 
@@ -71,9 +71,7 @@ class API_Handler {
 	 * @return string Full versioned API url, with trailing slash.
 	 */
 	public function get_api_url() {
-		$url = apply_filters( 'trustedlogin/api-url/saas', $this->api_url );
-
-		return $url;
+		return apply_filters( 'trustedlogin/api-url/saas', $this->api_url );
 	}
 
 	/**
@@ -133,8 +131,8 @@ class API_Handler {
 
 		$url = $this->get_api_url() . $endpoint;
 
-		if ( ! empty( $this->auth_key ) ) {
 			$additional_headers[ $this->auth_header_type ] = 'Bearer ' . $this->auth_key;
+		if ( ! empty( $this->private_key ) ) {
 		}
 
 		if ( $this->auth_required && empty( $additional_headers ) ) {
@@ -157,11 +155,11 @@ class API_Handler {
 	 *
 	 * @return \stdClass|WP_Error If valid status received, returns object with a few details, otherwise a WP_Error for the status code provided.
 	 */
-	public function verify( $account_id ='' ){
+	public function verify( $account_id = '' ){
 
 		$account_id = intval( $account_id );
 
-		if ( 0 == $account_id ){
+		if ( 0 === $account_id ){
 			return new WP_Error(
 				'verify-failed',
 				__('No account ID provided.', 'trustedlogin-vendor' )
@@ -193,7 +191,6 @@ class API_Handler {
 	    }
 
 	    $status = wp_remote_retrieve_response_code( $verification );
-
 
 	    switch ( $status ){
 	    	case 400:
@@ -331,7 +328,7 @@ class API_Handler {
 	 * @param string $url The complete url for the REST API request
 	 * @param mixed $data Data to send as JSON-encoded request body
 	 * @param string $method HTTP request method (must be 'POST', 'PUT', 'GET', 'PUSH', or 'DELETE')
-	 * @param array $addition_headers Any additional headers to send in request (required for auth/etc)
+	 * @param array $additional_headers Any additional headers to send in request (required for auth/etc)
 	 *
 	 * @return array|false|WP_Error - wp_remote_post response, false if invalid HTTP method, WP_Error if request errors
 	 */

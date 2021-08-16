@@ -219,10 +219,10 @@ class HelpScout extends HelpDesk {
 		$licenses = apply_filters( 'trustedlogin/vendor/customers/licenses', $licenses, $email );
 
 		$account_id = $this->settings->get_setting( 'account_id' );
-		$saas_auth  = $this->settings->get_setting( 'private_key' );
+		$private_key  = $this->settings->get_setting( 'private_key' );
 		$public_key = $this->settings->get_setting( 'public_key' );
 
-		if ( ! $saas_auth || ! $public_key ) {
+		if ( ! $private_key || ! $public_key ) {
 			$error = __( 'TrustedLogin has not been properly configured : both the API Key and Private Key must be entered.', 'trustedlogin-vendor' );
 
 			$this->log( $error, __METHOD__ );
@@ -239,7 +239,7 @@ class HelpScout extends HelpDesk {
 
 		$saas_attr = array(
 			'type'       => 'saas',
-			'auth'       => $saas_auth,
+			'private_key' => $private_key,
 			'debug_mode' => $this->debug_mode,
 		);
 

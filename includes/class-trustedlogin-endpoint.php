@@ -466,11 +466,11 @@ class Endpoint {
 			return new WP_Error( 'auth-error', __( 'User not logged in.', 'trustedlogin-vendor' ) );
 		}
 
-		$saas_auth  = $this->settings->get_setting( 'private_key' );
+		$private_key  = $this->settings->get_setting( 'private_key' );
 		$account_id = $this->settings->get_setting( 'account_id' );
 		$public_key = $this->settings->get_setting( 'public_key' );
 
-		if ( empty( $saas_auth ) || empty( $account_id ) || empty( $public_key ) ) {
+		if ( empty( $private_key ) || empty( $account_id ) || empty( $public_key ) ) {
 			$this->log( "Account ID, Public Key, and Private Key must all be provided.", __METHOD__, 'critical' );
 
 			return new WP_Error( 'setup-error', __( 'No auth, public key or account_id data found', 'trustedlogin-vendor' ) );
@@ -478,7 +478,7 @@ class Endpoint {
 
 		$saas_attr = array(
 			'type'       => 'saas',
-			'auth'       => $saas_auth,
+			'private_key' => $private_key,
 			'debug_mode' => $this->settings->debug_mode_enabled(),
 		);
 
@@ -543,11 +543,11 @@ class Endpoint {
 		$data['user'] = array( 'id' => $current_user->ID, 'name' => $current_user->display_name );
 
 		// make sure we have the auth details from the settings page before continuing.
-		$saas_auth  = $this->settings->get_setting( 'private_key' );
+		$private_key  = $this->settings->get_setting( 'private_key' );
 		$account_id = $this->settings->get_setting( 'account_id' );
 		$public_key = $this->settings->get_setting( 'public_key' );
 
-		if ( empty( $saas_auth ) || empty( $account_id ) || empty( $public_key ) ) {
+		if ( empty( $private_key ) || empty( $account_id ) || empty( $public_key ) ) {
 			$this->log( "Public Key, Private Key, and Account ID must be provided.", __METHOD__ );
 
 			return new WP_Error( 'setup-error', __( 'No auth, public key or account_id data found', 'trustedlogin-vendor' ) );
@@ -570,7 +570,7 @@ class Endpoint {
 
 		$saas_attr = array(
 			'type'       => 'saas',
-			'auth'       => $saas_auth,
+			'private_key' => $private_key,
 			'debug_mode' => $this->settings->debug_mode_enabled(),
 		);
 		$saas_api  = new API_Handler( $saas_attr );
@@ -579,7 +579,7 @@ class Endpoint {
 		 * @see https://github.com/trustedlogin/trustedlogin-ecommerce/blob/master/docs/user-remote-authentication.md
 		 * @var string $saas_token Additional SaaS Token for authenticating API queries.
 		 */
-		$saas_token  = hash( 'sha256', $public_key . $saas_auth );
+		$saas_token  = hash( 'sha256', $public_key . $private_key );
 		$token_added = $saas_api->set_additional_header( 'X-TL-TOKEN', $saas_token );
 
 		if ( ! $token_added ) {

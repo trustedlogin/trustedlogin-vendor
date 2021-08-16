@@ -283,13 +283,13 @@ class Settings {
 			}
 
 			$account_id = intval( $input['account_id'] );
-			$saas_auth  = sanitize_text_field( $input['private_key'] );
+			$private_key  = sanitize_text_field( $input['private_key'] );
 			$public_key = sanitize_text_field( $input['public_key'] );
 			$debug_mode = isset( $input['debug_enabled'] );
 
 			$saas_attr = array(
-				'auth'       => $saas_auth,
-				'debug_mode' => $debug_mode
+				'private_key' => $private_key,
+				'debug_mode'  => $debug_mode
 			);
 
 			$saas_api = new API_Handler( $saas_attr );
@@ -297,7 +297,7 @@ class Settings {
 			/**
 			 * @var string $saas_token Additional SaaS Token for authenticating API queries.
 			 */
-			$saas_token  = hash( 'sha256', $public_key . $saas_auth );
+			$saas_token  = hash( 'sha256', $public_key . $private_key );
 			$token_added = $saas_api->set_additional_header( 'X-TL-TOKEN', $saas_token );
 
 			if ( ! $token_added ) {
