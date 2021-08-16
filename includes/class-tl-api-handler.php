@@ -82,6 +82,13 @@ class API_Handler {
 	}
 
 	/**
+	 * @return string Authentication bearer token hash
+	 */
+	private function get_auth_bearer_token() {
+		return hash( 'sha256', $this->private_key );
+	}
+
+	/**
 	 * @return array
 	 */
 	public function get_additional_headers() {
@@ -131,8 +138,8 @@ class API_Handler {
 
 		$url = $this->get_api_url() . $endpoint;
 
-			$additional_headers[ $this->auth_header_type ] = 'Bearer ' . $this->auth_key;
 		if ( ! empty( $this->private_key ) ) {
+			$additional_headers[ $this->auth_header_type ] = 'Bearer ' . $this->get_auth_bearer_token();
 		}
 
 		if ( $this->auth_required && empty( $additional_headers ) ) {
