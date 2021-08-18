@@ -415,7 +415,7 @@ class Settings {
 					.attr( 'readonly', null )
 					.attr( 'required', null )
 					.attr( 'placeholder', '<?php esc_attr_e( 'Enter a new private key', 'trustedlogin-vendor' ); ?>' )
-					.val()
+					.val('')
 					.trigger('focus');
 				jQuery( this ).attr( 'disabled', 'disabled' );
 				return false;
