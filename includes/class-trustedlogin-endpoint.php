@@ -466,7 +466,7 @@ class Endpoint {
 			return new WP_Error( 'auth-error', __( 'User not logged in.', 'trustedlogin-vendor' ) );
 		}
 
-		$private_key  = $this->settings->get_setting( 'private_key' );
+		$private_key  = $this->settings->get_private_key();
 		$account_id = $this->settings->get_setting( 'account_id' );
 		$public_key = $this->settings->get_setting( 'public_key' );
 
@@ -543,7 +543,7 @@ class Endpoint {
 		$data['user'] = array( 'id' => $current_user->ID, 'name' => $current_user->display_name );
 
 		// make sure we have the auth details from the settings page before continuing.
-		$private_key  = $this->settings->get_setting( 'private_key' );
+		$private_key  = $this->settings->get_private_key();
 		$account_id = $this->settings->get_setting( 'account_id' );
 		$public_key = $this->settings->get_setting( 'public_key' );
 
@@ -657,7 +657,7 @@ class Endpoint {
 
 			$this->log( 'Starting to decrypt envelope. Envelope: ' . print_r( $envelope, true ), __METHOD__, 'debug' );
 
-			$decrypted_identifier = $trustedlogin_encryption->decrypt( $envelope['identifier'], $envelope['nonce'], $envelope['publicKey'] );
+			$decrypted_identifier = $trustedlogin_encryption->decrypt_crypto_box( $envelope['identifier'], $envelope['nonce'], $envelope['publicKey'] );
 
 			if ( is_wp_error( $decrypted_identifier ) ) {
 

@@ -284,6 +284,14 @@ class Settings {
 
 			$account_id = intval( $input['account_id'] );
 			$private_key  = sanitize_text_field( $input['private_key'] );
+
+			// Decrypt the private key if it's submitted when already-encrypted
+			$decrypted_private_key = Encryption::decrypt( $private_key );
+
+			if ( $decrypted_private_key ) {
+				$private_key = $decrypted_private_key;
+			}
+
 			$public_key = sanitize_text_field( $input['public_key'] );
 			$debug_mode = isset( $input['debug_enabled'] );
 
@@ -308,6 +316,11 @@ class Settings {
 
 			update_site_option( 'trustedlogin_vendor_config', $verified );
 
+			if ( $verified && ! is_wp_error( $verified ) ) {
+				// Encrypt the private key at rest
+				$input['private_key'] = Encryption::encrypt( $private_key );
+			}
+
 		} catch ( Exception $e ) {
 
 			$error = sprintf(
@@ -326,19 +339,79 @@ class Settings {
 		return $input;
 	}
 
+	/**
+	 * Returns the decrypted private key setting.
+	 *
+	 * @since 1.0
+	 *
+	 * @return string|bool Returns the decrypted private key. If decryption fails (salt or key has changed?), returns false.
+	 */
+	public function get_private_key() {
+		try {
+			return Encryption::decrypt( $this->get_setting( 'private_key' ) );
+		} catch ( Exception $exception ) {
+			return false;
+		}
+	}
+
+	/**
+	 * Renders the private key as well as a button to modify if already set.
+	 *
+	 * @since 1.0
+	 *
+	 * @return void
+	 */
 	public function private_key_field_render() {
-		$this->render_input_field( 'private_key', 'password', true );
+
+		$this->render_input_field( 'private_key', 'password', array( 'required' => 'required' ) );
+
+		$status = get_site_option( 'trustedlogin_vendor_config' );
+
+		if ( empty( $status ) || is_wp_error( $status ) ) {
+			return;
+		}
+
+		echo '<p class="description" id="private_key_message">' . esc_html__( 'The private key has been encrypted.', 'trustedlogin-vendor' ) . '</p>';
+
+		ob_start();
+		?>
+		<div style="margin-top: .5em">
+			<button id='toggle-private_key-readonly' class="button button-secondary button-small"><?php esc_html_e( 'Modify Private Key', 'trustedlogin-vendor' ); ?></button>
+		</div>
+
+		<script>
+
+			jQuery( '#private_key' ).attr( 'readonly', function() {
+				return jQuery( this ).val().length ? 'readonly' : '';
+			} ).hide();
+
+			jQuery( '#toggle-private_key-readonly' ).on('click', function( e ) {
+				e.preventDefault();
+				jQuery( '#private_key_message' ).hide();
+				jQuery('#private_key')
+					.show()
+					.attr( 'readonly', null )
+					.attr( 'placeholder', '<?php esc_attr_e( 'Enter a new private key', 'trustedlogin-vendor' ); ?>' )
+					.val('')
+					.trigger('focus');
+				jQuery( this ).attr( 'disabled', 'disabled' );
+				return false;
+			});
+		</script>
+		<?php
+
+		echo ob_get_clean();
 	}
 
 	public function public_key_field_render() {
-		$this->render_input_field( 'public_key', 'text', true );
+		$this->render_input_field( 'public_key', 'text', array( 'required' ) );
 	}
 
 	public function account_id_field_render() {
-		$this->render_input_field( 'account_id', 'number', true );
+		$this->render_input_field( 'account_id', 'number', array( 'required' ) );
 	}
 
-	public function render_input_field( $setting, $type = 'text', $required = false ) {
+	public function render_input_field( $setting, $type = 'text', $atts = array() ) {
 
 		if ( ! in_array( $type, array( 'password', 'text', 'number' ) ) ) {
 			$type = 'text';
@@ -346,9 +419,15 @@ class Settings {
 
 		$value = ( array_key_exists( $setting, $this->options ) ) ? $this->options[ $setting ] : '';
 
-		$set_required = ( $required ) ? 'required' : '';
+		$atts_output = '';
+		foreach ( $atts as $attr => $att_value ) {
+			if ( is_int( $attr ) ) {
+				$attr = $att_value;
+			}
+			$atts_output .= sprintf( '%1$s="%2$s"', esc_attr( $attr ), esc_attr( $att_value ) );
+		}
 
-		$output = '<input id="' . esc_attr( $setting ) . '" name="' . self::SETTING_NAME . '[' . esc_attr( $setting ) . ']" type="' . esc_attr( $type ) . '" value="' . esc_attr( $value ) . '" class="regular-text ltr" ' . esc_attr( $set_required ) . '>';
+		$output = '<input id="' . esc_attr( $setting ) . '" name="' . self::SETTING_NAME . '[' . esc_attr( $setting ) . ']" type="' . esc_attr( $type ) . '" value="' . esc_attr( $value ) . '" class="regular-text ltr" ' . $atts_output . '>';
 
 		echo $output;
 	}

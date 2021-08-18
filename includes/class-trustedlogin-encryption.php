@@ -2,6 +2,7 @@
 
 namespace TrustedLogin\Vendor;
 
+use PHPUnit\Exception;
 use WP_Error;
 
 /**
@@ -216,7 +217,87 @@ class Encryption {
 	}
 
 	/**
-	 * Decrypts an encrypted payload.
+	 * Encrypts a value.
+	 *
+	 * If a user-based key is set, that key is used. Otherwise the default key is used.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $value Value to encrypt.
+	 *
+	 * @throws \Exception
+	 *
+	 * @return string|bool Encrypted value, or false on failure.
+	 */
+	public static function encrypt( $value = '' ) {
+		if ( ! extension_loaded( 'openssl' ) ) {
+			throw new \Exception( 'OpenSSL is not installed' );
+		}
+
+		if ( ! defined( 'LOGGED_IN_KEY' ) ) {
+			throw new \Exception( 'LOGGED_IN_KEY constant is not defined.' );
+		}
+
+		if ( ! defined( 'LOGGED_IN_SALT' ) ) {
+			throw new \Exception( 'LOGGED_IN_SALT constant is not defined.' );
+		}
+
+		$method = 'aes-256-ctr';
+		$ivlen  = openssl_cipher_iv_length( $method );
+		$iv     = openssl_random_pseudo_bytes( $ivlen );
+
+		$raw_value = openssl_encrypt( $value . LOGGED_IN_SALT, $method, LOGGED_IN_KEY, 0, $iv );
+
+		if ( ! $raw_value ) {
+			return false;
+		}
+
+		return base64_encode( $iv . $raw_value ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+	}
+
+	/**
+	 * Decrypts a value.
+	 *
+	 * If a user-based key is set, that key is used. Otherwise the default key is used.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param string $raw_value Value to decrypt.
+	 * @return string|bool Decrypted value, or false on failure.
+	 * @throws \Exception
+	 */
+	public static function decrypt( $raw_value ) {
+
+		if ( ! extension_loaded( 'openssl' ) ) {
+			throw new \Exception( 'OpenSSL is not installed' );
+		}
+
+		if ( ! defined( 'LOGGED_IN_KEY' ) ) {
+			throw new \Exception( 'LOGGED_IN_KEY constant is not defined.' );
+		}
+
+		if ( ! defined( 'LOGGED_IN_SALT' ) ) {
+			throw new \Exception( 'LOGGED_IN_SALT constant is not defined.' );
+		}
+
+		$raw_value = base64_decode( $raw_value, true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+
+		$method = 'aes-256-ctr';
+		$ivlen  = openssl_cipher_iv_length( $method );
+		$iv     = substr( $raw_value, 0, $ivlen );
+
+		$raw_value = substr( $raw_value, $ivlen );
+
+		$value = openssl_decrypt( $raw_value, $method, LOGGED_IN_KEY, 0, $iv );
+		if ( ! $value || substr( $value, - strlen( LOGGED_IN_SALT ) ) !== LOGGED_IN_SALT ) {
+			return false;
+		}
+
+		return substr( $value, 0, - strlen( LOGGED_IN_SALT ) );
+	}
+
+	/**
+	 * Decrypts an encrypted sodium_crypto_box payload.
 	 *
 	 * @since 0.8.0
 	 * @since 1.0.0 - Added $nonce and $client_public_key params
@@ -230,7 +311,7 @@ class Encryption {
 	 *
 	 * @return string|WP_Error If successful the decrypted string (could be a JSON string), otherwise WP_Error.
 	 */
-	public function decrypt( $encoded_and_encrypted_payload, $hex_nonce, $alice_public_key ) {
+	public function decrypt_crypto_box( $encoded_and_encrypted_payload, $hex_nonce, $alice_public_key ) {
 
 		if ( ! function_exists( 'sodium_crypto_box_open' ) ) {
 			return new \WP_Error( 'sodium_not_exists', 'Sodium isn\'t loaded. Upgrade to PHP 7.0 or WordPress 5.2 or higher.' );

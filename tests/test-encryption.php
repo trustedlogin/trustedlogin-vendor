@@ -228,7 +228,7 @@ class EncryptionTest extends \WP_UnitTestCase {
 
 		$nonce = \sodium_bin2hex( \random_bytes( SODIUM_CRYPTO_BOX_NONCEBYTES ) );
 
-		$decrypted = $this->encryption->decrypt( 'Very encrypted.', $nonce, $keys->public_key );
+		$decrypted = $this->encryption->decrypt_crypto_box( 'Very encrypted.', $nonce, $keys->public_key );
 
 		$this->assertNotEquals( 'sodium-error', $decrypted->get_error_code(), 'The sodium process requires specific parameters that were not met: ' . $decrypted->get_error_message() );
 

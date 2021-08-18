@@ -124,7 +124,7 @@ class HelpScout extends HelpDesk {
 	 * Renders the settings field for the helpdesk secret/api_key
 	 */
 	public function secret_field_render() {
-		$this->settings->render_input_field( self::SLUG . '_secret', 'password', false );
+		$this->settings->render_input_field( self::SLUG . '_secret', 'password', array() );
 	}
 
 	/**
@@ -219,7 +219,7 @@ class HelpScout extends HelpDesk {
 		$licenses = apply_filters( 'trustedlogin/vendor/customers/licenses', $licenses, $email );
 
 		$account_id = $this->settings->get_setting( 'account_id' );
-		$private_key  = $this->settings->get_setting( 'private_key' );
+		$private_key  = $this->settings->get_private_key();
 		$public_key = $this->settings->get_setting( 'public_key' );
 
 		if ( ! $private_key || ! $public_key ) {
