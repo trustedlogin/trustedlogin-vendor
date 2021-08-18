@@ -148,6 +148,10 @@ class TrustedLogin_Audit_Log {
 
 		$entries = $this->get_log_entries();
 
+		if ( is_wp_error( $entries ) ) {
+			wp_die( $entries );
+		}
+
 		if ( count( $entries ) ) {
 			echo '<h2>' . esc_html__( 'Each row represents a user attempting to log into a customer site.', 'trustedlogin-vendor' ) . '</h2>';
 			echo $this->build_output( $entries );
@@ -258,14 +262,14 @@ class TrustedLogin_Audit_Log {
 	 *
 	 * @param int $limit Number of log entries to retrieve.
 	 *
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	public function get_log_entries( $limit = 25 ) {
 		global $wpdb;
 
 		// TODO: Add custom capabilities!
 		if ( ! current_user_can( 'manage_options' ) ) {
-			return new WP_Error( 'unauthorized', 'You must have manage_options capability to view audit log entries' );
+			return new WP_Error( 'unauthorized', esc_html__( 'You must have manage_options capability to view audit log entries', 'trustedlogin-vendor' ) );
 		}
 
 		$query = $wpdb->prepare( 'SELECT * FROM `' . $this->get_db_table_name() . '` ORDER BY `id` DESC LIMIT %d', $limit );
