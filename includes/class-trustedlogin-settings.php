@@ -398,7 +398,7 @@ class Settings {
 		ob_start();
 		?>
 		<div style="margin-top: .5em">
-			<button id='toggle-private_key-readonly' class="button button-secondary button-small"><?php esc_html_e( 'Modify Private Key', 'trustedlogin-vendor' ); ?></button>
+			<button type="button" id='toggle-private_key-readonly' class="button button-secondary button-small"><?php esc_html_e( 'Modify Private Key', 'trustedlogin-vendor' ); ?></button>
 		</div>
 
 		<script>
@@ -407,14 +407,15 @@ class Settings {
 				return jQuery( this ).val().length ? 'readonly' : '';
 			} ).hide();
 
-			jQuery( '#toggle-private_key-readonly' ).on('click', function( e ) {
+			jQuery( '#toggle-private_key-readonly' ).on( 'click', function( e ) {
 				e.preventDefault();
 				jQuery( '#private_key_message' ).hide();
 				jQuery('#private_key')
 					.show()
 					.attr( 'readonly', null )
+					.attr( 'required', null )
 					.attr( 'placeholder', '<?php esc_attr_e( 'Enter a new private key', 'trustedlogin-vendor' ); ?>' )
-					.val('')
+					.val()
 					.trigger('focus');
 				jQuery( this ).attr( 'disabled', 'disabled' );
 				return false;
