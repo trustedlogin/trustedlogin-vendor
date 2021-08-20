@@ -27,6 +27,11 @@ class API_Handler {
 	private $private_key;
 
 	/**
+	 * @var string (Optional) The public key used in generating the X-TL-TOKEN header.
+	 */
+	private $public_key;
+
+	/**
 	 * @var bool Whether an Auth token is required.
 	 */
 	private $auth_required = true;
@@ -50,17 +55,20 @@ class API_Handler {
 
     public function __construct( $data ) {
 
-		$defaults = array(
-			'private_key' => null,
-			'debug_mode' => false,
-			'type' => 'saas',
-		);
+	    $defaults = array(
+		    'private_key' => null,
+		    'public_key'  => null,
+		    'debug_mode'  => false,
+		    'type'        => 'saas',
+	    );
 
 		$atts = wp_parse_args( $data, $defaults );
 
 		$this->type = $atts['type'];
 
 		$this->private_key = $atts['private_key'];
+
+	    $this->public_key = $atts['public_key'];
 
 		$this->debug_mode = (bool) $atts['debug_mode'];
 
@@ -89,6 +97,26 @@ class API_Handler {
 	}
 
 	/**
+	 * Returns the hash used for the X-TL-TOKEN header.
+	 *
+	 * @since 1.0
+	 *
+	 * @return string|WP_Error $saas_token Additional SaaS Token for authenticating API queries. WP_Error on error.
+	 */
+	public function get_x_tl_token() {
+
+		if ( ! $this->public_key ) {
+			return new WP_Error( 'missing_public_key' );
+		}
+
+		if ( ! $this->private_key ) {
+			return new WP_Error( 'missing_private_key' );
+		}
+
+		return hash( 'sha256', $this->public_key . $this->private_key );
+	}
+
+	/**
 	 * @return array
 	 */
 	public function get_additional_headers() {
@@ -108,7 +136,7 @@ class API_Handler {
 	 */
 	public function set_additional_header( $key, $value ) {
 
-		if ( empty( $key ) || empty( $value ) ) {
+		if ( empty( $key ) || empty( $value ) || is_wp_error( $value ) ) {
 			return false;
 		}
 

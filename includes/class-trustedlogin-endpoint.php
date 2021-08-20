@@ -571,16 +571,20 @@ class Endpoint {
 		$saas_attr = array(
 			'type'       => 'saas',
 			'private_key' => $private_key,
+			'public_key'  => $public_key,
 			'debug_mode' => $this->settings->debug_mode_enabled(),
 		);
 		$saas_api  = new API_Handler( $saas_attr );
 
-		/**
-		 * @see https://github.com/trustedlogin/trustedlogin-ecommerce/blob/master/docs/user-remote-authentication.md
-		 * @var string $saas_token Additional SaaS Token for authenticating API queries.
-		 */
-		$saas_token  = hash( 'sha256', $public_key . $private_key );
-		$token_added = $saas_api->set_additional_header( 'X-TL-TOKEN', $saas_token );
+		$x_tl_token  = $saas_api->get_x_tl_token();
+
+		if ( is_wp_error( $x_tl_token ) ) {
+			$error = __( 'Error getting X-TL-TOKEN header', 'trustedlogin-vendor' );
+			$this->log( $error, __METHOD__, 'error' );
+			return new WP_Error( 'x-tl-token-error', $error );
+		}
+
+		$token_added = $saas_api->set_additional_header( 'X-TL-TOKEN', $x_tl_token );
 
 		if ( ! $token_added ) {
 			$error = __( 'Error setting X-TL-TOKEN header', 'trustedlogin-vendor' );

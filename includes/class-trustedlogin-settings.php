@@ -319,16 +319,19 @@ class Settings {
 
 			$saas_attr = array(
 				'private_key' => $private_key,
+				'public_key'  => $public_key,
 				'debug_mode'  => $debug_mode
 			);
 
 			$saas_api = new API_Handler( $saas_attr );
 
-			/**
-			 * @var string $saas_token Additional SaaS Token for authenticating API queries.
-			 */
-			$saas_token  = hash( 'sha256', $public_key . $private_key );
-			$token_added = $saas_api->set_additional_header( 'X-TL-TOKEN', $saas_token );
+			$x_tl_token  = $saas_api->get_x_tl_token();
+
+			if ( is_wp_error( $x_tl_token ) ) {
+				throw new Exception( __( 'Error getting X-TL-TOKEN header', 'trustedlogin-vendor' ) );
+			}
+
+			$token_added = $saas_api->set_additional_header( 'X-TL-TOKEN', $x_tl_token );
 
 			if ( ! $token_added ) {
 				throw new Exception( __( 'Error setting X-TL-TOKEN header', 'trustedlogin-vendor' ) );
@@ -347,7 +350,7 @@ class Settings {
 
 			$error = sprintf(
 				esc_html__( 'Could not verify TrustedLogin credentials: %s', 'trustedlogin-vendor' ),
-				esc_html__( $e->getMessage() )
+				esc_html( $e->getMessage() )
 			);
 
 			add_settings_error(
