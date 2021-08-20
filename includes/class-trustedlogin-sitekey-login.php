@@ -38,6 +38,8 @@ class SiteKey_Login {
 	 */
 	const NONCE_ACTION = 'ak-redirect';
 
+	const ACCESS_KEY_INPUT_NAME = 'ak';
+
 	/**
 	 * The settings for the Vendor plugin, which include whether to enable logging
 	 *

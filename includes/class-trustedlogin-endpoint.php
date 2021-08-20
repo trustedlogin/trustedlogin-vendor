@@ -220,7 +220,7 @@ class Endpoint {
 		$required_args = array(
 			'action',
 			'provider',
-			'ak',
+			SiteKey_Login::ACCESS_KEY_INPUT_NAME,
 		);
 
 		foreach ( $required_args as $required_arg ) {
@@ -246,13 +246,13 @@ class Endpoint {
 		switch ( $_REQUEST['action'] ) {
 			case 'accesskey_login':
 
-				if ( ! isset( $_REQUEST['ak'] ) ) {
-					$this->log( 'Required arg `ak` missing.', __METHOD__, 'error' );
+				if ( ! isset( $_REQUEST[ SiteKey_Login::ACCESS_KEY_INPUT_NAME ] ) ) {
+					$this->log( 'Required arg `' . SiteKey_Login::ACCESS_KEY_INPUT_NAME . '` missing.', __METHOD__, 'error' );
 
 					return;
 				}
 
-				$access_key = sanitize_text_field( $_REQUEST['ak'] );
+				$access_key = sanitize_text_field( $_REQUEST[ SiteKey_Login::ACCESS_KEY_INPUT_NAME ] );
 				$secret_ids = $this->api_get_secret_ids( $access_key );
 
 				if ( is_wp_error( $secret_ids ) ) {
@@ -285,13 +285,13 @@ class Endpoint {
 
 			case 'support_redirect':
 
-				if ( ! isset( $_REQUEST['ak'] ) ) {
-					$this->log( 'Required arg ak missing.', __METHOD__, 'error' );
+				if ( ! isset( $_REQUEST[ SiteKey_Login::ACCESS_KEY_INPUT_NAME ] ) ) {
+					$this->log( 'Required arg ' . SiteKey_Login::ACCESS_KEY_INPUT_NAME . ' missing.', __METHOD__, 'error' );
 
 					return;
 				}
 
-				$secret_id = sanitize_text_field( $_REQUEST['ak'] );
+				$secret_id = sanitize_text_field( $_REQUEST[ SiteKey_Login::ACCESS_KEY_INPUT_NAME ] );
 
 				$this->maybe_redirect_support( $secret_id );
 
@@ -589,7 +589,6 @@ class Endpoint {
 		if ( ! $token_added ) {
 			$error = __( 'Error setting X-TL-TOKEN header', 'trustedlogin-vendor' );
 			$this->log( $error, __METHOD__, 'error' );
-
 			return new WP_Error( 'x-tl-token-error', $error );
 		}
 
