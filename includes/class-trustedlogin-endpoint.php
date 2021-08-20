@@ -405,7 +405,7 @@ class Endpoint {
 
 		// first check if user can be redirected.
 		if ( ! $this->auth_verify_user() ) {
-			$this->log( "User cannot be redirected due to auth_verify_user() returning false.", __METHOD__, 'warning' );
+			$this->log( 'User cannot be redirected due to auth_verify_user() returning false.', __METHOD__, 'warning' );
 
 			return;
 		}
@@ -427,22 +427,87 @@ class Endpoint {
 			exit;
 		}
 
-		$url = ( $envelope ) ? $this->envelope_to_url( $envelope ) : false;
+		$envelope_parts = ( $envelope ) ? $this->envelope_to_url( $envelope, true ) : false;
 
-		if ( is_wp_error( $url ) ) {
-			$this->audit_log->insert( $secret_id, 'failed', $url->get_error_message() );
+		if ( is_wp_error( $envelope_parts ) ) {
+			$this->audit_log->insert( $secret_id, 'failed', $envelope_parts->get_error_message() );
 			wp_safe_redirect( add_query_arg( array( 'tl-error' => self::REDIRECT_ERROR_STATUS ), $redirect_url ), self::REDIRECT_ERROR_STATUS, 'TrustedLogin' );
 			exit;
 		}
 
-		if ( $url ) {
-			// then redirect
-			$this->audit_log->insert( $secret_id, 'redirected', __( 'Successful', 'trustedlogin-vendor' ) );
-			wp_redirect( $url, self::REDIRECT_SUCCESS_STATUS, 'TrustedLogin' );
-			exit;
+		if( ! isset( $envelope_parts['siteurl'], $envelope_parts['endpoint'], $envelope_parts['identifier'] ) ) {
+			$this->audit_log->insert( $secret_id, 'failed', __( 'Malformed envelope.', 'trustedlogin-vendor' ) );
 		}
 
-		$this->log( "Got to end of function, with no action.", __METHOD__, 'debug' );
+		$output = $this->get_redirect_form_html( $envelope_parts );
+
+		$this->audit_log->insert( $secret_id, 'redirected', __( 'Successful decryption of the envelope. Presenting the redirect form.', 'trustedlogin-vendor' ) );
+
+		// Use wp_die() to get a nice free template
+		wp_die( $output, esc_html__( 'TrustedLogin redirect&hellip;', 'trustedlogin-vendor' ), 302 );
+	}
+
+	/**
+	 * Returns a redirection form that automatically redirects to the $envelope['siteurl']
+	 *
+	 * @param array $envelope_parts
+	 *
+	 * @return string Redirect form HTML
+	 */
+	private function get_redirect_form_html( array $envelope_parts ) {
+
+		$form = <<<EOD
+<style>
+	#redirect_to_site_container {
+		text-align: center;
+		position: relative;
+	}
+	h2 { margin-bottom: 30px; }
+	#redirect_to_site { display: none; }
+	img {
+		width: 275px;
+		display: block;
+		margin: 0 auto;
+	}
+</style>
+<noscript>
+	<style>
+		h2 { display: none; }
+		#redirect_to_site {
+			display: block;
+			margin: 20px 0 30px;
+		}
+	</style>
+</noscript>
+
+<div id="redirect_to_site_container">
+	<img src="%1\$s" alt="TrustedLogin" />
+	<h2>%2\$s</h2>
+	<form id="redirect_to_site" method="post" action="%3\$s">
+		<input type="hidden" name="action" value="trustedlogin">
+		<input type="hidden" name="endpoint" value="%4\$s">
+		<input type="hidden" name="identifier" value="%5\$s">
+		<input type="submit" value="Redirect to %6\$s" class="button button-large button-primary">
+	</form>
+</div>
+<script>
+	document.getElementById("redirect_to_site").submit();
+</script>
+EOD;
+
+		// A nicety: show www.example.com instead of https://www.example.com
+		$url_parts = parse_url( $envelope_parts['siteurl'] );
+		$host = $url_parts['host'] ?? $envelope_parts['siteurl'];
+
+		return sprintf(
+			$form,
+			esc_url( plugins_url( 'assets/trustedlogin-logo.png', TRUSTEDLOGIN_PLUGIN_FILE ) ),
+			sprintf( esc_html__( 'Redirecting to %s&hellip;', 'trustedlogin-vendor' ), esc_attr( $host ) ),
+			esc_attr( $envelope_parts['siteurl'] ),
+			esc_attr( $envelope_parts['endpoint'] ),
+			esc_attr( $envelope_parts['identifier'] ),
+			esc_attr( $host )
+		);
 	}
 
 	/**
