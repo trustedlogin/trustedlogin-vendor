@@ -2,8 +2,6 @@ jQuery(document).ready(function( $ ) {
 
 	$('.chosen').chosen();
 
-	$('#trustedlogin-access-key').focus();
-
 	$('.is-destructive').click( function( event ) {
 		event.preventDefault();
 
