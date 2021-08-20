@@ -38,6 +38,8 @@ class SiteKey_Login {
 	 */
 	const NONCE_ACTION = 'ak-redirect';
 
+	const ACCESS_KEY_ACTION_NAME = 'tl_access_key_login';
+
 	const ACCESS_KEY_INPUT_NAME = 'ak';
 
 	/**
@@ -59,7 +61,7 @@ class SiteKey_Login {
 
 		register_activation_hook( __FILE__, array( $this, 'init' ) );
 
-		add_action( 'admin_init', array( $this, 'maybe_handle_accesskey' ) );
+		add_action( 'wp_ajax_' . self::ACCESS_KEY_ACTION_NAME, array( $this, 'handle_ajax' ) );
 
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 	}
@@ -105,19 +107,38 @@ class SiteKey_Login {
 		}
 
 		wp_enqueue_style( 'trustedlogin-settings' );
+		wp_enqueue_script( 'trustedlogin-access-keys', plugins_url( '/assets/trustedlogin-access-keys.js', dirname( __FILE__ ) ),
+			array( 'jquery' ),
+			TRUSTEDLOGIN_PLUGIN_VERSION,
+			true
+		);
+
+		wp_localize_script( 'trustedlogin-access-keys', 'tl_access_keys', array(
+			'ajaxurl' => admin_url( 'admin-ajax.php' ),
+			'debug' => $this->settings->debug_mode_enabled(),
+			'action_name' => self::ACCESS_KEY_ACTION_NAME,
+			'input_name' => self::ACCESS_KEY_INPUT_NAME,
+		) );
 
 		$output = sprintf(
 			'<div class="trustedlogin-dialog accesskey">
 				  <img src="%s" width="400" alt="TrustedLogin">
-				  <form method="post" target="_blank">
+				  <form method="post" id="trustedlogin-access-key-login">
+				  	  <input type="hidden" name="action" value="%s" />
 					  <input name="%s" type="text" id="trustedlogin-access-key" placeholder="%s" required aria-required="true" minlength="32" maxlength="64" autofocus />
 					  <button type="submit" id="trustedlogin-go" class="button button-large button-primary trustedlogin-proceed">%s</button>
 					  %s
 				  </form>
+				  <div class="trustedlogin-response-container">
+				  	<div class="trustedlogin-response__success"></div>
+				  	<div class="trustedlogin-response__error"></div>
+				  </div>
 				</div>',
 			esc_url( plugins_url( 'assets/trustedlogin-logo.png', TRUSTEDLOGIN_PLUGIN_FILE ) ),
+			self::ACCESS_KEY_ACTION_NAME,
+			self::ACCESS_KEY_INPUT_NAME,
 			esc_html__('Paste key received from customer', 'trustedlogin-vendor'),
-			esc_html__('Login to Site', 'trustedlogin-vendor'),
+			esc_html__('Log Into Site', 'trustedlogin-vendor'),
 			wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, true, false )
 		);
 
@@ -125,44 +146,31 @@ class SiteKey_Login {
 	}
 
 	/**
-	 * @TODO Write docblock
+	 * Verifies the $_POST request by the Access Key login form.
+	 *
+	 * @return bool|WP_Error
 	 */
-	public function maybe_handle_accesskey() {
+	private function verify_grant_access_request() {
 
-		add_action( 'admin_notices', function () {
-
-			if ( empty( $_GET['tl-error'] ) ) {
-				return;
-			}
-
-			if ( ! isset( $_GET['page'] ) ||  self::PAGE_SLUG !== $_GET['page'] ) {
-				return;
-			}
-
-			$audit_log_enabled = $this->settings->setting_is_toggled( 'enable_audit_log' );
-
-			echo '<div class="error">';
-			echo '<h3>' . esc_html__( 'There was an error decrypting the response.', 'trustedlogin-vendor' ) . '</h3>';
-
-			if ( $audit_log_enabled ) {
-				echo wpautop( '<h4>' . sprintf( esc_html__( '%sCheck the Activity Log%s for more information', 'trustedlogin-vendor' ), '<a href="' . esc_url( admin_url( 'admin.php?page=trustedlogin_activity_log' ) ) . '">', '</a>' ) . '</h4>' );
-			}
-
-			echo '</div>';
-		} );
-
-		if ( empty( $_REQUEST['ak'] ) ) {
-			return;
+		if ( empty( $_REQUEST[ self::ACCESS_KEY_INPUT_NAME ] ) ) {
+			$this->log( 'No access key sent.',__METHOD__, 'error' );
+			return new WP_Error('no_access_key', esc_html__( 'No access key was sent with the request.', 'trustedlogin-vendor' ) );
 		}
 
 		if ( empty( $_REQUEST[ self::NONCE_NAME ] ) ){
-			return;
+			$this->log( 'No nonce set. Insecure request.',__METHOD__, 'error' );
+			return new WP_Error('no_nonce', esc_html__( 'No nonce was sent with the request.', 'trustedlogin-vendor' ) );
+		}
+
+		if ( empty( $_REQUEST['_wp_http_referer'] ) ) {
+			$this->log( 'No referrer set; could be insecure request.',__METHOD__, 'error' );
+			return new WP_Error('no_referrer', esc_html__( 'The referrer was not set for the request.', 'trustedlogin-vendor' ) );
 		}
 
 		// Referred from same screen?
-		if( add_query_arg( array() ) !== wp_get_raw_referer() ) {
+		if( admin_url( 'admin.php?page=' . self::PAGE_SLUG ) !== site_url( wp_get_raw_referer() ) ) {
 			$this->log( 'Referrer does not match; could be insecure request.',__METHOD__, 'error' );
-			return;
+			return new WP_Error('no_access_key', esc_html__( 'The referrer does not match the expected source of the request.', 'trustedlogin-vendor' ) );
 		}
 
 		// Valid nonce?
@@ -170,10 +178,27 @@ class SiteKey_Login {
 
 		if ( ! $valid ) {
 			$this->log( 'Nonce is invalid; could be insecure request. Refresh the page and try again.',__METHOD__, 'error' );
-			return;
+			return false;
 		}
 
-		$access_key = sanitize_text_field( $_REQUEST['ak'] );
+		return true;
+	}
+
+	/**
+	 * Processes the AJAX request.
+	 *
+	 * Sends JSON responses.
+	 *
+	 */
+	function handle_ajax() {
+
+		$verified = $this->verify_grant_access_request();
+
+		if ( ! $verified || is_wp_error( $verified ) ) {
+			wp_send_json_error( $verified );
+		}
+
+		$access_key = sanitize_text_field( $_REQUEST[ self::ACCESS_KEY_INPUT_NAME ] );
 
 		$endpoint = new Endpoint( $this->settings );
 
@@ -186,39 +211,31 @@ class SiteKey_Login {
 		$site_ids = $endpoint->api_get_secret_ids( $access_key );
 
 		if ( is_wp_error( $site_ids ) ){
-			add_action( 'admin_notices', function () use ( $site_ids ) {
-				echo '<div class="error"><h3>' . esc_html__( 'Could not log in to site using access key.', 'trustedlogin-vendor' ) . '</h3>' . wpautop( esc_html( $site_ids->get_error_message() ) ) . '</div>';
-			} );
-
-			return;
+			wp_send_json_error( $site_ids );
 		}
 
 		if ( empty( $site_ids ) ){
-			add_action( 'admin_notices', function () {
-				echo '<div class="error"><h3>' . esc_html__( 'Could not log in to site using access key.', 'trustedlogin-vendor' ) . '</h3>' . wpautop( esc_html__( 'No sites found.', 'trustedlogin-vendor' ) ) . '</div>';
-			} );
-
-			return;
+			wp_send_json_error( esc_html__( 'No sites were found matching the access key.', 'trustedlogin-vendor' ), 404 );
 		}
 
 		/**
 		 * TODO: Add handling for multiple siteIds
 		 * @see  https://github.com/trustedlogin/trustedlogin-vendor/issues/47
 		 */
-
 		$envelope = $endpoint->api_get_envelope( $site_ids[0] );
 
 		// Print error
 		if ( is_wp_error( $envelope ) ) {
-
-			add_action( 'admin_notices', function () use ( $envelope ) {
-				echo '<div class="error"><h3>' . esc_html__( 'Could not log in to site using access key.', 'trustedlogin-vendor' ) . '</h3>' . wpautop( esc_html( $envelope->get_error_message() ) ) . '</div>';
-			} );
-
-			return;
+			wp_send_json_error( $envelope );
 		}
 
-		$endpoint->maybe_redirect_support( $access_key, $envelope );
+		$parts = $endpoint->envelope_to_url( $envelope, true );
+
+		if ( is_wp_error( $parts ) ) {
+			wp_send_json_error( $parts );
+		}
+
+		wp_send_json( $parts );
 	}
 
 }
