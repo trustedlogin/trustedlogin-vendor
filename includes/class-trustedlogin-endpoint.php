@@ -627,7 +627,7 @@ class Endpoint {
 	 *
 	 * @param bool $return_parts Optional. Whether to return an array of parts. Default: false.
 	 *
-	 * @return string|array|WP_Error
+	 * @return string|array|WP_Error If $return_parts is false, returns login URL. If true, returns array with login parts. If error, returns WP_Error.
 	 */
 	public function envelope_to_url( $envelope, $return_parts = false ) {
 
@@ -690,6 +690,8 @@ class Endpoint {
 			return array(
 				'siteurl' => $parts['siteurl'],
 				'loginurl'=> $loginurl,
+				'endpoint' => $endpoint,
+				'identifier' => $parts['identifier']
 			);
 		}
 
