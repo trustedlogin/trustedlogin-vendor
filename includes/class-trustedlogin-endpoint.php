@@ -589,6 +589,18 @@ EOD;
 	 */
 	public function api_get_envelope( $secret_id ) {
 
+		/**
+		 * Prevents access by blocking envelope fetching. Used by {@see Integrations}.
+		 * @since 1.0
+		 * @filter `trustedlogin/vendor/prevent-access`
+		 * @param bool|WP_Error $prevent_access Whether access should be prevented. May return WP_Error with details.
+		 */
+		$prevent_access = apply_filters( 'trustedlogin/vendor/prevent-access', false );
+
+		if ( $prevent_access ) {
+			return is_wp_error( $prevent_access ) ? $prevent_access : new WP_Error( 'prevent-access-enabled', __( 'Access was restricted.', 'trustedlogin-vendor' ) );
+		}
+
 		if ( empty( $secret_id ) ) {
 			$this->log( 'Error: secret_id cannot be empty.', __METHOD__, 'error' );
 
