@@ -673,7 +673,7 @@ EOD;
 			$success = sprintf( __( 'Failed: %s', 'trustedlogin-vendor' ), $envelope->get_error_message() );
 		}
 
-		$this->audit_log->insert( $secret_id, 'received', print_r( $envelope, true ) );
+		$this->audit_log->insert( $secret_id, 'received', $success );
 
 		return $envelope;
 
