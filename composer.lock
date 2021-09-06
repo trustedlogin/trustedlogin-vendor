@@ -63,7 +63,7 @@
         },
         {
             "name": "psr/log",
-            "version": "dev-master",
+            "version": "1.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/log.git",
@@ -78,7 +78,6 @@
             "require": {
                 "php": ">=5.3.0"
             },
-            "default-branch": true,
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -120,12 +119,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Dealerdirect/phpcodesniffer-composer-installer.git",
-                "reference": "ce4370ee5a2b1642bca908d4b54a369e845bb678"
+                "reference": "7d5cb8826ed72d4ca4c07acf005bba2282e5a7c7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Dealerdirect/phpcodesniffer-composer-installer/zipball/ce4370ee5a2b1642bca908d4b54a369e845bb678",
-                "reference": "ce4370ee5a2b1642bca908d4b54a369e845bb678",
+                "url": "https://api.github.com/repos/Dealerdirect/phpcodesniffer-composer-installer/zipball/7d5cb8826ed72d4ca4c07acf005bba2282e5a7c7",
+                "reference": "7d5cb8826ed72d4ca4c07acf005bba2282e5a7c7",
                 "shasum": ""
             },
             "require": {
@@ -135,7 +134,7 @@
             },
             "require-dev": {
                 "composer/composer": "*",
-                "enlightn/security-checker": "^1.2",
+                "php-parallel-lint/php-parallel-lint": "^1.3",
                 "phpcompatibility/php-compatibility": "^9.0"
             },
             "default-branch": true,
@@ -183,7 +182,7 @@
                 "issues": "https://github.com/dealerdirect/phpcodesniffer-composer-installer/issues",
                 "source": "https://github.com/dealerdirect/phpcodesniffer-composer-installer"
             },
-            "time": "2021-06-13T15:16:43+00:00"
+            "time": "2021-08-16T14:43:41+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -241,16 +240,16 @@
         },
         {
             "name": "paragonie/sodium_compat",
-            "version": "v1.16.1",
+            "version": "v1.17.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/sodium_compat.git",
-                "reference": "2e856afe80bfc968b47da1f4a7e1ea8f03d06b38"
+                "reference": "c59cac21abbcc0df06a3dd18076450ea4797b321"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/sodium_compat/zipball/2e856afe80bfc968b47da1f4a7e1ea8f03d06b38",
-                "reference": "2e856afe80bfc968b47da1f4a7e1ea8f03d06b38",
+                "url": "https://api.github.com/repos/paragonie/sodium_compat/zipball/c59cac21abbcc0df06a3dd18076450ea4797b321",
+                "reference": "c59cac21abbcc0df06a3dd18076450ea4797b321",
                 "shasum": ""
             },
             "require": {
@@ -321,9 +320,9 @@
             ],
             "support": {
                 "issues": "https://github.com/paragonie/sodium_compat/issues",
-                "source": "https://github.com/paragonie/sodium_compat/tree/v1.16.1"
+                "source": "https://github.com/paragonie/sodium_compat/tree/v1.17.0"
             },
-            "time": "2021-05-25T12:58:14+00:00"
+            "time": "2021-08-10T02:43:50+00:00"
         },
         {
             "name": "phpcompatibility/php-compatibility",
@@ -393,12 +392,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "39649310a0f463b23a44bd36eb42dae8ccdb9ab7"
+                "reference": "b10c327dcf4f30151101858fa79053b6ecc99fbb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/39649310a0f463b23a44bd36eb42dae8ccdb9ab7",
-                "reference": "39649310a0f463b23a44bd36eb42dae8ccdb9ab7",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/b10c327dcf4f30151101858fa79053b6ecc99fbb",
+                "reference": "b10c327dcf4f30151101858fa79053b6ecc99fbb",
                 "shasum": ""
             },
             "require": {
@@ -442,7 +441,7 @@
                 "source": "https://github.com/squizlabs/PHP_CodeSniffer",
                 "wiki": "https://github.com/squizlabs/PHP_CodeSniffer/wiki"
             },
-            "time": "2021-06-17T23:24:54+00:00"
+            "time": "2021-09-02T23:15:23+00:00"
         },
         {
             "name": "trustedlogin/trustedlogin-client",
@@ -450,12 +449,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/trustedlogin/trustedlogin-client.git",
-                "reference": "bbb122eced66abbf4ed78e8b6ccab3d2e557bd98"
+                "reference": "efe6c6b7949ed420f60c5f354296e7a3d1ba1a23"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/trustedlogin/trustedlogin-client/zipball/bbb122eced66abbf4ed78e8b6ccab3d2e557bd98",
-                "reference": "bbb122eced66abbf4ed78e8b6ccab3d2e557bd98",
+                "url": "https://api.github.com/repos/trustedlogin/trustedlogin-client/zipball/efe6c6b7949ed420f60c5f354296e7a3d1ba1a23",
+                "reference": "efe6c6b7949ed420f60c5f354296e7a3d1ba1a23",
                 "shasum": ""
             },
             "require": {
@@ -494,7 +493,7 @@
                 "source": "https://github.com/trustedlogin/trustedlogin-client/tree/develop",
                 "issues": "https://github.com/trustedlogin/trustedlogin-client/issues"
             },
-            "time": "2021-06-19T19:46:44+00:00"
+            "time": "2021-08-27T16:03:13+00:00"
         }
     ],
     "aliases": [],
