@@ -11,7 +11,7 @@
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/trustedlogin/trustedlogin-client"
+      "url": "https://github.com/trustedlogin/client"
     }
   ],
   "require-dev": {
@@ -19,7 +19,7 @@
     "squizlabs/php_codesniffer": "^3.5.5",
     "dealerdirect/phpcodesniffer-composer-installer": "*",
     "phpcompatibility/php-compatibility": "*",
-    "trustedlogin/trustedlogin-client": "dev-develop"
+    "trustedlogin/client": "*"
   },
   "scripts": {
     "post-install-cmd": [

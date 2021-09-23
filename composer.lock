@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "32fe66a8fbd01cff10c6ea7e7e032183",
+    "content-hash": "7f3b7d1f92bdf1bcb6660f67223aa693",
     "packages": [
         {
             "name": "katzgrau/klogger",
@@ -444,17 +444,17 @@
             "time": "2021-09-02T23:15:23+00:00"
         },
         {
-            "name": "trustedlogin/trustedlogin-client",
-            "version": "dev-develop",
+            "name": "trustedlogin/client",
+            "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "https://github.com/trustedlogin/trustedlogin-client.git",
-                "reference": "efe6c6b7949ed420f60c5f354296e7a3d1ba1a23"
+                "url": "https://github.com/trustedlogin/client.git",
+                "reference": "d4b69f0894aeae55e4870a17c6356184d579fb8b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/trustedlogin/trustedlogin-client/zipball/efe6c6b7949ed420f60c5f354296e7a3d1ba1a23",
-                "reference": "efe6c6b7949ed420f60c5f354296e7a3d1ba1a23",
+                "url": "https://api.github.com/repos/trustedlogin/client/zipball/d4b69f0894aeae55e4870a17c6356184d579fb8b",
+                "reference": "d4b69f0894aeae55e4870a17c6356184d579fb8b",
                 "shasum": ""
             },
             "require": {
@@ -490,17 +490,16 @@
                 "support"
             ],
             "support": {
-                "source": "https://github.com/trustedlogin/trustedlogin-client/tree/develop",
-                "issues": "https://github.com/trustedlogin/trustedlogin-client/issues"
+                "source": "https://github.com/trustedlogin/client/tree/main",
+                "issues": "https://github.com/trustedlogin/client/issues"
             },
-            "time": "2021-08-27T16:03:13+00:00"
+            "time": "2021-09-22T23:19:04+00:00"
         }
     ],
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "katzgrau/klogger": 20,
-        "trustedlogin/trustedlogin-client": 20
+        "katzgrau/klogger": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
