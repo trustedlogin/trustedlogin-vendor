@@ -164,7 +164,7 @@ class HealthCheck {
 			$result['label']          = __( 'Minimum versions required were NOT met.', 'trustedlogin-vendor' );
 			$result['description']    = sprintf(
 				'<p>%s</p><p>%s</p>',
-				__( 'Unfortunately the minimum required versions were not met.' ),
+				__( 'Unfortunately the minimum required versions were not met.', 'trustedlogin-vendor' ),
 				$failed_tests
 			);
 			$result['badge']['color'] = 'red';
@@ -237,7 +237,7 @@ class HealthCheck {
 			$result['label']          = __( 'Required constants were not found.', 'trustedlogin-vendor' );
 			$result['description']    = sprintf(
 				'<p>%s</p><p>%s</p>',
-				__( 'TrustedLogin Vendor plugin requires a number of constants to work, some could not be found or tested.' ),
+				__( 'TrustedLogin Vendor plugin requires a number of constants to work, some could not be found or tested.', 'trustedlogin-vendor' ),
 				$failed_tests
 			);
 			$result['badge']['color'] = 'red';
@@ -311,7 +311,7 @@ class HealthCheck {
 			$result['badge']['color'] = 'red';
 			$result['description']    = sprintf(
 				'<p>%s</p><p>%s</p><pre>%s</pre>',
-				__( 'The following functions could not be found or tested.' ),
+				__( 'The following functions could not be found or tested.', 'trustedlogin-vendor' ),
 				$failed_tests,
 				print_r( $test_results, true )
 			);
@@ -426,7 +426,7 @@ class HealthCheck {
 
 		// versions
 		$requirements['versions']['php']['title']            = __( 'PHP', 'trustedlogin-vendor' );
-		$requirements['versions']['wordpress']['title']      = __( 'WordPress' );
+		$requirements['versions']['wordpress']['title']      = __( 'WordPress', 'trustedlogin-vendor' );
 		$requirements['versions']['wordpress']['action_url'] = admin_url( 'update-core.php' );
 
 		// callbacks
@@ -486,7 +486,7 @@ class HealthCheck {
 		$steps = explode( '/', $slug );
 
 		if ( 2 < count( $steps ) ) {
-			return new WP_Error( 'healthcheck-slug-error', __( 'Healthcheck slug not formatted correctly' ) );
+			return new WP_Error( 'healthcheck-slug-error', __( 'Healthcheck slug not formatted correctly', 'trustedlogin-vendor' ) );
 		}
 
 		$key   = $steps[0];

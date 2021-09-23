@@ -611,7 +611,7 @@ class Settings {
 			case ( false === $status ):
 				echo '<div class="notice notice-success">';
 				echo '<h2>' . esc_html__( 'Connect your site to the TrustedLogin service.', 'trustedlogin-vendor' ) . '</h2>';
-				echo '<h3 class="description"><a href="https://app.trustedlogin.com">' . esc_html__( 'Sign up at TrustedLogin.com') . '</a></h3>';
+				echo '<h3 class="description"><a href="https://app.trustedlogin.com">' . esc_html__( 'Sign up at TrustedLogin.com', 'trustedlogin-vendor') . '</a></h3>';
 				echo '</div>';
 				break;
 		}
