@@ -104,7 +104,7 @@ class HelpScout extends HelpDesk {
 
 		add_settings_field(
 			'trustedlogin_vendor_' . self::SLUG . '_secret',
-			self::NAME . ' ' . __( 'Secret Key', 'trustedlogin-vendor' ),
+			self::NAME . ' ' . esc_html__( 'Secret Key', 'trustedlogin-vendor' ),
 			array( $this, 'secret_field_render' ),
 			'trustedlogin_vendor_options',
 			'trustedlogin_vendor_options_section'
@@ -113,7 +113,7 @@ class HelpScout extends HelpDesk {
 		add_settings_field(
 			'trustedlogin_vendor_' . self::SLUG . '_url',
 			// translators: %s is replaced with the name of the help desk.
-			sprintf( __( '%s Callback URL', 'trustedlogin-vendor' ), self::NAME ),
+			sprintf( esc_html__( '%s Callback URL', 'trustedlogin-vendor' ), self::NAME ),
 			array( $this, 'url_field_render' ),
 			'trustedlogin_vendor_options',
 			'trustedlogin_vendor_options_section'
@@ -223,7 +223,7 @@ class HelpScout extends HelpDesk {
 		$public_key = $this->settings->get_setting( 'public_key' );
 
 		if ( ! $private_key || ! $public_key ) {
-			$error = __( 'TrustedLogin has not been properly configured : both the API Key and Private Key must be entered.', 'trustedlogin-vendor' );
+			$error = esc_html__( 'TrustedLogin has not been properly configured: both the API Key and Private Key must be entered.', 'trustedlogin-vendor' );
 
 			$this->log( $error, __METHOD__ );
 

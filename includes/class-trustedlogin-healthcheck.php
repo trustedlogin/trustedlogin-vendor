@@ -98,7 +98,7 @@ class HealthCheck {
 
 
 			$tests['direct'][ $test_name ] = array(
-				'label' => sprintf( __( 'TrustedLogin %1$s Test', 'trustedlogin-vendor' ), $key ),
+				'label' => sprintf( esc_html__( 'TrustedLogin %1$s Test', 'trustedlogin-vendor' ), $key ),
 				'test'  => array( $this, $callback ),
 			);
 
@@ -117,7 +117,7 @@ class HealthCheck {
 		$test_results = $this->check_versions();
 
 		$result = array(
-			'label'       => __( 'Minimum versions required were met.', 'trustedlogin-vendor' ),
+			'label'       => esc_html__( 'Minimum versions required were met.', 'trustedlogin-vendor' ),
 			'status'      => 'good',
 			'badge'       => array(
 				'label' => 'TrustedLogin',
@@ -125,7 +125,7 @@ class HealthCheck {
 			),
 			'description' => sprintf(
 				'<p>%s</p>',
-				__( 'This site meets the minimum version requirements to run the TrustedLogin Vendor plugin.', 'trustedlogin-vendor' )
+				esc_html__( 'This site meets the minimum version requirements to run the TrustedLogin Vendor plugin.', 'trustedlogin-vendor' )
 			),
 			'actions'     => '',
 			'test'        => 'trustedlogin_versions',
@@ -145,7 +145,7 @@ class HealthCheck {
 					$title        = ( isset( $this->requirements['versions'][ $key ]['title'] ) )
 						? esc_html( $this->requirements['versions'][ $key ]['title'] ) : esc_html( $key );
 					$failed_tests .= sprintf(
-						__( 'Minimum required version of %s is %s. ', 'trustedlogin-vendor' ),
+						esc_html__( 'Minimum required version of %s is %s. ', 'trustedlogin-vendor' ),
 						$title,
 						$this->requirements['versions'][ $key ]['min']
 					);
@@ -154,17 +154,17 @@ class HealthCheck {
 						$action_links .= sprintf(
 							'<a href="%s">%s</a>',
 							esc_url( $this->requirements['versions'][ $key ]['action_url'] ),
-							sprintf( __( 'Update %s', 'trustedlogin-vendor' ), $this->requirements['versions'][ $key ]['title'] )
+							sprintf( esc_html__( 'Update %s', 'trustedlogin-vendor' ), $this->requirements['versions'][ $key ]['title'] )
 						);
 					}
 				}
 			}
 
 			$result['status']         = 'critical';
-			$result['label']          = __( 'Minimum versions required were NOT met.', 'trustedlogin-vendor' );
+			$result['label']          = esc_html__( 'Minimum versions required were not met.', 'trustedlogin-vendor' );
 			$result['description']    = sprintf(
 				'<p>%s</p><p>%s</p>',
-				__( 'Unfortunately the minimum required versions were not met.', 'trustedlogin-vendor' ),
+				esc_html__( 'Unfortunately the minimum required versions were not met.', 'trustedlogin-vendor' ),
 				$failed_tests
 			);
 			$result['badge']['color'] = 'red';
@@ -191,7 +191,7 @@ class HealthCheck {
 		$test_results = $this->check_constants();
 
 		$result = array(
-			'label'       => __( 'Required constants were found.', 'trustedlogin-vendor' ),
+			'label'       => esc_html__( 'Required constants were found.', 'trustedlogin-vendor' ),
 			'status'      => 'good',
 			'badge'       => array(
 				'label' => 'TrustedLogin',
@@ -199,7 +199,7 @@ class HealthCheck {
 			),
 			'description' => sprintf(
 				'<p>%s</p>',
-				__( 'TrustedLogin Vendor plugin requires a number of constants to work, all were found and checked.', 'trustedlogin-vendor' )
+				esc_html__( 'TrustedLogin Vendor plugin requires a number of constants to work, all were found and checked.', 'trustedlogin-vendor' )
 			),
 			'actions'     => '',
 			'test'        => 'trustedlogin_constants',
@@ -219,7 +219,7 @@ class HealthCheck {
 					$title        = ( isset( $this->requirements['constants'][ $key ]['title'] ) )
 						? esc_html( $this->requirements['constants'][ $key ]['title'] ) : esc_html( $key );
 					$failed_tests .= sprintf(
-						__( 'Constant for %s (%s) could not be found/checked. ', 'trustedlogin-vendor' ),
+						esc_html__( 'Constant for %s (%s) could not be found/checked. ', 'trustedlogin-vendor' ),
 						sprintf( '<strong>%s</strong>', $title ),
 						$this->requirements['constants'][ $key ]['callback']
 					);
@@ -227,17 +227,17 @@ class HealthCheck {
 						$action_links .= sprintf(
 							'<a href="%s">%s</a>',
 							esc_url( $this->requirements['constants'][ $key ]['action_url'] ),
-							sprintf( __( 'Update %s', 'trustedlogin-vendor' ), $this->requirements['constants'][ $key ]['title'] )
+							sprintf( esc_html__( 'Update %s', 'trustedlogin-vendor' ), $this->requirements['constants'][ $key ]['title'] )
 						);
 					}
 				}
 			}
 
 			$result['status']         = 'critical';
-			$result['label']          = __( 'Required constants were not found.', 'trustedlogin-vendor' );
+			$result['label']          = esc_html__( 'Required constants were not found.', 'trustedlogin-vendor' );
 			$result['description']    = sprintf(
 				'<p>%s</p><p>%s</p>',
-				__( 'TrustedLogin Vendor plugin requires a number of constants to work, some could not be found or tested.', 'trustedlogin-vendor' ),
+				esc_html__( 'TrustedLogin Vendor plugin requires a number of constants to work, some could not be found or tested.', 'trustedlogin-vendor' ),
 				$failed_tests
 			);
 			$result['badge']['color'] = 'red';
@@ -264,7 +264,7 @@ class HealthCheck {
 		$test_results = $this->check_functions();
 
 		$result = array(
-			'label'       => __( 'Required functions are available.', 'trustedlogin-vendor' ),
+			'label'       => esc_html__( 'Required functions are available.', 'trustedlogin-vendor' ),
 			'status'      => 'good',
 			'badge'       => array(
 				'label' => 'TrustedLogin',
@@ -272,7 +272,7 @@ class HealthCheck {
 			),
 			'description' => sprintf(
 				'<p>%s</p>',
-				__( 'TrustedLogin requires certain PHP and WordPress functions to work securely. These were all found and tested.', 'trustedlogin-vendor' )
+				esc_html__( 'TrustedLogin requires certain PHP and WordPress functions to work securely. These were all found and tested.', 'trustedlogin-vendor' )
 			),
 			'actions'     => '',
 			'test'        => 'trustedlogin_functions',
@@ -292,7 +292,7 @@ class HealthCheck {
 					$title        = ( isset( $this->requirements['functions'][ $key ]['title'] ) )
 						? esc_html( $this->requirements['functions'][ $key ]['title'] ) : esc_html( $key );
 					$failed_tests .= sprintf(
-						__( 'Function %s (%s) could not be found or checked. ', 'trustedlogin-vendor' ),
+						esc_html__( 'Function %s (%s) could not be found or checked. ', 'trustedlogin-vendor' ),
 						sprintf( '<strong>%s</strong>', $title ),
 						$this->requirements['functions'][ $key ]['callback']
 					);
@@ -300,18 +300,18 @@ class HealthCheck {
 						$action_links .= sprintf(
 							'<a href="%s">%s</a>',
 							esc_url( $this->requirements['functions'][ $key ]['action_url'] ),
-							sprintf( __( 'Update %s', 'trustedlogin-vendor' ), $this->requirements['functions'][ $key ]['title'] )
+							sprintf( esc_html__( 'Update %s', 'trustedlogin-vendor' ), $this->requirements['functions'][ $key ]['title'] )
 						);
 					}
 				}
 			}
 
 			$result['status']         = 'critical';
-			$result['label']          = __( 'Required modules missing.', 'trustedlogin-vendor' );
+			$result['label']          = esc_html__( 'Required modules missing.', 'trustedlogin-vendor' );
 			$result['badge']['color'] = 'red';
 			$result['description']    = sprintf(
 				'<p>%s</p><p>%s</p><pre>%s</pre>',
-				__( 'The following functions could not be found or tested.', 'trustedlogin-vendor' ),
+				esc_html__( 'The following functions could not be found or tested.', 'trustedlogin-vendor' ),
 				$failed_tests,
 				print_r( $test_results, true )
 			);
@@ -338,7 +338,7 @@ class HealthCheck {
 		$test_results = $this->check_callbacks();
 
 		$result = array(
-			'label'       => __( 'Required callbacks tested.', 'trustedlogin-vendor' ),
+			'label'       => esc_html__( 'Required callbacks tested.', 'trustedlogin-vendor' ),
 			'status'      => 'good',
 			'badge'       => array(
 				'label' => 'TrustedLogin',
@@ -346,7 +346,7 @@ class HealthCheck {
 			),
 			'description' => sprintf(
 				'<p>%s</p>',
-				__( 'TrustedLogin tested built-in callbacks and they are working as expected.', 'trustedlogin-vendor' )
+				esc_html__( 'TrustedLogin tested built-in callbacks and they are working as expected.', 'trustedlogin-vendor' )
 			),
 			'actions'     => '',
 			'test'        => 'trustedlogin_callbacks',
@@ -366,24 +366,24 @@ class HealthCheck {
 					$title        = ( isset( $this->requirements['callbacks'][ $key ]['title'] ) )
 						? esc_html( $this->requirements['callbacks'][ $key ]['title'] ) : esc_html( $key );
 					$failed_tests .= sprintf(
-						__( 'Callback function for %s could not be found or checked. ', 'trustedlogin-vendor' ),
+						esc_html__( 'Callback function for %s could not be found or checked. ', 'trustedlogin-vendor' ),
 						sprintf( '<strong>%s</strong>', $title )
 					);
 					if ( isset( $this->requirements['callbacks'][ $key ]['action_url'] ) ) {
 						$action_links .= sprintf(
 							'<a href="%s">%s</a>',
 							esc_url( $this->requirements['callbacks'][ $key ]['action_url'] ),
-							sprintf( __( 'Update %s', 'trustedlogin-vendor' ), $this->requirements['callbacks'][ $key ]['title'] )
+							sprintf( esc_html__( 'Update %s', 'trustedlogin-vendor' ), $this->requirements['callbacks'][ $key ]['title'] )
 						);
 					}
 				}
 			}
 
 			$result['status']         = 'critical';
-			$result['label']          = __( 'Required callbacks failed.', 'trustedlogin-vendor' );
+			$result['label']          = esc_html__( 'Required callbacks failed.', 'trustedlogin-vendor' );
 			$result['description']    = sprintf(
 				'<p>%s</p><p>%s</p><pre>%s</pre>',
-				__( 'TrustedLogin requires certain URLs be accessible in order to function properly.', 'trustedlogin-vendor' ),
+				esc_html__( 'TrustedLogin requires certain URLs be accessible in order to function properly.', 'trustedlogin-vendor' ),
 				$failed_tests,
 				print_r( $test_results, true )
 			);
@@ -425,12 +425,12 @@ class HealthCheck {
 	function set_translateable_data( $requirements ) {
 
 		// versions
-		$requirements['versions']['php']['title']            = __( 'PHP', 'trustedlogin-vendor' );
-		$requirements['versions']['wordpress']['title']      = __( 'WordPress', 'trustedlogin-vendor' );
+		$requirements['versions']['php']['title']            = esc_html__( 'PHP', 'trustedlogin-vendor' );
+		$requirements['versions']['wordpress']['title']      = esc_html__( 'WordPress', 'trustedlogin-vendor' );
 		$requirements['versions']['wordpress']['action_url'] = admin_url( 'update-core.php' );
 
 		// callbacks
-		$requirements['callbacks']['encryption_get_public_key']['title'] = __( 'Encryption::get_public_key', 'trustedlogin-vendor' );
+		$requirements['callbacks']['encryption_get_public_key']['title'] = 'Encryption::get_public_key';
 
 		return $requirements;
 	}
@@ -461,7 +461,7 @@ class HealthCheck {
 					return new WP_Error(
 						$key . '_checks_failed',
 						sprintf(
-							__( '%s checks failed.', 'trustedlogin-vendor' ),
+							esc_html__( '%s checks failed.', 'trustedlogin-vendor' ),
 							$key
 						)
 					);
@@ -486,18 +486,18 @@ class HealthCheck {
 		$steps = explode( '/', $slug );
 
 		if ( 2 < count( $steps ) ) {
-			return new WP_Error( 'healthcheck-slug-error', __( 'Healthcheck slug not formatted correctly', 'trustedlogin-vendor' ) );
+			return new WP_Error( 'health-check-slug-error', esc_html__( 'Health check slug not formatted correctly', 'trustedlogin-vendor' ) );
 		}
 
 		$key   = $steps[0];
 		$tests = $steps[1];
 
 		if ( ! array_key_exists( $key, $this->requirements ) ) {
-			return new WP_Error( 'tests-error', sprintf( __( 'No tests found for key: %s', 'trustedlogin-vendor' ), $key ) );
+			return new WP_Error( 'tests-error', sprintf( esc_html__( 'No tests found for key: %s', 'trustedlogin-vendor' ), $key ) );
 		}
 
 		if ( ! array_key_exists( $tests, $this->requirements[ $key ] ) ) {
-			return new WP_Error( 'tests-error', sprintf( __( 'No tests found for tests: %s', 'trustedlogin-vendor' ), $tests ) );
+			return new WP_Error( 'tests-error', sprintf( esc_html__( 'No tests found for tests: %s', 'trustedlogin-vendor' ), $tests ) );
 		}
 
 		$current_tests = $this->requirements[ $key ];
@@ -540,7 +540,7 @@ class HealthCheck {
 				}
 
 				$notices[] = sprintf(
-					__( 'Notice: %s check failed for %s.', 'trustedlogin-vendor' ),
+					esc_html__( 'Notice: %s check failed for %s.', 'trustedlogin-vendor' ),
 					/* %s */ $key,
 					/* %s */ $subkey
 				);

@@ -305,7 +305,7 @@ class API_Handler {
 
 			$this->log( 'Malformed api_response received:' . print_r( $api_response, true ), __METHOD__, 'error' );
 
-			return new WP_Error( 'malformed_response', __( 'Malformed API response received.', 'trustedlogin-vendor' ) );
+			return new WP_Error( 'malformed_response', esc_html__( 'Malformed API response received.', 'trustedlogin-vendor' ) );
 		}
 
 		// first check the HTTP Response code
@@ -323,7 +323,7 @@ class API_Handler {
 		if ( empty( $body ) || ! is_object( $body ) ) {
 			$this->log( 'No body received:' . print_r( $body, true ), __METHOD__, 'error' );
 
-			return new WP_Error( 'empty_body', __( 'No body received.', 'trustedlogin-vendor' ) );
+			return new WP_Error( 'empty_body', esc_html__( 'No body received.', 'trustedlogin-vendor' ) );
 		}
 
 		$body_message = isset( $body->message ) ? $body->message : null;
@@ -339,7 +339,7 @@ class API_Handler {
 				// Problem with Token
 				// TODO: Handle this
 			case 404:
-				return new WP_Error( 'not_found', __( 'Not found.', 'trustedlogin-vendor' ) );
+				return new WP_Error( 'not_found', esc_html__( 'Not found.', 'trustedlogin-vendor' ) );
 			default:
 		}
 
@@ -348,7 +348,7 @@ class API_Handler {
 
 			$this->log( "Error from API: {$errors}", __METHOD__, 'error' );
 
-			return new WP_Error( 'api_errors', sprintf( __( 'Errors returned from API: %s', 'trustedlogin-vendor' ), $errors ) );
+			return new WP_Error( 'api_errors', sprintf( esc_html__( 'Errors returned from API: %s', 'trustedlogin-vendor' ), $errors ) );
 		}
 
 		return $body;
