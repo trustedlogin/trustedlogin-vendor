@@ -27,9 +27,9 @@ class API_Handler {
 	private $private_key;
 
 	/**
-	 * @var string (Optional) The public key used in generating the X-TL-TOKEN header.
+	 * @var string (Optional) The TrustedLogin API Key used in generating the X-TL-TOKEN header.
 	 */
-	private $public_key;
+	private $api_key;
 
 	/**
 	 * @var bool Whether an Auth token is required.
@@ -57,7 +57,7 @@ class API_Handler {
 
 	    $defaults = array(
 		    'private_key' => null,
-		    'public_key'  => null,
+		    'api_key'  => null,
 		    'debug_mode'  => false,
 		    'type'        => 'saas',
 	    );
@@ -68,7 +68,7 @@ class API_Handler {
 
 		$this->private_key = $atts['private_key'];
 
-	    $this->public_key = $atts['public_key'];
+	    $this->api_key = $atts['api_key'];
 
 		$this->debug_mode = (bool) $atts['debug_mode'];
 
@@ -105,15 +105,15 @@ class API_Handler {
 	 */
 	public function get_x_tl_token() {
 
-		if ( ! $this->public_key ) {
-			return new WP_Error( 'missing_public_key' );
+		if ( ! $this->api_key ) {
+			return new WP_Error( 'missing_api_key' );
 		}
 
 		if ( ! $this->private_key ) {
 			return new WP_Error( 'missing_private_key' );
 		}
 
-		return hash( 'sha256', $this->public_key . $this->private_key );
+		return hash( 'sha256', $this->api_key . $this->private_key );
 	}
 
 	/**

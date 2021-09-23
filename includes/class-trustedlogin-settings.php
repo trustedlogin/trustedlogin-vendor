@@ -30,7 +30,7 @@ class Settings {
 	private $default_options = array(
 		'account_id'       => '',
 		'private_key'      => '',
-		'public_key'       => '',
+		'api_key'       => '',
 		'helpdesk'         => array( 'helpscout' ),
 		'approved_roles'   => array( 'administrator' ),
 		'debug_enabled'    => 'on',
@@ -197,9 +197,9 @@ class Settings {
 		);
 
 		add_settings_field(
-			'public_key',
-			__( 'TrustedLogin Public Key ', 'trustedlogin-vendor' ),
-			array( $this, 'public_key_field_render' ),
+			'api_key',
+			__( 'TrustedLogin API Key ', 'trustedlogin-vendor' ),
+			array( $this, 'api_key_field_render' ),
 			'trustedlogin_vendor_options',
 			'trustedlogin_vendor_options_section'
 		);
@@ -267,7 +267,7 @@ class Settings {
 	 * @return bool
 	 */
 	public function exists() {
-		return $this->settings_get_value( 'account_id' ) && $this->settings_get_value( 'private_key' ) && $this->settings_get_value( 'public_key' );
+		return $this->settings_get_value( 'account_id' ) && $this->settings_get_value( 'private_key' ) && $this->settings_get_value( 'api_key' );
 	}
 
 	/**
@@ -314,12 +314,12 @@ class Settings {
 				$private_key = $decrypted_private_key;
 			}
 
-			$public_key = sanitize_text_field( $input['public_key'] );
+			$api_key = sanitize_text_field( $input['api_key'] );
 			$debug_mode = isset( $input['debug_enabled'] );
 
 			$saas_attr = array(
 				'private_key' => $private_key,
-				'public_key'  => $public_key,
+				'api_key'  => $api_key,
 				'debug_mode'  => $debug_mode
 			);
 
@@ -429,8 +429,8 @@ class Settings {
 		echo ob_get_clean();
 	}
 
-	public function public_key_field_render() {
-		$this->render_input_field( 'public_key', 'text', array( 'required' ) );
+	public function api_key_field_render() {
+		$this->render_input_field( 'api_key', 'text', array( 'required' ) );
 	}
 
 	public function account_id_field_render() {

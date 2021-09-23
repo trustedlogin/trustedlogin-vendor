@@ -220,9 +220,9 @@ class HelpScout extends HelpDesk {
 
 		$account_id = $this->settings->get_setting( 'account_id' );
 		$private_key  = $this->settings->get_private_key();
-		$public_key = $this->settings->get_setting( 'public_key' );
+		$api_key = $this->settings->get_setting( 'api_key' );
 
-		if ( ! $private_key || ! $public_key ) {
+		if ( ! $private_key || ! $api_key ) {
 			$error = esc_html__( 'TrustedLogin has not been properly configured: both the API Key and Private Key must be entered.', 'trustedlogin-vendor' );
 
 			$this->log( $error, __METHOD__ );

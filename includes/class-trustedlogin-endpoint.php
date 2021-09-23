@@ -533,9 +533,9 @@ EOD;
 
 		$private_key  = $this->settings->get_private_key();
 		$account_id = $this->settings->get_setting( 'account_id' );
-		$public_key = $this->settings->get_setting( 'public_key' );
+		$api_key = $this->settings->get_setting( 'api_key' );
 
-		if ( empty( $private_key ) || empty( $account_id ) || empty( $public_key ) ) {
+		if ( empty( $private_key ) || empty( $account_id ) || empty( $api_key ) ) {
 			$this->log( "Account ID, Public Key, and Private Key must all be provided.", __METHOD__, 'critical' );
 
 			return new WP_Error( 'setup-error', __( 'No auth, public key or account_id data found', 'trustedlogin-vendor' ) );
@@ -610,10 +610,10 @@ EOD;
 		// make sure we have the auth details from the settings page before continuing.
 		$private_key  = $this->settings->get_private_key();
 		$account_id = $this->settings->get_setting( 'account_id' );
-		$public_key = $this->settings->get_setting( 'public_key' );
+		$api_key = $this->settings->get_setting( 'api_key' );
 
-		if ( empty( $private_key ) || empty( $account_id ) || empty( $public_key ) ) {
-			$this->log( "Public Key, Private Key, and Account ID must be provided.", __METHOD__ );
+		if ( empty( $private_key ) || empty( $account_id ) || empty( $api_key ) ) {
+			$this->log( 'API Key, Private Key, and Account ID must be provided.', __METHOD__ );
 
 			return new WP_Error( 'setup-error', __( 'No auth, public key or account_id data found', 'trustedlogin-vendor' ) );
 		}
@@ -636,7 +636,7 @@ EOD;
 		$saas_attr = array(
 			'type'       => 'saas',
 			'private_key' => $private_key,
-			'public_key'  => $public_key,
+			'api_key'  => $api_key,
 			'debug_mode' => $this->settings->debug_mode_enabled(),
 		);
 		$saas_api  = new API_Handler( $saas_attr );
