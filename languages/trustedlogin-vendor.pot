@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: TrustedLogin Support Plugin 0.9.0\n"
 "Report-Msgid-Bugs-To: "
 "https://wordpress.org/support/plugin/trustedlogin-vendor\n"
-"POT-Creation-Date: 2021-09-23 14:43:59+00:00\n"
+"POT-Creation-Date: 2021-09-23 14:55:26+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -202,12 +202,15 @@ msgid "User not logged in."
 msgstr ""
 
 #: includes/class-trustedlogin-endpoint.php:541
-#: includes/class-trustedlogin-endpoint.php:618
 msgid "No auth, public key or account_id data found"
 msgstr ""
 
 #: includes/class-trustedlogin-endpoint.php:595
 msgid "Site ID cannot be empty"
+msgstr ""
+
+#: includes/class-trustedlogin-endpoint.php:618
+msgid "API Key, Private Key, and Account ID must be provided."
 msgstr ""
 
 #: includes/class-trustedlogin-endpoint.php:647
@@ -370,7 +373,7 @@ msgid "TrustedLogin Account ID "
 msgstr ""
 
 #: includes/class-trustedlogin-settings.php:201
-msgid "TrustedLogin Public Key "
+msgid "TrustedLogin API Key "
 msgstr ""
 
 #: includes/class-trustedlogin-settings.php:209
