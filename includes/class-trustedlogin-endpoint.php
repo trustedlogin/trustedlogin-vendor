@@ -416,7 +416,7 @@ class Endpoint {
 		}
 
 		if ( empty( $envelope ) ) {
-			$this->audit_log->insert( $secret_id, 'failed', __( 'Empty envelope.', 'trustedlogin-vendor' ) );
+			$this->audit_log->insert( $secret_id, 'failed', esc_html__( 'Empty envelope.', 'trustedlogin-vendor' ) );
 			wp_safe_redirect( $redirect_url, self::REDIRECT_ERROR_STATUS, 'TrustedLogin' );
 		}
 
@@ -436,12 +436,12 @@ class Endpoint {
 		}
 
 		if( ! isset( $envelope_parts['siteurl'], $envelope_parts['endpoint'], $envelope_parts['identifier'] ) ) {
-			$this->audit_log->insert( $secret_id, 'failed', __( 'Malformed envelope.', 'trustedlogin-vendor' ) );
+			$this->audit_log->insert( $secret_id, 'failed', esc_html__( 'Malformed envelope.', 'trustedlogin-vendor' ) );
 		}
 
 		$output = $this->get_redirect_form_html( $envelope_parts );
 
-		$this->audit_log->insert( $secret_id, 'redirected', __( 'Successful decryption of the envelope. Presenting the redirect form.', 'trustedlogin-vendor' ) );
+		$this->audit_log->insert( $secret_id, 'redirected', esc_html__( 'Successful decryption of the envelope. Presenting the redirect form.', 'trustedlogin-vendor' ) );
 
 		// Use wp_die() to get a nice free template
 		wp_die( $output, esc_html__( 'TrustedLogin redirect&hellip;', 'trustedlogin-vendor' ), 302 );
@@ -524,11 +524,11 @@ EOD;
 		if ( empty( $access_key ) ) {
 			$this->log( 'Error: access_key cannot be empty.', __METHOD__, 'error' );
 
-			return new WP_Error( 'data-error', __( 'Access Key cannot be empty', 'trustedlogin-vendor' ) );
+			return new WP_Error( 'data-error', esc_html__( 'Access Key cannot be empty', 'trustedlogin-vendor' ) );
 		}
 
 		if ( ! is_user_logged_in() ) {
-			return new WP_Error( 'auth-error', __( 'User not logged in.', 'trustedlogin-vendor' ) );
+			return new WP_Error( 'auth-error', esc_html__( 'User not logged in.', 'trustedlogin-vendor' ) );
 		}
 
 		$private_key  = $this->settings->get_private_key();
@@ -538,7 +538,7 @@ EOD;
 		if ( empty( $private_key ) || empty( $account_id ) || empty( $api_key ) ) {
 			$this->log( "Account ID, Public Key, and Private Key must all be provided.", __METHOD__, 'critical' );
 
-			return new WP_Error( 'setup-error', __( 'No auth, public key or account_id data found', 'trustedlogin-vendor' ) );
+			return new WP_Error( 'setup-error', esc_html__( 'No auth, public key or account_id data found', 'trustedlogin-vendor' ) );
 		}
 
 		$saas_attr = array(
@@ -592,11 +592,11 @@ EOD;
 		if ( empty( $secret_id ) ) {
 			$this->log( 'Error: secret_id cannot be empty.', __METHOD__, 'error' );
 
-			return new WP_Error( 'data-error', __( 'Site ID cannot be empty', 'trustedlogin-vendor' ) );
+			return new WP_Error( 'data-error', esc_html__( 'Site ID cannot be empty', 'trustedlogin-vendor' ) );
 		}
 
 		if ( ! is_user_logged_in() ) {
-			return new WP_Error( 'auth-error', __( 'User not logged in.', 'trustedlogin-vendor' ) );
+			return new WP_Error( 'auth-error', esc_html__( 'User not logged in.', 'trustedlogin-vendor' ) );
 		}
 
 		// The data array that will be sent to TrustedLogin to request a site's envelope
@@ -615,7 +615,7 @@ EOD;
 		if ( empty( $private_key ) || empty( $account_id ) || empty( $api_key ) ) {
 			$this->log( 'API Key, Private Key, and Account ID must be provided.', __METHOD__ );
 
-			return new WP_Error( 'setup-error', __( 'No auth, public key or account_id data found', 'trustedlogin-vendor' ) );
+			return new WP_Error( 'setup-error', esc_html__( 'API Key, Private Key, and Account ID must be provided.', 'trustedlogin-vendor' ) );
 		}
 
 		// Then let's get the identity verification pair to confirm the site is the one sending the request.
@@ -644,7 +644,7 @@ EOD;
 		$x_tl_token  = $saas_api->get_x_tl_token();
 
 		if ( is_wp_error( $x_tl_token ) ) {
-			$error = __( 'Error getting X-TL-TOKEN header', 'trustedlogin-vendor' );
+			$error = esc_html__( 'Error getting X-TL-TOKEN header', 'trustedlogin-vendor' );
 			$this->log( $error, __METHOD__, 'error' );
 			return new WP_Error( 'x-tl-token-error', $error );
 		}
@@ -652,7 +652,7 @@ EOD;
 		$token_added = $saas_api->set_additional_header( 'X-TL-TOKEN', $x_tl_token );
 
 		if ( ! $token_added ) {
-			$error = __( 'Error setting X-TL-TOKEN header', 'trustedlogin-vendor' );
+			$error = esc_html__( 'Error setting X-TL-TOKEN header', 'trustedlogin-vendor' );
 			$this->log( $error, __METHOD__, 'error' );
 			return new WP_Error( 'x-tl-token-error', $error );
 		}
@@ -668,9 +668,9 @@ EOD;
 		$envelope = $saas_api->call( $endpoint, $data, 'POST' );
 
 		if ( $envelope && ! is_wp_error( $envelope ) ) {
-			$success = __( 'Successfully fetched envelope.', 'trustedlogin-vendor' );
+			$success = esc_html__( 'Successfully fetched envelope.', 'trustedlogin-vendor' );
 		} else {
-			$success = sprintf( __( 'Failed: %s', 'trustedlogin-vendor' ), $envelope->get_error_message() );
+			$success = sprintf( esc_html__( 'Failed: %s', 'trustedlogin-vendor' ), $envelope->get_error_message() );
 		}
 
 		$this->audit_log->insert( $secret_id, 'received', $success );
