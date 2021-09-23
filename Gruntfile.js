@@ -62,6 +62,7 @@ module.exports = function( grunt ) {
 	} );
 
 	grunt.loadNpmTasks( 'grunt-wp-i18n' );
+	grunt.loadNpmTasks( 'grunt-exec' );
 	grunt.registerTask( 'default', [ 'i18n' ] );
 	grunt.registerTask( 'i18n', ['addtextdomain', 'makepot'] );
 
