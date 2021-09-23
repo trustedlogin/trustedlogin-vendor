@@ -19,14 +19,6 @@ module.exports = function( grunt ) {
 			}
 		},
 
-		wp_readme_to_markdown: {
-			your_target: {
-				files: {
-					'README.md': 'readme.txt'
-				}
-			},
-		},
-
 		makepot: {
 			target: {
 				options: {
@@ -43,13 +35,35 @@ module.exports = function( grunt ) {
 				}
 			}
 		},
+
+		// Pull in the latest translations
+		exec: {
+			transifex: 'tx pull -a --parallel',
+
+			// Create a ZIP file
+			zip: {
+				cmd: function( version = '' ) {
+
+					var filename = ( version === '' ) ? 'trustedlogin-vendor' : 'trustedlogin-vendor-' + version;
+
+					// First, create the full archive
+					var command = 'git-archive-all trustedlogin-vendor.zip &&';
+
+					command += 'unzip -o trustedlogin-vendor.zip &&';
+
+					command += 'zip -r ../' + filename + '.zip trustedlogin-vendor &&';
+
+					command += 'rm -rf trustedlogin-vendor/ && rm -f trustedlogin-vendor.zip';
+
+					return command;
+				}
+			}
+		},
 	} );
 
 	grunt.loadNpmTasks( 'grunt-wp-i18n' );
-	grunt.loadNpmTasks( 'grunt-wp-readme-to-markdown' );
-	grunt.registerTask( 'default', [ 'i18n','readme' ] );
+	grunt.registerTask( 'default', [ 'i18n' ] );
 	grunt.registerTask( 'i18n', ['addtextdomain', 'makepot'] );
-	grunt.registerTask( 'readme', ['wp_readme_to_markdown'] );
 
 	grunt.util.linefeed = '\n';
 

@@ -2,3 +2,4 @@ tl-debug-log.txt
 .DS_Store
 vendor/
 wpcs/
+node_modules/
