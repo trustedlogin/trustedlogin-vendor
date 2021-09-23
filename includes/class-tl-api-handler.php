@@ -232,7 +232,7 @@ class API_Handler {
 		    case 403:
 	    		return new WP_Error(
 	    			'verify-failed-' . $status,
-	    			__('Could not verify private/public keys, please confirm the provided keys.', 'trustedlogin-vendor' )
+	    			__('Could not verify API and Private keys, please confirm the provided keys.', 'trustedlogin-vendor' )
 	    		);
 	    		break;
 	    	case 404:
