@@ -1,0 +1,918 @@
+# Copyright (C) 2021 Katz Web Services, Inc.
+# This file is distributed under the GPL v2.
+msgid ""
+msgstr ""
+"Project-Id-Version: TrustedLogin Support Plugin 0.9.0\n"
+"Report-Msgid-Bugs-To: "
+"https://wordpress.org/support/plugin/trustedlogin-vendor\n"
+"POT-Creation-Date: 2021-09-23 14:43:59+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2021-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Country: United States\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: "
+"__;_e;_x:1,2c;_ex:1,2c;_n:1,2;_nx:1,2,4c;_n_noop:1,2;_nx_noop:1,2,3c;esc_"
+"attr__;esc_html__;esc_attr_e;esc_html_e;esc_attr_x:1,2c;esc_html_x:1,2c;\n"
+"X-Poedit-Basepath: ../\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-Bookmarks: \n"
+"X-Textdomain-Support: yes\n"
+"X-Generator: grunt-wp-i18n 1.0.3\n"
+
+#: helpdesks/class-tl-helpscout.php:107
+msgid "Secret Key"
+msgstr ""
+
+#: helpdesks/class-tl-helpscout.php:116
+#. translators: %s is replaced with the name of the help desk.
+msgid "%s Callback URL"
+msgstr ""
+
+#: helpdesks/class-tl-helpscout.php:170
+msgid "Unauthorized."
+msgstr ""
+
+#: helpdesks/class-tl-helpscout.php:171
+msgid ""
+"Verify your site's TrustedLogin Settings match the Help Scout widget "
+"settings."
+msgstr ""
+
+#: helpdesks/class-tl-helpscout.php:180
+msgid "Unable to Process."
+msgstr ""
+
+#: helpdesks/class-tl-helpscout.php:181
+msgid "The help desk sent corrupted customer data. Please try refreshing the page."
+msgstr ""
+
+#: helpdesks/class-tl-helpscout.php:226
+msgid ""
+"TrustedLogin has not been properly configured: both the API Key and Private "
+"Key must be entered."
+msgstr ""
+
+#: helpdesks/class-tl-helpscout.php:234
+#. translators: %s is replaced with the domain name of the website
+msgid "Fix the issue on %s"
+msgstr ""
+
+#: helpdesks/class-tl-helpscout.php:336
+msgid "TrustedLogin for "
+msgstr ""
+
+#: helpdesks/class-tl-helpscout.php:356
+msgid "No TrustedLogin sessions authorized for this user."
+msgstr ""
+
+#: includes/class-tl-api-handler.php:200
+msgid "No account ID provided."
+msgstr ""
+
+#: includes/class-tl-api-handler.php:216 includes/class-tl-api-handler.php:224
+msgid ""
+"We could not verify your TrustedLogin credentials, please try save settings "
+"again."
+msgstr ""
+
+#: includes/class-tl-api-handler.php:235
+msgid "Could not verify private/public keys, please confirm the provided keys."
+msgstr ""
+
+#: includes/class-tl-api-handler.php:241
+msgid "Account not found, please check the ID provided."
+msgstr ""
+
+#: includes/class-tl-api-handler.php:248
+msgid "Incorrect method (%1$s) used for %2$s"
+msgstr ""
+
+#: includes/class-tl-api-handler.php:256
+msgid "Status %d returned"
+msgstr ""
+
+#: includes/class-tl-api-handler.php:268 includes/class-tl-api-handler.php:275
+msgid ""
+"Your TrustedLogin account is not active, please login to activate your "
+"account."
+msgstr ""
+
+#: includes/class-tl-api-handler.php:282
+msgid "Please contact support (Error Status #%d)"
+msgstr ""
+
+#: includes/class-tl-api-handler.php:308
+msgid "Malformed API response received."
+msgstr ""
+
+#: includes/class-tl-api-handler.php:326
+msgid "No body received."
+msgstr ""
+
+#: includes/class-tl-api-handler.php:342
+msgid "Not found."
+msgstr ""
+
+#: includes/class-tl-api-handler.php:351
+msgid "Errors returned from API: %s"
+msgstr ""
+
+#: includes/class-trustedlogin-audit-log.php:77
+#: includes/class-trustedlogin-audit-log.php:78
+msgid "Activity Log"
+msgstr ""
+
+#: includes/class-trustedlogin-audit-log.php:147
+msgid "Latest Activity"
+msgstr ""
+
+#: includes/class-trustedlogin-audit-log.php:156
+msgid "Each row represents a user attempting to log into a customer site."
+msgstr ""
+
+#: includes/class-trustedlogin-audit-log.php:159
+msgid "No activity yet!"
+msgstr ""
+
+#: includes/class-trustedlogin-audit-log.php:178
+msgid "Time"
+msgstr ""
+
+#: includes/class-trustedlogin-audit-log.php:179
+msgid "User"
+msgstr ""
+
+#: includes/class-trustedlogin-audit-log.php:180
+msgid "Site ID & Vault Secret ID"
+msgstr ""
+
+#: includes/class-trustedlogin-audit-log.php:181
+msgid "Action"
+msgstr ""
+
+#: includes/class-trustedlogin-audit-log.php:182
+msgid "Notes"
+msgstr ""
+
+#: includes/class-trustedlogin-audit-log.php:272
+msgid "You must have manage_options capability to view audit log entries"
+msgstr ""
+
+#: includes/class-trustedlogin-endpoint.php:358
+msgid "Log in to %s"
+msgstr ""
+
+#: includes/class-trustedlogin-endpoint.php:377
+msgid "Choose a site to log into:"
+msgstr ""
+
+#: includes/class-trustedlogin-endpoint.php:419
+msgid "Empty envelope."
+msgstr ""
+
+#: includes/class-trustedlogin-endpoint.php:439
+msgid "Malformed envelope."
+msgstr ""
+
+#: includes/class-trustedlogin-endpoint.php:444
+msgid "Successful decryption of the envelope. Presenting the redirect form."
+msgstr ""
+
+#: includes/class-trustedlogin-endpoint.php:447
+msgid "TrustedLogin redirect&hellip;"
+msgstr ""
+
+#: includes/class-trustedlogin-endpoint.php:505
+msgid "Redirecting to %s&hellip;"
+msgstr ""
+
+#: includes/class-trustedlogin-endpoint.php:527
+msgid "Access Key cannot be empty"
+msgstr ""
+
+#: includes/class-trustedlogin-endpoint.php:531
+#: includes/class-trustedlogin-endpoint.php:599
+msgid "User not logged in."
+msgstr ""
+
+#: includes/class-trustedlogin-endpoint.php:541
+#: includes/class-trustedlogin-endpoint.php:618
+msgid "No auth, public key or account_id data found"
+msgstr ""
+
+#: includes/class-trustedlogin-endpoint.php:595
+msgid "Site ID cannot be empty"
+msgstr ""
+
+#: includes/class-trustedlogin-endpoint.php:647
+#: includes/class-trustedlogin-settings.php:331
+msgid "Error getting X-TL-TOKEN header"
+msgstr ""
+
+#: includes/class-trustedlogin-endpoint.php:655
+#: includes/class-trustedlogin-settings.php:337
+msgid "Error setting X-TL-TOKEN header"
+msgstr ""
+
+#: includes/class-trustedlogin-endpoint.php:671
+msgid "Successfully fetched envelope."
+msgstr ""
+
+#: includes/class-trustedlogin-endpoint.php:673
+msgid "Failed: %s"
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:101
+msgid "TrustedLogin %1$s Test"
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:120
+msgid "Minimum versions required were met."
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:128
+msgid ""
+"This site meets the minimum version requirements to run the TrustedLogin "
+"Vendor plugin."
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:148
+msgid "Minimum required version of %s is %s. "
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:157
+#: includes/class-trustedlogin-healthcheck.php:230
+#: includes/class-trustedlogin-healthcheck.php:303
+#: includes/class-trustedlogin-healthcheck.php:376
+msgid "Update %s"
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:164
+msgid "Minimum versions required were not met."
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:167
+msgid "Unfortunately the minimum required versions were not met."
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:194
+msgid "Required constants were found."
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:202
+msgid ""
+"TrustedLogin Vendor plugin requires a number of constants to work, all were "
+"found and checked."
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:222
+msgid "Constant for %s (%s) could not be found/checked. "
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:237
+msgid "Required constants were not found."
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:240
+msgid ""
+"TrustedLogin Vendor plugin requires a number of constants to work, some "
+"could not be found or tested."
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:267
+msgid "Required functions are available."
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:275
+msgid ""
+"TrustedLogin requires certain PHP and WordPress functions to work securely. "
+"These were all found and tested."
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:295
+msgid "Function %s (%s) could not be found or checked. "
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:310
+msgid "Required modules missing."
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:314
+msgid "The following functions could not be found or tested."
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:341
+msgid "Required callbacks tested."
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:349
+msgid "TrustedLogin tested built-in callbacks and they are working as expected."
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:369
+msgid "Callback function for %s could not be found or checked. "
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:383
+msgid "Required callbacks failed."
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:386
+msgid ""
+"TrustedLogin requires certain URLs be accessible in order to function "
+"properly."
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:428
+msgid "PHP"
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:429
+msgid "WordPress"
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:464
+msgid "%s checks failed."
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:489
+msgid "Health check slug not formatted correctly"
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:496
+msgid "No tests found for key: %s"
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:500
+msgid "No tests found for tests: %s"
+msgstr ""
+
+#: includes/class-trustedlogin-healthcheck.php:543
+msgid "Notice: %s check failed for %s."
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:143
+msgid "Settings"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:144
+msgid "TrustedLogin"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:193
+msgid "TrustedLogin Account ID "
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:201
+msgid "TrustedLogin Public Key "
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:209
+msgid "TrustedLogin Private Key "
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:217
+msgid "What user roles provide support?"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:217
+msgid ""
+"Which users should be able to log into customers&rsquo; sites if they have "
+"an Access Key?"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:225
+msgid "Which helpdesk software are you using?"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:233
+msgid "Enable debug logging?"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:233
+msgid "When enabled, logs will be saved to the %s directory."
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:241
+msgid "Enable Activity Log?"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:241
+msgid ""
+"Activity Log shows a log of users attempting to log into customer sites "
+"using Access Keys."
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:249
+msgid "Danger Zone"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:256
+msgid "Reset encryption keys?"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:256
+msgid ""
+"If you reset the encryption keys, all previous authorized logins will be "
+"inaccessible."
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:304
+msgid "Account ID must be numeric"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:352
+msgid "Could not verify TrustedLogin credentials: %s"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:399
+msgid "The private key has been encrypted."
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:404
+msgid "Modify Private Key"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:420
+msgid "Enter a new private key"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:500
+msgid "Select Your Helpdesk Software"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:503
+msgid "HelpScout"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:504
+msgid "Intercom"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:505
+msgid "HelpSpot"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:506
+msgid "Drift"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:507
+msgid "GoSquared"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:521
+msgid "Coming Soon"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:555
+msgid "Reset Keys"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:583
+msgid "TrustedLogin Settings"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:592
+msgid "Could not verify TrustedLogin credentials."
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:598
+msgid "You&rsquo;re connected to TrustedLogin!"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:602
+msgid "Manage the %s team at TrustedLogin.com"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:605
+msgid "Log in to TrustedLogin"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:613
+msgid "Connect your site to the TrustedLogin service."
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:614
+msgid "Sign up at TrustedLogin.com"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:628
+msgid "Update Settings"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:677
+msgid ""
+"Are you sure? Resetting encryption keys will irrevokably disable ALL "
+"existing TrustedLogin authentications."
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:697
+msgid "Cannot fetch empty setting name"
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:763
+#: includes/class-trustedlogin-settings.php:784
+msgid "Encryption keys reset."
+msgstr ""
+
+#: includes/class-trustedlogin-settings.php:763
+msgid "All previous authorizations are now inaccessible via TrustedLogin"
+msgstr ""
+
+#: includes/class-trustedlogin-sitekey-login.php:88
+msgid "TrustedLogin with Site Key"
+msgstr ""
+
+#: includes/class-trustedlogin-sitekey-login.php:89
+msgid "Access Key Log-In"
+msgstr ""
+
+#: includes/class-trustedlogin-sitekey-login.php:140
+msgid "Paste key received from customer"
+msgstr ""
+
+#: includes/class-trustedlogin-sitekey-login.php:141
+msgid "Log Into Site"
+msgstr ""
+
+#: includes/class-trustedlogin-sitekey-login.php:157
+msgid "No access key was sent with the request."
+msgstr ""
+
+#: includes/class-trustedlogin-sitekey-login.php:162
+msgid "No nonce was sent with the request."
+msgstr ""
+
+#: includes/class-trustedlogin-sitekey-login.php:167
+msgid "The referrer was not set for the request."
+msgstr ""
+
+#: includes/class-trustedlogin-sitekey-login.php:173
+msgid "The referrer does not match the expected source of the request."
+msgstr ""
+
+#: includes/class-trustedlogin-sitekey-login.php:218
+msgid "No sites were found matching the access key."
+msgstr ""
+
+#: trustedlogin-vendor.php:103
+msgid ""
+"The TrustedLogin plugin is NOT enabled. SSL is required to securely "
+"interact with TrustedLogin servers."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:108
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:325
+msgid "Revoke Access"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:174
+msgid "Revoke TrustedLogin"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:203
+msgid "Grant Support Access"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:312
+msgid "Unknown (User #%d)"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:352
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:916
+msgid "Secured by TrustedLogin"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:435
+msgid "Reference #%s"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:450
+#. translators: %1$s is replaced with the name of the software developer (e.g.
+#. "Acme Widgets"). %2$s is the amount of time remaining for access ("1 week")
+msgid "%1$s has site access that expires in %2$s."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:458
+#. translators: %1$s is replaced with the name of the software developer (e.g.
+#. "Acme Widgets")
+msgid "%1$s would like support access to this site."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:461
+#. translators: %1$s is replaced with the name of the software developer (e.g.
+#. "Acme Widgets")
+msgid "Grant %1$s access to this site."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:494
+#. translators: %1$s and %3$s are replaced with HTML tags. %2$s is the amount
+#. of time that the login will be active for (e.g. "1 week")
+msgid "Access this site for %s."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:495
+msgid "Access auto-expires in %s. You may revoke access at any time."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:501
+msgid "Create a user with a role similar to %s."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:502
+msgid "View role capabilities"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:504
+msgid "Create a user with a role of %s."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:530
+msgid "Additional capabilities:"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:531
+msgid "Removed capabilities:"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:620
+msgid "%s support may not be able to access this site."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:621
+msgid ""
+"This website is running in a local development environment. To provide "
+"support, we must be able to access your site using a publicly-accessible "
+"URL."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:623
+msgid "Learn more."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:660
+#. translators: %s is replaced with the name of the software developer (e.g.
+#. "Acme Widgets")
+msgid "Learn about TrustedLogin"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:857
+msgid "Grant %s Access"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:858
+msgid "Extend %s Access"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:961
+msgid "Could not create TrustedLogin access."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:967
+msgid "The user details could not be sent to %1$s automatically."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:971
+msgid ""
+"Please <a href=\"%1$s\" target=\"_blank\">click here</a> to go to the %2$s "
+"support site"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:979
+msgid "Confirm"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:980
+msgid "Ok"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:981
+msgid "Go to %1$s support site"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:982
+msgid "Close"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:983
+msgid "Cancel"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:984
+msgid "Revoke %1$s support access"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:985
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1129
+msgid "Copy"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:986
+msgid "Copied!"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:989
+msgid "(This link opens in a new window.)"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:990
+msgid "The access key has been copied to your clipboard."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:994
+msgid "Support access granted"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:996
+msgid "A temporary support user has been created, and sent to %1$s support."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1001
+msgid "Generating & encrypting secure support access for %1$s"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1004
+msgid "Extending support access for %1$s by %2$s"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1007
+msgid "Sending encrypted access to %1$s."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1010
+msgid "Error syncing support user to %1$s"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1021
+msgid "Action Cancelled"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1023
+msgid "A support account for %1$s was not created."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1028
+msgid "Support Access Was Not Granted"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1029
+msgid "There was an error granting access: "
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1032
+msgid "Your authorized session has expired. Please refresh the page."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1035
+msgid "TrustedLogin Key Created"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1037
+msgid "Share this TrustedLogin Key with %1$s to give them secure access:"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1043
+msgid "The TrustedLogin vendor could not be found."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1048
+msgid "%1$s Support user already exists"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1053
+msgid ""
+"A support user for %1$s already exists. You may revoke this support access "
+"from your <a href=\"%2$s\" target=\"_blank\">Users list</a>."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1093
+msgid "No %s users exist."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1126
+msgid "Site access key:"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1127
+msgid "Access Key"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1131
+msgid "Copy the access key to your clipboard"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1170
+msgid "%s access revoked."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Admin.php:1172
+msgid "You may safely close this window."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Client.php:307
+#: vendor/trustedlogin/trustedlogin-client/src/Client.php:407
+msgid "TODO"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Client.php:506
+msgid "The support user was not deleted."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Encryption.php:251
+msgid "Encryption key could not be fetched, Vendor site returned 404."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Remote.php:224
+msgid "Unable to verify Pause Mode."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Remote.php:227
+msgid "Authentication failed."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Remote.php:230
+msgid "TrustedLogin Account issue."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Remote.php:233
+msgid "Invalid tokens."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Remote.php:237
+msgid "The TrustedLogin vendor was not found."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Remote.php:247
+msgid "The TrustedLogin site is not currently online."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Remote.php:253
+msgid "The TrustedLogin site is not currently available."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Remote.php:257
+#: vendor/trustedlogin/trustedlogin-client/src/Remote.php:300
+msgid "Invalid response."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Remote.php:294
+msgid "The response was invalid."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/Remote.php:318
+msgid "Invalid response. Missing key: %s"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/SecurityChecks.php:86
+msgid "TrustedLogin temporarily disabled."
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/SecurityChecks.php:114
+msgid ""
+"There was an issue verifying the user identifier with TrustedLogin, "
+"aborting login. (%s)"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/SiteAccess.php:58
+msgid "Unexpected action value"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/SiteAccess.php:89
+msgid "Could not sync to TrustedLogin server"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/SupportRole.php:161
+#: vendor/trustedlogin/trustedlogin-client/src/SupportUser.php:209
+#: vendor/trustedlogin/trustedlogin-client/tests/test-ajax.php:174
+#: vendor/trustedlogin/trustedlogin-client/tests/test-users.php:235
+msgid "%s Support"
+msgstr ""
+
+#: vendor/trustedlogin/trustedlogin-client/src/SupportUser.php:176
+msgid "User not created; User with that email already exists"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "TrustedLogin Support Plugin"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://www.trustedlogin.com"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"Authenticate support team members to securely log them in to client sites "
+"via TrustedLogin"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Katz Web Services, Inc."
+msgstr ""
