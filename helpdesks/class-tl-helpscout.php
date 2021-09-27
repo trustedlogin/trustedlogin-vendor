@@ -281,7 +281,8 @@ class HelpScout extends HelpDesk {
 		 */
 		$html_template = apply_filters(
 			'trustedlogin/vendor/helpdesk/' . self::SLUG . '/template/wrapper',
-			'<ul class="c-sb-list c-sb-list--two-line">%1$s</ul>'
+			'<ul class="c-sb-list c-sb-list--two-line">%1$s</ul>'.
+			'<a href="' . esc_url( admin_url( 'admin.php?page=' . SiteKey_Login::PAGE_SLUG ) ) . '"><i class="icon-gear"></i>' . esc_html__( 'Go to Access Key Log-In', 'trustedlogin-vendor' ) . '</a>'
 		);
 
 		/**
@@ -291,7 +292,7 @@ class HelpScout extends HelpDesk {
 		 */
 		$item_template = apply_filters(
 			'trustedlogin/vendor/helpdesk/' . self::SLUG . '/template/item',
-			'<li class="c-sb-list-item"><a href="%1$s" target="_blank">%2$s %3$s</a><ul class="unstyled"><li><span class="muted">(%4$s)</span></li></ul></li>'
+			'<li class="c-sb-list-item"><span class="c-sb-list-item__label">%4$s <span class="c-sb-list-item__text"><a href="%1$s" target="_blank" title="%3$s"><i class="icon-pointer"></i> %2$s</a></span></span></li>'
 		);
 
 		/**
@@ -360,9 +361,9 @@ class HelpScout extends HelpDesk {
 							$item_html .= sprintf(
 								$item_template,
 								$url,
-								__( 'TrustedLogin for ', 'trustedlogin-vendor' ),
-								$key,
-								$statuses[ $key ]
+								esc_html__( 'Access Website', 'trustedlogin-vendor' ),
+								sprintf( esc_html__( 'Access Key: %s', 'trustedlogin-vendor' ), $key ),
+								sprintf( esc_html__( 'License is %s', 'trustedlogin-vendor' ), ucwords( esc_html( $statuses[ $key ] ) ) )
 							);
 						}
 					}
@@ -380,7 +381,7 @@ class HelpScout extends HelpDesk {
 		if ( empty( $item_html ) ) {
 			$item_html = sprintf(
 				$no_items_template,
-				__( 'No TrustedLogin sessions authorized for this user.', 'trustedlogin-vendor' )
+				esc_html__( 'No TrustedLogin sessions authorized for this user.', 'trustedlogin-vendor' )
 			);
 		}
 
