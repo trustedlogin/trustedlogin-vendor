@@ -78,12 +78,16 @@ class Settings {
 	 * With this capability, they are able to log into
 	 *
 	 * @since 1.0
-	 * @todo: Custom capabilities!
 	 *
 	 * @return string
 	 */
-	public static function get_support_capability() {
-		return 'manage_options';
+	public function get_support_capability() {
+
+		$roles = $this->get_approved_roles();
+
+		$has_permissions = $this->current_user_has_role( $roles );
+
+		return $has_permissions ? 'read' : 'manage_options';
 	}
 
 	public function add_hooks() {
@@ -134,6 +138,47 @@ class Settings {
 		 * @param String either 'main' or 'submenu'
 		 */
 		$this->menu_location = apply_filters( 'trustedlogin/vendor/settings/menu-location', 'main' );
+	}
+
+	/**
+	 * Checks if the current user has a role.
+	 *
+	 * Thanks to WooCommerce for the original code.
+	 *
+	 * @param string|array $role The role or array of roles.
+	 * @return bool
+	 */
+	private function current_user_has_role( $role ) {
+		return $this->user_has_role( wp_get_current_user(), $role );
+	}
+
+	/**
+	 * Checks if a user has a role.
+	 *
+	 * Thanks to WooCommerce for the original code.
+	 *
+	 * @param int|\WP_User $user The user or user ID.
+	 * @param string|array $role The role or array of roles.
+	 * @return bool
+	 */
+	private function user_has_role( $user, $role ) {
+		if ( ! is_object( $user ) ) {
+			$user = get_userdata( $user );
+		}
+
+		if ( ! $user || ! $user->exists() ) {
+			return false;
+		}
+
+		$roles = (array) $role;
+
+		foreach( $roles as $role ) {
+			if ( in_array( $role, $user->roles, true ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public function add_admin_menu() {

@@ -87,7 +87,7 @@ class SiteKey_Login {
 			'trustedlogin_vendor',
 			__( 'TrustedLogin with Site Key', 'trustedlogin-vendor' ),
 			__( 'Access Key Log-In', 'trustedlogin-vendor' ),
-			Settings::get_support_capability(),
+			$this->settings->get_support_capability(),
 			self::PAGE_SLUG,
 			array( $this, 'accesskey_page' )
 		);
