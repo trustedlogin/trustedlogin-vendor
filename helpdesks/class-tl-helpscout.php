@@ -174,35 +174,52 @@ class HelpScout extends HelpDesk {
 
 		$data_obj = json_decode( $data, false );
 
-		$customer_email = isset( $data_obj->customer->email ) ? $data_obj->customer->email : false;
+		if ( isset( $data_obj->customer->emails ) && is_array( $data_obj->customer->emails ) ) {
+			$customer_emails = $data_obj->customer->emails;
+		} elseif ( isset( $data_obj->customer->email ) ) {
+			$customer_emails = array ( $data_obj->customer->email );
+		} else {
+			$customer_emails = false;
+		}
 
-		if ( is_null( $data_obj ) || ! $customer_email ) {
+		if ( is_null( $data_obj ) || ! $customer_emails ) {
 			$error_text  = '<p class="red">' . esc_html__( 'Unable to Process.', 'trustedlogin-vendor' ) . '</p>';
 			$error_text .= '<p>' . esc_html__( 'The help desk sent corrupted customer data. Please try refreshing the page.', 'trustedlogin-vendor' ) . '</p>';
 			wp_send_json( array( 'html' => $error_text ), 400 );
 		}
 
-		$return_html = $this->get_widget_response( $customer_email );
+		$return_html = $this->get_widget_response( $customer_emails );
 
 		wp_send_json( array( 'html' => $return_html ), 200 );
 
 	}
 
-	private function get_widget_response( $customer_email ) {
+	/**
+	 * Returns license keys associated with customer email addresses.
+	 *
+	 * @todo Move to using License_Generator class.
+	 *
+	 * @param array $customer_emails Array of email addresses Help Scout associates with the customer.
+	 *
+	 * @return array Array of license keys associated with the passed emails.
+	 */
+	private function get_licenses_by_emails( $customer_emails ) {
 
-		$email    = sanitize_email( $customer_email );
-		$licenses = get_transient( 'trustedlogin_licenses_' . md5( $email ) );
+		$licenses = array();
+		foreach ( $customer_emails as $customer_email ) {
+			$email    = sanitize_email( $customer_email );
 
-		if ( false === $licenses ) {
+			$_licenses_for_email = get_transient( 'trustedlogin_licenses_' . md5( $email ) );
 
-			if ( $this->is_edd_store() && ! empty( $email ) ) {
-				if ( $this->has_edd_licensing() ) {
-					$licenses = $this->edd_get_licenses( $email );
-				}
+			if ( false === $_licenses_for_email ) {
+				$_licenses_for_email = $this->edd_get_licenses( $email );
 			}
 
-			if ( $licenses ) {
-				set_transient( 'trustedlogin_licenses_' . md5( $email ), $licenses, DAY_IN_SECONDS );
+			if ( ! empty( $_licenses_for_email ) ) {
+
+				set_transient( 'trustedlogin_licenses_' . md5( $email ), $_licenses_for_email, DAY_IN_SECONDS );
+
+				$licenses = array_merge( $licenses, $_licenses_for_email );
 			}
 		}
 
@@ -216,7 +233,17 @@ class HelpScout extends HelpDesk {
 		 *
 		 * @return array
 		 */
-		$licenses = apply_filters( 'trustedlogin/vendor/customers/licenses', $licenses, $email );
+		return apply_filters( 'trustedlogin/vendor/customers/licenses', $licenses, $customer_emails );
+	}
+
+	/**
+	 * @param array $customer_emails
+	 *
+	 * @return string
+	 */
+	private function get_widget_response( $customer_emails ) {
+
+		$licenses = $this->get_licenses_by_emails( $customer_emails );
 
 		$account_id = $this->settings->get_setting( 'account_id' );
 		$private_key  = $this->settings->get_private_key();
@@ -377,12 +404,11 @@ class HelpScout extends HelpDesk {
 	 * @since 0.1.0
 	 *
 	 * @param string $email The email to check for EDD licenses.
+	 * @param array  $licenses Array of license keys
 	 *
 	 * @return \EDD_SL_License[]|false  Array of licenses or false if none are found.
 	 */
 	public function edd_get_licenses( $email ) {
-
-		$licenses = array();
 
 		if ( ! function_exists( 'EDD' ) ) {
 			$this->log( 'EDD is not loaded.', __METHOD__ );
@@ -407,9 +433,11 @@ class HelpScout extends HelpDesk {
 			return false;
 		}
 
-		$licenses = edd_software_licensing()->get_license_keys_of_user( $Customer->user_id );
+		$edd_licenses = edd_software_licensing()->get_license_keys_of_user( $Customer->user_id );
 
-		foreach ( $licenses as $license ) {
+		$licenses = array();
+
+		foreach ( $edd_licenses as $license ) {
 			$children = edd_software_licensing()->get_child_licenses( $license->ID );
 			if ( $children ) {
 				foreach ( $children as $child ) {
@@ -420,7 +448,7 @@ class HelpScout extends HelpDesk {
 			$licenses[] = edd_software_licensing()->get_license( $license->ID );
 		}
 
-		return ( ! empty( $licenses ) ) ? $licenses : false;
+		return $licenses;
 	}
 
 	/**
