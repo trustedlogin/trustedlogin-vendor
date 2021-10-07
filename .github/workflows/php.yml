@@ -22,8 +22,8 @@ jobs:
       run: composer validate --strict
 
     - name: Clean
-        run: |
-          rm -rf vendor
+      run: |
+        rm -rf vendor
 
     - name: Cache Composer packages
       id: composer-cache
