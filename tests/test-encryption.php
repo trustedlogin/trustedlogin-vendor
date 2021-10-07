@@ -179,7 +179,7 @@ class EncryptionTest extends \WP_UnitTestCase {
 		/** @var WP_Error $type_error */
 		$type_error = $method_verify_signature->invoke( $this->encryption, 1, $unsigned_nonce );
 		$this->assertWPError( $type_error, 'Integer values should not be allowed by sodium_crypto_sign_verify_detached(). This should have thrown an error.' );
-		$this->assertEquals( 'sodium-type-error', $type_error->get_error_code() );
+		$this->assertEquals( 'sodium-error', $type_error->get_error_code() );
 
 		/** @var WP_Error $wp_error */
 		$wp_error = $method_verify_signature->invoke( $this->encryption, 'asdasdsad', $unsigned_nonce );
@@ -196,7 +196,7 @@ class EncryptionTest extends \WP_UnitTestCase {
 		/** @var WP_Error $wp_error */
 		$wp_error = $method_verify_signature->invoke( $this->encryption, $signed_nonce, $unsigned_nonce );
 		$this->assertWPError( $wp_error, 'The key was not the correct number of characters; this should not have passed.' );
-		$this->assertEquals( 'sodium-range-error', $wp_error->get_error_code() );
+		$this->assertEquals( 'sodium-error', $wp_error->get_error_code() );
 
 		remove_filter( 'trustedlogin/vendor/encryption/get-keys', $bad_range_key );
 
