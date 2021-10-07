@@ -29,6 +29,7 @@ jobs:
 
       - name: Install Composer dependencies
         run: |
+          rm -rf vendor
           composer install --no-dev
           composer global require "phpunit/phpunit=6.1.0"
 
@@ -37,4 +38,4 @@ jobs:
 
 
       - name: Tests
-        run: $HOME/.composer/vendor/bin/phpunit --config=phpunit-integration.xml
+        run: $HOME/.composer/vendor/bin/phpunit
