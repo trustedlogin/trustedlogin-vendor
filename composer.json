@@ -17,8 +17,7 @@
   "require-dev": {
     "paragonie/sodium_compat": "^1.14",
     "squizlabs/php_codesniffer": "^3.5.5",
-    "dealerdirect/phpcodesniffer-composer-installer": "*",
-    "phpcompatibility/php-compatibility": "*",
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
     "trustedlogin/client": "*"
   },
   "scripts": {

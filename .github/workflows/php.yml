@@ -1,4 +1,6 @@
-name: PHP Composer
+# Run production build with composer and npm
+## If these fail, don't release update
+name: Build
 
 on:
   push:
@@ -7,15 +9,21 @@ on:
     branches: [ develop, main ]
 
 jobs:
-  build:
+  php:
 
     runs-on: ubuntu-latest
-
+    strategy:
+          matrix:
+            php-version: [ 7.2, 7.3, 7.4 ]
     steps:
     - uses: actions/checkout@v2
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
+
+    - name: Clean
+      run: |
+        rm -rf vendor
 
     - name: Cache Composer packages
       id: composer-cache
@@ -27,14 +35,8 @@ jobs:
           ${{ runner.os }}-php-
 
     - name: Install dependencies
-      uses: php-actions/composer@v6
+      uses: php-actions/composer@v5
       with:
-        php_version: 7.4
+        php_version: ${{ matrix.php-version }}
         dev: no
         args: --no-dev --prefer-dist --no-progress
-
-    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
-    # Docs: https://getcomposer.org/doc/articles/scripts.md
-
-    # - name: Run test suite
-    #   run: composer run-script test
