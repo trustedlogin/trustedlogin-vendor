@@ -3,7 +3,7 @@
  * Plugin Name: TrustedLogin Support Plugin
  * Plugin URI: https://www.trustedlogin.com
  * Description: Authenticate support team members to securely log them in to client sites via TrustedLogin
- * Version: 0.9.0
+ * Version: 0.10.0
  * Requires PHP: 5.4
  * Author: Katz Web Services, Inc.
  * Author URI: https://www.trustedlogin.com
@@ -19,7 +19,7 @@ if (!defined('ABSPATH')) {
 }
 // Exit if accessed directly
 
-define( 'TRUSTEDLOGIN_PLUGIN_VERSION', '0.9.1' );
+define( 'TRUSTEDLOGIN_PLUGIN_VERSION', '0.10.0' );
 define( 'TRUSTEDLOGIN_PLUGIN_FILE', __FILE__ );
 
 /** @define "$path" "./" */
@@ -27,7 +27,7 @@ $path = plugin_dir_path(__FILE__);
 
 require_once $path . 'includes/trait-debug-logging.php';
 require_once $path . 'includes/trait-licensing.php';
-
+require_once $path . 'includes/class-trustedlogin-team-settings.php';
 require_once $path . 'includes/class-trustedlogin-settings.php';
 require_once $path . 'includes/class-trustedlogin-sitekey-login.php';
 require_once $path . 'includes/class-trustedlogin-endpoint.php';
