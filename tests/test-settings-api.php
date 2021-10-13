@@ -1,5 +1,6 @@
 <?php
 
+use TrustedLogin\Vendor\SettingsApi;
 use TrustedLogin\Vendor\TeamSettings;
 
 /**
@@ -121,6 +122,91 @@ class SettingsApiTest extends WP_UnitTestCase {
 
 		$this->expectException( \Exception::class);
 		$setting = $setting->get('droids', 'not the ones you are looking for');
+
+	}
+
+	/**
+	 * @covers SettingsApi::get_by_account_id()
+	 * @covers TeamSettings::get()
+	 */
+	public function test_settings_collection_get(){
+		$data = [
+			[
+				'account_id'       => '16',
+				'private_key'      => '17',
+				'api_key'       	=> '18',
+			],
+			[
+				'account_id'       => '26',
+				'private_key'      => '27',
+				'api_key'       	=> '28',
+			]
+		];
+		$settings = new SettingsApi($data);
+		$this->assertSame(
+			'27',
+			$settings->get_by_account_id('26')
+				->get( 'private_key')
+		);
+	}
+
+	/**
+	 *
+	 * @covers SettingsApi::get_by_account_id()
+	 * @covers SettingsApi::update_by_account_id()
+	 * @covers TeamSettings::get()
+	 * @covers TeamSettings::set()
+	 */
+	public function test_settings_collection_update(){
+		$data = [
+			[
+				'account_id'       => '216',
+				'private_key'      => '217',
+				'api_key'       	=> '218',
+			],
+			[
+				'account_id'       => '26',
+				'private_key'      => '227',
+				'api_key'       	=> '228',
+			]
+		];
+		$settings = new SettingsApi($data);
+
+		$this->assertTrue(
+			is_object($settings->get_by_account_id('26'))
+		);
+		$settings = $settings->update_by_account_id(
+			'26',
+			$settings->get_by_account_id('26')
+				->set( 'private_key', 'pkforks' )
+		);
+		$this->assertSame(
+			'pkforks',
+			$settings->get_by_account_id('26')
+				->get( 'private_key')
+		);
+	}
+
+	/**
+	 *
+	 * @covers SettingsApi::get_by_account_id()
+	 */
+	public function test_settings_collection_get_invalid(){
+		$data = [
+			[
+				'account_id'       => '216',
+				'private_key'      => '217',
+				'api_key'       	=> '218',
+			],
+			[
+				'account_id'       => '26',
+				'private_key'      => '227',
+				'api_key'       	=> '228',
+			]
+		];
+		$settings = new SettingsApi($data);
+		$this->expectException(\Exception::class);
+		$settings->get_by_account_id('aaa26');
 
 	}
 }
