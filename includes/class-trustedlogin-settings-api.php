@@ -106,4 +106,50 @@ class SettingsApi {
 		throw new \Exception( 'Not found' );
 
 	}
+
+	/**
+	 * Check if setting is in collection
+	 * @since 0.10.0
+	 * @param string $account_id
+	 * @return bool
+	 */
+	public function has_setting( $account_id ){
+		foreach ($this->settings as $setting) {
+			if( $account_id == $setting->get('account_id')){
+				return true;
+			}
+
+		}
+		return false;
+	}
+
+	/**
+	 * Add a setting to collection
+	 * @since 0.10.0
+	 * @param TeamSetting $setting
+	 * @return $this
+	 */
+	public function add_setting(TeamSettings $setting ){
+		//If we have it already, update
+		if($this->has_setting($setting->get('account_id'))){
+			$this->update_by_account_id($setting);
+			return $this;
+		}
+		$this->settings[] = $setting;
+		return $this;
+	}
+
+	/**
+	 * Convert to array of arrays
+	 *
+	 * @since 0.10.0
+	 * @return array
+	 */
+	public function to_array(){
+		$data = [];
+		foreach ($this->settings as $setting) {
+			$data[] = $setting->to_array();
+		}
+		return $data;
+	}
 }

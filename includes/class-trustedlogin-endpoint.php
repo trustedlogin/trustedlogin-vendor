@@ -92,6 +92,25 @@ class Endpoint {
 			'permission_callback' => '__return_true',
 		) );
 
+		register_rest_route( self::REST_ENDPOINT, '/settings', [
+			[
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => [ $this, 'get_settings' ],
+				'permission_callback' => [ $this, 'settings_permissions' ],
+			],
+			[
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => [ $this, 'update_settings' ],
+				'permission_callback' => [ $this, 'settings_permissions' ],
+				'args' 				  => [
+					'values' => [
+						'type' => 'array',
+						'required' => true
+					]
+				]
+			]
+		] );
+
 	}
 
 	/**
@@ -797,4 +816,41 @@ EOD;
 		return false;
 	}
 
+	/**
+	 * Check permissions for settings endpoints
+	 * @since 0.10.0
+	 * @return bool
+	 */
+	public function settings_permissions(){
+		return is_multisite() ? 'delete_sites' : 'manage_options';
+	}
+
+	/**
+	 * GET settings endpoint callback
+	 *
+	 * @since 0.10.0
+	 * @return \WP_REST_Response
+	 */
+	public function get_settings(){
+		return rest_ensure_response(
+			SettingsApi::from_saved()->to_array()
+		);
+	}
+
+	/**
+	 * POST update for one setting endpoint callback
+	 *
+	 * @since 0.10.0
+	 * @return \WP_REST_Response
+	 */
+	public function update_settings(\WP_REST_Request $request ){
+		$settings_api = SettingsApi::from_saved();
+		$setting = new TeamSettings(
+			$request->get_param('values', [])
+		);
+		$settings_api->add_setting($setting);
+		return rest_ensure_response(
+			$settings_api->to_array()
+		);
+	}
 }
