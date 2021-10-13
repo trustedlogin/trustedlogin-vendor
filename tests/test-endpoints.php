@@ -41,6 +41,7 @@ class EndpointsTest extends WP_UnitTestCase {
 		$this->assertArrayHasKey( '/trustedlogin/v1/healthcheck', $routes, 'route should exist when TL is setup' );
 		$this->assertArrayHasKey( '/trustedlogin/v1/public_key', $routes, 'route should exist when TL is setup' );
 		$this->assertArrayHasKey( '/trustedlogin/v1/signature_key', $routes, 'route should exist when TL is setup' );
+		$this->assertArrayHasKey( '/trustedlogin/v1/settings', $routes, 'settings endpoints should exist' );
 	}
 
 	/**

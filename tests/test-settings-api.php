@@ -1,5 +1,7 @@
 <?php
 
+use TrustedLogin\Vendor\Endpoint;
+use TrustedLogin\Vendor\Settings;
 use TrustedLogin\Vendor\SettingsApi;
 use TrustedLogin\Vendor\TeamSettings;
 
@@ -245,5 +247,122 @@ class SettingsApiTest extends WP_UnitTestCase {
 
 	}
 
+	/**
+	 *
+	 * @covers SettingsApi::has_setting()
+	 */
+	public function test_settings_collection_has_setting(){
+		$data = [
+			[
+				'account_id'       => '216',
+				'private_key'      => '217',
+				'api_key'       	=> '218',
+			],
+			[
+				'account_id'       => '126',
+				'private_key'      => '227',
+				'api_key'       	=> '228',
+			]
+		];
+		$settings = new SettingsApi($data);
+
+		$this->assertTrue(
+			$settings->has_setting('216')
+		);
+		$this->assertTrue(
+			$settings->has_setting('126')
+		);
+		$this->assertFalse(
+			$settings->has_setting('zzzz')
+		);
+
+	}
+
+
+	/**
+	 *
+	 * @covers SettingsApi::add_setting()
+	 * @covers SettingsApi::get_by_account_id()
+	 */
+	public function test_add_setting_to_api(){
+		$data = [
+			[
+				'account_id'       => '2216',
+				'private_key'      => 'a217',
+				'api_key'       	=> 'a218',
+			],
+			[
+				'account_id'       => '126',
+				'private_key'      => 'b227',
+				'api_key'       	=> 'b228',
+			]
+		];
+		$settings = new SettingsApi($data);
+		$setting = new TeamSettings([
+			'account_id'       => '1126',
+			'private_key'      => 'pkt',
+			'api_key'       	=> 'ab228',
+		]);
+
+		$settings->add_setting(
+			$setting
+		);
+		//Has new one.
+		$this->assertTrue(
+			$settings->has_setting('1126')
+		);
+		//Still has old one
+		$this->assertTrue(
+			$settings->has_setting('126')
+		);
+		//Can also update
+		$setting->set( 'private_key', 'pk9000');
+		$settings->add_setting(
+			$setting
+		);
+		$this->assertSame(
+			'pk9000',
+			$settings->get_by_account_id(
+				'1126'
+			)->get(( 'private_key'))
+		);
+	}
+
+	/**
+	 *
+	 * @covers SettingsApi::from_saved()
+	 * @covers SettingsApi::to_array()
+	 * @covers Endpoint::
+	 */
+	public function test_get_settings_via_rest_api(){
+		$data = [
+			[
+				'account_id'       => '12216',
+				'private_key'      => 'a217',
+				'api_key'       	=> 'a218',
+			],
+			[
+				'account_id'       => '1226',
+				'private_key'      => 'b227',
+				'api_key'       	=> 'b228',
+			]
+		];
+		$api = new Endpoint(
+			new Settings()
+		);
+
+		$settings = new SettingsApi($data);
+		$settings->save();
+
+		$r = $api->get_settings();
+		$this->assertSame(
+			'12216',
+			$r->get_data()[0]['account_id']
+		);
+		$this->assertSame(
+			'1226',
+			$r->get_data()[1]['account_id']
+		);
+	}
 
 }
