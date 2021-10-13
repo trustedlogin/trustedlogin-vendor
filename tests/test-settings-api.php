@@ -209,4 +209,42 @@ class SettingsApiTest extends WP_UnitTestCase {
 		$settings->get_by_account_id('aaa26');
 
 	}
+
+
+	/**
+	 *
+	 * @covers SettingsApi::from_saved()
+	 * @covers SettingsApi::save()
+	 * @covers SettingsApi::update_by_account_id()
+	 * @covers TeamSettings::get()
+	 */
+	public function test_settings_save(){
+		update_option( SettingsApi::SETTING_NAME, false );
+		$data = [
+			[
+				'account_id'       => 'a216',
+				'private_key'      => 'a217',
+				'api_key'       	=> 'a218',
+			],
+			[
+				'account_id'       => 'b26',
+				'private_key'      => 'b227',
+				'api_key'       	=> 'b228',
+			]
+		];
+		$settings = new SettingsApi($data);
+
+		$settings->save();
+
+		$settings = SettingsApi::from_saved();
+
+		$this->assertSame(
+			'b227',
+			$settings->get_by_account_id('b26')
+				->get( 'private_key')
+		);
+
+	}
+
+
 }
