@@ -176,7 +176,6 @@ class SettingsApiTest extends WP_UnitTestCase {
 			is_object($settings->get_by_account_id('26'))
 		);
 		$settings = $settings->update_by_account_id(
-			'26',
 			$settings->get_by_account_id('26')
 				->set( 'private_key', 'pkforks' )
 		);

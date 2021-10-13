@@ -89,17 +89,16 @@ class SettingsApi {
 		throw new \Exception( 'Not found' );
 	}
 
-
+	/*
 	 * Update team setting
 	 *
 	 * @since 0.10.0
-	 * @param string|int $account_id Account to update
 	 * @param TeamSettings $values New settings object
 	 * @return SettingsApi
 	 */
-	public function update_by_account_id($account_id, TeamSettings $value){
+	public function update_by_account_id(TeamSettings $value){
 		foreach ($this->settings as $key => $setting) {
-			if( $account_id == $setting->get('account_id')){
+			if( $value->get( 'account_id') == $setting->get('account_id')){
 				$this->settings[$key] = $value;
 				return $this;
 			}
