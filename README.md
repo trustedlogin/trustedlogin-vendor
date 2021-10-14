@@ -33,3 +33,14 @@ There is a special phpunit container for running WordPress tests, with WordPress
     - `docker-compose run phpunit`
 - Test
     - `phpunit`
+
+## Admin Settings Page
+
+- Install
+	- `yarn`
+- Build
+	- `yarn build`
+- Run watcher
+	- `yarn watch`
+- Run JavaScript Test
+	- `yarn test`
