@@ -2112,6 +2112,15 @@
     "@wordpress/dom-ready" "^3.2.2"
     "@wordpress/i18n" "^4.2.3"
 
+"@wordpress/api-fetch@^5.2.3":
+  version "5.2.3"
+  resolved "https://registry.yarnpkg.com/@wordpress/api-fetch/-/api-fetch-5.2.3.tgz#8c844bf4de72418b5636834adf4615e2ee2cb7bc"
+  integrity sha512-hEGn9vXk76ejdvei1pBX/kaQ3xnKlE2dwtCXszgem8PdDF5GYzgESEwYaWvfgPAfJs7xF283FN1QsNzA4M+N9A==
+  dependencies:
+    "@babel/runtime" "^7.13.10"
+    "@wordpress/i18n" "^4.2.3"
+    "@wordpress/url" "^3.2.3"
+
 "@wordpress/babel-plugin-import-jsx-pragma@^3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@wordpress/babel-plugin-import-jsx-pragma/-/babel-plugin-import-jsx-pragma-3.1.0.tgz#0a1be89a64bb938f91b733c31bfebd89519c2548"
@@ -2516,6 +2525,14 @@
     stylelint-config-recommended "^3.0.0"
     stylelint-config-recommended-scss "^4.2.0"
     stylelint-scss "^3.17.2"
+
+"@wordpress/url@^3.2.3":
+  version "3.2.3"
+  resolved "https://registry.yarnpkg.com/@wordpress/url/-/url-3.2.3.tgz#8c433051e0084d0c00d54916a6a9cf3d36335284"
+  integrity sha512-sepFDMcshaLBEPHDuHDAsXWsrRInyOa3an3Y8OfqLFwAoMZGAKJTClx1k4DnJwRRGhjv03veTl0IqxTdMH/CiA==
+  dependencies:
+    "@babel/runtime" "^7.13.10"
+    lodash "^4.17.21"
 
 "@wordpress/warning@^2.2.0", "@wordpress/warning@^2.2.2":
   version "2.2.2"

@@ -1,7 +1,7 @@
 {
-  "name": "trustedlogin-vendor",
-  "version": "0.10.0",
-  "main": "build/index.js",
+    "name": "trustedlogin-vendor",
+    "version": "0.10.0",
+    "main": "build/index.js",
     "scripts": {
         "test": "yarn test:unit",
         "test:unit": "wp-scripts test-unit-js",
@@ -19,6 +19,7 @@
         "archiver": "^5.3.0"
     },
     "dependencies": {
+        "@wordpress/api-fetch": "^5.2.3",
         "@wordpress/components": "^14",
         "@wordpress/element": "^3",
         "@wordpress/i18n": "^4"

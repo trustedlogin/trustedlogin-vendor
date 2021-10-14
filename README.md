@@ -24,7 +24,9 @@ A [docker-compose](https://docs.docker.com/samples/wordpress/)-based local devel
 - Acess Site
     - [http://localhost:6300](http://localhost:6100)
 - Run WP CLI command:
-    - `docker-compose run wpcli wp user create admin admin@example.com --role=admin user_pass=pass`
+    - `
+	`
+	- `docker-compose run wpcli wp db reset`
 
 
 In the local development container, the constant `DOING_TL_VENDOR_TESTS` is set to true, as is `WP_DEBUG`.
