@@ -363,7 +363,7 @@ class Encryption {
 	}
 
 	/**
-	 * Returns an pair of values to verify identity.
+	 * Returns a pair of values to verify identity.
 	 *
 	 * This pair acts as a signature, helping to verify that this site is indeed the sender of the data.
 	 *

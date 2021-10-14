@@ -624,7 +624,9 @@ EOD;
 		// Let's grab the user details. Logged in status already confirmed in maybe_redirect_support();
 		$current_user = wp_get_current_user();
 
-		$data['user'] = array( 'id' => $current_user->ID, 'name' => $current_user->display_name );
+		$data['user'] = array(
+			'id' => $current_user->ID,
+		);
 
 		// make sure we have the auth details from the settings page before continuing.
 		$private_key  = $this->settings->get_private_key();
