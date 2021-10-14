@@ -28,6 +28,7 @@ $path = plugin_dir_path(__FILE__);
 require_once $path . 'includes/trait-debug-logging.php';
 require_once $path . 'includes/trait-licensing.php';
 require_once $path . 'includes/class-trustedlogin-team-settings.php';
+require_once $path . 'includes/class-trustedlogin-settings.php';
 require_once $path . 'includes/class-trustedlogin-settings-api.php';
 require_once $path . 'admin/settings/init.php';
 require_once $path . 'includes/class-trustedlogin-sitekey-login.php';

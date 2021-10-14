@@ -27,6 +27,9 @@ A [docker-compose](https://docs.docker.com/samples/wordpress/)-based local devel
     - `docker-compose run wpcli wp user create admin admin@example.com --role=admin user_pass=pass`
 
 
+In the local development container, the constant `DOING_TL_VENDOR_TESTS` is set to true, as is `WP_DEBUG`.
+
+
 There is a special phpunit container for running WordPress tests, with WordPress and MySQL configured.
 
 - Enter container
