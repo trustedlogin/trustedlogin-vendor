@@ -124,7 +124,7 @@ class SettingsApi {
 	}
 
 	/**
-	 * Add a setting to collection
+	 * Add or update a setting to collection
 	 * @since 0.10.0
 	 * @param TeamSetting $setting
 	 * @return $this
@@ -135,7 +135,13 @@ class SettingsApi {
 			$this->update_by_account_id($setting);
 			return $this;
 		}
+		//add it to collection
 		$this->settings[] = $setting;
+		return $this;
+	}
+
+	public function reset(){
+		$this->settings = [];
 		return $this;
 	}
 

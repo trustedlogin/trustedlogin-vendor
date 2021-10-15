@@ -103,7 +103,7 @@ class Endpoint {
 				'callback'            => [ $this, 'update_settings' ],
 				'permission_callback' => [ $this, 'settings_permissions' ],
 				'args' 				  => [
-					'values' => [
+					'teams' => [
 						'type' => 'array',
 						'required' => true
 					]
@@ -844,11 +844,24 @@ EOD;
 	 * @return \WP_REST_Response
 	 */
 	public function update_settings(\WP_REST_Request $request ){
-		$settings_api = SettingsApi::from_saved();
-		$setting = new TeamSettings(
-			$request->get_param('values', [])
-		);
-		$settings_api->add_setting($setting);
+		$settings_api = SettingsApi::from_saved()->reset();
+		$teams = $request->get_param('teams', []);
+		if( ! empty($teams)){
+			foreach ($teams as $team) {
+				try {
+					$setting = new TeamSettings(
+						$team
+					);
+					$settings_api->add_setting($setting);
+				} catch (\Throwable $th) {
+					//throw $th;
+				}
+
+			}
+
+		}
+
+		$settings_api->save();
 		return rest_ensure_response(
 			$settings_api->to_array()
 		);

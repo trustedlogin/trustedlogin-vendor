@@ -1,13 +1,7 @@
-import apiFetch from "@wordpress/api-fetch";
 import { __ } from "@wordpress/i18n";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Notice, BigButton } from "./components";
 import TrustedLoginSettings from "./TrustedLoginSettings";
-const getSettings = async () => {
-  apiFetch({ path: "/wp/v2/posts" }).then((posts) => {
-    console.log(posts);
-  });
-};
 
 const defaultSettings = {
   isConnected: false,
@@ -28,7 +22,7 @@ const addEmptyTeam = (teams) => {
   ];
 };
 
-export default function App() {
+export default function App({ getSettings, updateSettings }) {
   const [settings, setSettings] = useState(() => {
     return defaultSettings;
   });
@@ -58,7 +52,17 @@ export default function App() {
 
   const onSave = (e) => {
     e.preventDefault();
+    updateSettings({ teams: settings.teams });
   };
+
+  useEffect(() => {
+    getSettings().then(({ teams }) => {
+      setSettings({
+        ...settings,
+        teams,
+      });
+    });
+  }, [getSettings]);
   return (
     <div>
       {!settings.isConnected ? (
@@ -78,6 +82,7 @@ export default function App() {
         settings={settings}
         setTeam={setTeam}
         canSave={canSave}
+        onSave={onSave}
       />
     </div>
   );
