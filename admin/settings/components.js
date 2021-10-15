@@ -75,7 +75,7 @@ export const Input = ({ name, label, value, type, onChange }) => {
       <td>
         <input
           name={name}
-          type={type ? type : "input"}
+          type={type ? type : "text"}
           id={name}
           value={value}
           className="regular-text ltr"

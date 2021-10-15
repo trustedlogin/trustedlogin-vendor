@@ -122,7 +122,7 @@ exports[`Input renders 1`] = `
             class="regular-text ltr"
             id="name"
             name="name"
-            type="input"
+            type="text"
             value="value"
           />
         </td>

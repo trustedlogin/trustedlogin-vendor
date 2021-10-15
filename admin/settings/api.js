@@ -2,16 +2,17 @@ import apiFetch from "@wordpress/api-fetch";
 
 const path = "/trustedlogin/v1/settings";
 export const getSettings = async () => {
-  let teams = await apiFetch({ path });
-  return { teams };
+  let settings = await apiFetch({ path });
+  return settings;
 };
 
-export const updateSettings = async ({ teams }) => {
+export const updateSettings = async ({ teams, helpscout }) => {
   teams = await apiFetch({
     path,
     method: "POST",
     data: {
       teams,
+      helpscout,
     },
   });
   return { teams };

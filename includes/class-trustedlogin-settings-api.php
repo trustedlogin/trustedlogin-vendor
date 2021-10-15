@@ -14,7 +14,8 @@ use \Exception;
 
 class SettingsApi {
 
-	const SETTING_NAME = 'trustedlogin_vendor_team_settings';
+	const TEAM_SETTING_NAME = 'trustedlogin_vendor_team_settings';
+	const HELPSCOUT_SETTING_NAME = 'trustedlogin_helpscout_settings';
 
 	/**
 	 * @var TeamSettings[]
@@ -24,10 +25,17 @@ class SettingsApi {
 
 
 	/**
-	 * @param TeamSettings[]|array[] $team_data Collection of team data
+	 * @var array
 	 * @since 0.10.0
 	 */
-	public function __construct(array $team_data)
+	protected $helpscout_data = [];
+
+	/**
+	 * @param TeamSettings[]|array[] $team_data Collection of team data
+	 * @param array $helpscout_data Helpscout settings data
+	 * @since 0.10.0
+	 */
+	public function __construct(array $team_data,array $helpscout_data = [])
 	{
 		foreach ($team_data as $values) {
 			if( is_array($values)){
@@ -37,6 +45,7 @@ class SettingsApi {
 				$this->team_settings[] = $values;
 			}
 		}
+		$this->helpscout_data = $helpscout_data;
 	}
 
 	/**
@@ -45,7 +54,7 @@ class SettingsApi {
 	 * @return SettingsApi
 	 */
 	public static function from_saved(){
-		$saved = get_option(self::SETTING_NAME,[]);
+		$saved = get_option(self::TEAM_SETTING_NAME,[]);
 
 		$data = [];
 		if( ! empty($saved)){
@@ -54,8 +63,12 @@ class SettingsApi {
 				$data[] = new TeamSettings((array)$value);
 			}
 		}
+		$helpscout_data = get_option(self::HELPSCOUT_SETTING_NAME,[]);
+		if( ! is_array($helpscout_data)){
+			$helpscout_data = [];
+		}
 
-		return new self($data);
+		return new self($data,$helpscout_data);
 	}
 
 	/**
@@ -69,7 +82,8 @@ class SettingsApi {
 		foreach ($this->team_settings as $setting) {
 			$data[] = $setting->to_array();
 		}
-		update_option(self::SETTING_NAME, json_encode($data) );
+		update_option(self::TEAM_SETTING_NAME, json_encode($data) );
+		update_option(self::HELPSCOUT_SETTING_NAME, $this->get_helpscout_data());
 		return $this;
 	}
 
@@ -140,11 +154,42 @@ class SettingsApi {
 		return $this;
 	}
 
+	/**
+	* Reset all data
+	*
+	* @since 0.10.0
+	* @return $this
+	*/
 	public function reset(){
 		$this->team_settings = [];
+		$this->helpscout_data = [];
 		return $this;
 	}
 
+	/**
+	 * Set helpscout data
+	 *
+	 * @since 0.10.0
+     * @param array $helpscout_data
+	 * @return $this
+	 */
+	public function set_helpscout_data(array $helpscout_data){
+		$this->helpscout_data = $helpscout_data;
+		return $this;
+	}
+
+	/**
+	 * Get helpscout data
+	 *
+	 * @since 0.10.0
+     * @return array
+	 */
+	public function get_helpscout_data(){
+		return [
+			'secret' => isset($this->helpscout_data['secret']) ?$this->helpscout_data['secret'] :"",
+			'callback' => isset($this->helpscout_data['callback']) ?$this->helpscout_data['callback'] :"",
+		];
+	}
 	/**
 	 * Convert to array of arrays
 	 *
@@ -152,9 +197,12 @@ class SettingsApi {
 	 * @return array
 	 */
 	public function to_array(){
-		$data = [];
+		$data = [
+			'teams' => [],
+			'helpscout' => $this->get_helpscout_data()
+		];
 		foreach ($this->team_settings as $setting) {
-			$data[] = $setting->to_array();
+			$data['teams'][] = $setting->to_array();
 		}
 		return $data;
 	}

@@ -6,6 +6,10 @@ import TrustedLoginSettings from "./TrustedLoginSettings";
 const defaultSettings = {
   isConnected: false,
   teams: [],
+  helpscout: {
+    secret: "",
+    callback: "",
+  },
 };
 
 const addEmptyTeam = (teams) => {
@@ -27,6 +31,9 @@ export default function App({ getSettings, updateSettings }) {
     return defaultSettings;
   });
 
+  /**
+   * Add a team to settings
+   */
   const addTeam = () => {
     setSettings({
       ...settings,
@@ -34,6 +41,9 @@ export default function App({ getSettings, updateSettings }) {
     });
   };
 
+  /**
+   * Update one team in settings
+   */
   const setTeam = (team) => {
     setSettings({
       ...settings,
@@ -46,23 +56,28 @@ export default function App({ getSettings, updateSettings }) {
     });
   };
 
+  //Disables/enables save button
   const canSave = useMemo(() => {
     return settings.teams.length > 0;
   }, [settings.teams]);
 
+  ///Handles save
   const onSave = (e) => {
     e.preventDefault();
-    updateSettings({ teams: settings.teams });
+    updateSettings({ teams: settings.teams, helpscout: settings.helpscout });
   };
 
+  //Get the saved settings
   useEffect(() => {
-    getSettings().then(({ teams }) => {
+    getSettings().then(({ teams, helpscout }) => {
       setSettings({
         ...settings,
         teams,
+        helpscout,
       });
     });
-  }, [getSettings]);
+  }, [getSettings, setSettings]);
+
   return (
     <div>
       {!settings.isConnected ? (

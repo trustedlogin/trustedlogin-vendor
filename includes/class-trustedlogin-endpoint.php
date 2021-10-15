@@ -106,6 +106,10 @@ class Endpoint {
 					'teams' => [
 						'type' => 'array',
 						'required' => true
+					],
+					'helpscout' => [
+						'type' => 'object',
+						'required' => true
 					]
 				]
 			]
@@ -860,6 +864,7 @@ EOD;
 			}
 
 		}
+		$settings_api->set_helpscout_data($request->get_param( 'helpscout', []));
 
 		$settings_api->save();
 		return rest_ensure_response(

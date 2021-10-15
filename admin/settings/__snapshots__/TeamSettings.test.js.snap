@@ -27,7 +27,7 @@ exports[`TeamSettings renders 1`] = `
             class="regular-text ltr"
             id="team-0[account_id]"
             name="team-0[account_id]"
-            type="input"
+            type="text"
             value="7"
           />
         </td>
@@ -47,7 +47,7 @@ exports[`TeamSettings renders 1`] = `
             class="regular-text ltr"
             id="team-0[api_key]"
             name="team-0[api_key]"
-            type="input"
+            type="text"
             value="ak_1"
           />
         </td>
@@ -67,7 +67,7 @@ exports[`TeamSettings renders 1`] = `
             class="regular-text ltr"
             id="team-0[private_key]"
             name="team-0[private_key]"
-            type="input"
+            type="text"
             value="pk_1"
           />
         </td>
@@ -150,7 +150,7 @@ exports[`TrustedLoginSettings renders with save disabled 1`] = `
               class="regular-text ltr"
               id="team-0[account_id]"
               name="team-0[account_id]"
-              type="input"
+              type="text"
               value="7"
             />
           </td>
@@ -170,7 +170,7 @@ exports[`TrustedLoginSettings renders with save disabled 1`] = `
               class="regular-text ltr"
               id="team-0[api_key]"
               name="team-0[api_key]"
-              type="input"
+              type="text"
               value="ak_1"
             />
           </td>
@@ -190,7 +190,7 @@ exports[`TrustedLoginSettings renders with save disabled 1`] = `
               class="regular-text ltr"
               id="team-0[private_key]"
               name="team-0[private_key]"
-              type="input"
+              type="text"
               value="pk_1"
             />
           </td>
@@ -262,7 +262,7 @@ exports[`TrustedLoginSettings renders with save disabled 1`] = `
               class="regular-text ltr"
               id="helpscout[secret]"
               name="helpscout[secret]"
-              type="input"
+              type="text"
               value=""
             />
           </td>
@@ -282,7 +282,7 @@ exports[`TrustedLoginSettings renders with save disabled 1`] = `
               class="regular-text ltr"
               id="helpscout[callback]"
               name="helpscout[callback]"
-              type="input"
+              type="url"
               value=""
             />
           </td>
@@ -331,7 +331,7 @@ exports[`TrustedLoginSettings renders with save enabled 1`] = `
               class="regular-text ltr"
               id="team-0[account_id]"
               name="team-0[account_id]"
-              type="input"
+              type="text"
               value="7"
             />
           </td>
@@ -351,7 +351,7 @@ exports[`TrustedLoginSettings renders with save enabled 1`] = `
               class="regular-text ltr"
               id="team-0[api_key]"
               name="team-0[api_key]"
-              type="input"
+              type="text"
               value="ak_1"
             />
           </td>
@@ -371,7 +371,7 @@ exports[`TrustedLoginSettings renders with save enabled 1`] = `
               class="regular-text ltr"
               id="team-0[private_key]"
               name="team-0[private_key]"
-              type="input"
+              type="text"
               value="pk_1"
             />
           </td>
@@ -443,7 +443,7 @@ exports[`TrustedLoginSettings renders with save enabled 1`] = `
               class="regular-text ltr"
               id="helpscout[secret]"
               name="helpscout[secret]"
-              type="input"
+              type="text"
               value=""
             />
           </td>
@@ -463,7 +463,7 @@ exports[`TrustedLoginSettings renders with save enabled 1`] = `
               class="regular-text ltr"
               id="helpscout[callback]"
               name="helpscout[callback]"
-              type="input"
+              type="url"
               value=""
             />
           </td>

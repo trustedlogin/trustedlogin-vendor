@@ -42,6 +42,7 @@ export default function ({ onSave, settings, canSave, setTeam, setSettings }) {
           name="helpscout[callback]"
           label={__("Help Scout Callback URL	")}
           value={helpscout.callback}
+          type="url"
           onChange={(value) => {
             setSettings({
               ...settings,
