@@ -48,6 +48,10 @@ describe("TrustedLoginSettings", () => {
         approved_roles: ["editor"],
       },
     ],
+    helpscout: {
+      callback: "",
+      secret: "",
+    },
   };
   it("renders with save enabled", () => {
     const setTeam = jest.fn();
@@ -78,7 +82,7 @@ describe("TrustedLoginSettings", () => {
     expect(container).toMatchSnapshot();
   });
 
-  it("updates", () => {
+  it("updates team settings", () => {
     const setTeam = jest.fn();
     const onSave = jest.fn();
 
@@ -100,6 +104,50 @@ describe("TrustedLoginSettings", () => {
     expect(setTeam).toBeCalledWith({
       ...settings.teams[0],
       account_id: "42",
+    });
+  });
+
+  it("updates helpscout settings", () => {
+    const setTeam = jest.fn();
+    const onSave = jest.fn();
+    const setSettings = jest.fn();
+    const { getByLabelText } = render(
+      <TrustedLoginSettings
+        onSave={onSave}
+        settings={settings}
+        setTeam={setTeam}
+        canSave={true}
+        setSettings={setSettings}
+      />
+    );
+    //Change secret
+    act(() => {
+      fireEvent.change(getByLabelText("Help Scout Secret Key"), {
+        target: { value: "42" },
+      });
+    });
+
+    expect(setSettings).toBeCalledWith({
+      ...settings,
+      helpscout: {
+        ...settings.helpscout,
+        secret: "42",
+      },
+    });
+
+    //Change callback
+    act(() => {
+      fireEvent.change(getByLabelText("Help Scout Callback URL"), {
+        target: { value: "https://happy.dog" },
+      });
+    });
+
+    expect(setSettings).toBeCalledWith({
+      ...settings,
+      helpscout: {
+        ...settings.helpscout,
+        callback: "https://happy.dog",
+      },
     });
   });
 });

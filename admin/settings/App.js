@@ -80,6 +80,7 @@ export default function App({ getSettings, updateSettings }) {
       </BigButton>
       <TrustedLoginSettings
         settings={settings}
+        setSettings={setSettings}
         setTeam={setTeam}
         canSave={canSave}
         onSave={onSave}

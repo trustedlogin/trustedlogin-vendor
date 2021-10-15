@@ -242,6 +242,53 @@ exports[`TrustedLoginSettings renders with save disabled 1`] = `
         </tr>
       </tbody>
     </table>
+    <table
+      class="form-table"
+      role="presentation"
+    >
+      <tbody>
+        <tr>
+          <th
+            scope="row"
+          >
+            <label
+              for="helpscout[secret]"
+            >
+              Help Scout Secret Key
+            </label>
+          </th>
+          <td>
+            <input
+              class="regular-text ltr"
+              id="helpscout[secret]"
+              name="helpscout[secret]"
+              type="input"
+              value=""
+            />
+          </td>
+        </tr>
+        <tr>
+          <th
+            scope="row"
+          >
+            <label
+              for="helpscout[callback]"
+            >
+              Help Scout Callback URL	
+            </label>
+          </th>
+          <td>
+            <input
+              class="regular-text ltr"
+              id="helpscout[callback]"
+              name="helpscout[callback]"
+              type="input"
+              value=""
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
     <p
       class="submit"
     >
@@ -372,6 +419,53 @@ exports[`TrustedLoginSettings renders with save enabled 1`] = `
                 Helpscout
               </option>
             </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <table
+      class="form-table"
+      role="presentation"
+    >
+      <tbody>
+        <tr>
+          <th
+            scope="row"
+          >
+            <label
+              for="helpscout[secret]"
+            >
+              Help Scout Secret Key
+            </label>
+          </th>
+          <td>
+            <input
+              class="regular-text ltr"
+              id="helpscout[secret]"
+              name="helpscout[secret]"
+              type="input"
+              value=""
+            />
+          </td>
+        </tr>
+        <tr>
+          <th
+            scope="row"
+          >
+            <label
+              for="helpscout[callback]"
+            >
+              Help Scout Callback URL	
+            </label>
+          </th>
+          <td>
+            <input
+              class="regular-text ltr"
+              id="helpscout[callback]"
+              name="helpscout[callback]"
+              type="input"
+              value=""
+            />
           </td>
         </tr>
       </tbody>
