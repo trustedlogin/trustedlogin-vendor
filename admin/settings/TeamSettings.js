@@ -2,6 +2,9 @@ import { useMemo, useState } from "react";
 import { __ } from "@wordpress/i18n";
 import { FormTable, Input, Select } from "./components";
 
+/**
+ * Settings for one single team
+ */
 const TeamSettings = ({ team, setTeam }) => {
   const teamId = useMemo(() => {
     return team.id;

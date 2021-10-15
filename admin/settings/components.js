@@ -86,7 +86,7 @@ export const Input = ({ name, label, value, type, onChange }) => {
   );
 };
 
-export const Submit = ({ name, variant, value, disabled }) => (
+export const Submit = ({ name, variant, value, disabled, onClick }) => (
   <p className="submit">
     <input
       type="submit"
@@ -95,6 +95,7 @@ export const Submit = ({ name, variant, value, disabled }) => (
       className={`button button-${variant ? variant : "secondary"} button-hero`}
       value={value}
       disabled={disabled}
+      onClick={onClick}
     />
   </p>
 );

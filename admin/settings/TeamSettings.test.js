@@ -1,6 +1,6 @@
 import { render, fireEvent, cleanup, act } from "@testing-library/react";
 import TeamSettings from "./TeamSettings";
-
+import TrustedLoginSettings from "./TrustedLoginSettings";
 describe("TeamSettings", () => {
   afterEach(cleanup);
   let team = {
@@ -30,6 +30,75 @@ describe("TeamSettings", () => {
 
     expect(setTeam).toBeCalledWith({
       ...team,
+      account_id: "42",
+    });
+  });
+});
+describe("TrustedLoginSettings", () => {
+  afterEach(cleanup);
+  let settings = {
+    isConnected: false,
+    teams: [
+      {
+        id: 0,
+        account_id: "7",
+        private_key: "pk_1",
+        api_key: "ak_1",
+        helpdesk: "helpscout",
+        approved_roles: ["editor"],
+      },
+    ],
+  };
+  it("renders with save enabled", () => {
+    const setTeam = jest.fn();
+    const onSave = jest.fn();
+
+    const { container } = render(
+      <TrustedLoginSettings
+        settings={settings}
+        setTeam={setTeam}
+        canSave={false}
+        onSave={onSave}
+      />
+    );
+    expect(container).toMatchSnapshot();
+  });
+  it("renders with save disabled", () => {
+    const setTeam = jest.fn();
+    const onSave = jest.fn();
+
+    const { container } = render(
+      <TrustedLoginSettings
+        settings={settings}
+        setTeam={setTeam}
+        canSave={false}
+        onSave={onSave}
+      />
+    );
+    expect(container).toMatchSnapshot();
+  });
+
+  it("updates", () => {
+    const setTeam = jest.fn();
+    const onSave = jest.fn();
+
+    const { getByLabelText } = render(
+      <TrustedLoginSettings
+        onSave={onSave}
+        settings={settings}
+        setTeam={setTeam}
+        canSave={true}
+      />
+    );
+    //Change an input
+    act(() => {
+      fireEvent.change(getByLabelText("TrustedLogin Account ID"), {
+        target: { value: "42" },
+      });
+    });
+
+    expect(setTeam).toBeCalledWith({
+      ...settings.teams[0],
       account_id: "42",
     });
   });

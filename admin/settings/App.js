@@ -1,16 +1,8 @@
 import apiFetch from "@wordpress/api-fetch";
 import { __ } from "@wordpress/i18n";
-import { useEffect, useMemo, useState } from "react";
-import {
-  Input,
-  Notice,
-  Select,
-  Form,
-  FormTable,
-  BigButton,
-  Submit,
-} from "./components";
-import TeamSettings from "./TeamSettings";
+import { useMemo, useState } from "react";
+import { Notice, BigButton } from "./components";
+import TrustedLoginSettings from "./TrustedLoginSettings";
 const getSettings = async () => {
   apiFetch({ path: "/wp/v2/posts" }).then((posts) => {
     console.log(posts);
@@ -48,6 +40,18 @@ export default function App() {
     });
   };
 
+  const setTeam = (team) => {
+    setSettings({
+      ...settings,
+      teams: settings.teams.map((t) => {
+        if (t.id === team.id) {
+          return team;
+        }
+        return t;
+      }),
+    });
+  };
+
   const canSave = useMemo(() => {
     return settings.teams.length > 0;
   }, [settings.teams]);
@@ -70,18 +74,11 @@ export default function App() {
       >
         {__("Add Team")}
       </BigButton>
-      <Form onSubmit={onSave}>
-        {settings.teams
-          ? settings.teams.map((team) => (
-              <TeamSettings team={team} key={team.id} />
-            ))
-          : null}
-        <Submit
-          variant={canSave ? "primary" : "secondary"}
-          value={__("Save Setting")}
-          disabled={!canSave}
-        />
-      </Form>
+      <TrustedLoginSettings
+        settings={settings}
+        setTeam={setTeam}
+        canSave={canSave}
+      />
     </div>
   );
 }
