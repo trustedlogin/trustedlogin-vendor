@@ -20,21 +20,21 @@ class SettingsApi {
 	 * @var TeamSettings[]
 	 * @since 0.10.0
 	 */
-	protected $settings = [];
+	protected $team_settings = [];
 
 
 	/**
-	 * @param TeamSettings[]|array[] $data Collection of data
+	 * @param TeamSettings[]|array[] $team_data Collection of team data
 	 * @since 0.10.0
 	 */
-	public function __construct(array $data)
+	public function __construct(array $team_data)
 	{
-		foreach ($data as $values) {
+		foreach ($team_data as $values) {
 			if( is_array($values)){
 				$values = new TeamSettings($values);
 			}
 			if(  is_a($values, TeamSettings::class)){
-				$this->settings[] = $values;
+				$this->team_settings[] = $values;
 			}
 		}
 	}
@@ -66,7 +66,7 @@ class SettingsApi {
 	 */
 	public function save(){
 		$data = [];
-		foreach ($this->settings as $setting) {
+		foreach ($this->team_settings as $setting) {
 			$data[] = $setting->to_array();
 		}
 		update_option(self::SETTING_NAME, json_encode($data) );
@@ -81,7 +81,7 @@ class SettingsApi {
 	 * @return TeamSettings
 	 */
 	public function get_by_account_id($account_id){
-		foreach ($this->settings as $setting) {
+		foreach ($this->team_settings as $setting) {
 			if( $account_id === $setting->get('account_id')){
 				return $setting;
 			}
@@ -97,9 +97,9 @@ class SettingsApi {
 	 * @return SettingsApi
 	 */
 	public function update_by_account_id(TeamSettings $value){
-		foreach ($this->settings as $key => $setting) {
+		foreach ($this->team_settings as $key => $setting) {
 			if( $value->get( 'account_id') == $setting->get('account_id')){
-				$this->settings[$key] = $value;
+				$this->team_settings[$key] = $value;
 				return $this;
 			}
 		}
@@ -114,7 +114,7 @@ class SettingsApi {
 	 * @return bool
 	 */
 	public function has_setting( $account_id ){
-		foreach ($this->settings as $setting) {
+		foreach ($this->team_settings as $setting) {
 			if( $account_id == $setting->get('account_id')){
 				return true;
 			}
@@ -136,12 +136,12 @@ class SettingsApi {
 			return $this;
 		}
 		//add it to collection
-		$this->settings[] = $setting;
+		$this->team_settings[] = $setting;
 		return $this;
 	}
 
 	public function reset(){
-		$this->settings = [];
+		$this->team_settings = [];
 		return $this;
 	}
 
@@ -153,7 +153,7 @@ class SettingsApi {
 	 */
 	public function to_array(){
 		$data = [];
-		foreach ($this->settings as $setting) {
+		foreach ($this->team_settings as $setting) {
 			$data[] = $setting->to_array();
 		}
 		return $data;
