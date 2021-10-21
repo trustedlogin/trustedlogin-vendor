@@ -24,8 +24,13 @@ A [docker-compose](https://docs.docker.com/samples/wordpress/)-based local devel
 - Acess Site
     - [http://localhost:6300](http://localhost:6100)
 - Run WP CLI command:
-    - `docker-compose run wpcli wp user create admin admin@example.com --role=admin user_pass=pass`
+    - `docker-compose run wp cli wp ...`
+	- `docker-compose run wpcli wp db reset`
 
+
+In the local development container, the constant `DOING_TL_VENDOR_TESTS` is set to true, as is `WP_DEBUG`.
+
+### Running PHPUnit In Docker
 
 There is a special phpunit container for running WordPress tests, with WordPress and MySQL configured.
 
@@ -33,3 +38,23 @@ There is a special phpunit container for running WordPress tests, with WordPress
     - `docker-compose run phpunit`
 - Test
     - `phpunit`
+
+### Server To Server HTTP Requests
+If the ecommerce app is also running in docker-compose, this WordPress and the "web" service of app should be in "tl-dev" network. This allows you to make an HTTP request to the eCommerce app like this:
+
+
+```php
+$r = wp_remote_get('http://web:80',['sslverify' => false]);
+```
+
+If this doesn't work, make sure a "tl-dev" network exists:
+
+```bash
+docker network ls
+```
+
+If it does not, create one:
+
+```bash
+docker network create tl-dev
+```
