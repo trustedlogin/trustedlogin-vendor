@@ -6,6 +6,7 @@ import {
   FormTable,
   BigButton,
   Submit,
+  MainTabs
 } from "./components";
 import { render, fireEvent, cleanup } from "@testing-library/react";
 

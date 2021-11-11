@@ -2,7 +2,6 @@ import { __ } from "@wordpress/i18n";
 import { useMemo, useState, useEffect } from "react";
 import { Notice, BigButton } from "./components";
 import TrustedLoginSettings from "./TrustedLoginSettings";
-
 const defaultSettings = {
   isConnected: false,
   teams: [],
@@ -78,6 +77,7 @@ export default function App({ getSettings, updateSettings }) {
     });
   }, [getSettings, setSettings]);
 
+
   return (
     <div>
       {!settings.isConnected ? (
@@ -87,19 +87,26 @@ export default function App({ getSettings, updateSettings }) {
           link="https://trustedlogin.com"
         />
       ) : null}
-      <BigButton
-        onClick={addTeam}
-        variant={!settings.teams.length ? "primary" : "secondary"}
-      >
-        {__("Add Team")}
-      </BigButton>
-      <TrustedLoginSettings
-        settings={settings}
-        setSettings={setSettings}
-        setTeam={setTeam}
-        canSave={canSave}
-        onSave={onSave}
-      />
+
+	  <div>
+		<>
+			<BigButton
+				onClick={addTeam}
+				variant={!settings.teams.length ? "primary" : "secondary"}
+			>
+				{__("Add Team")}
+			</BigButton>
+			<TrustedLoginSettings
+				settings={settings}
+				setSettings={setSettings}
+				setTeam={setTeam}
+				canSave={canSave}
+				onSave={onSave}
+			/>
+		</>
+
+	  </div>
+
     </div>
   );
 }

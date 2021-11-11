@@ -13,16 +13,6 @@ let entry = {};
 module.exports = {
   mode: isProduction ? "production" : "development",
   ...defaultConfig,
-  module: {
-    ...defaultConfig.module,
-    rules: [
-      ...defaultConfig.module.rules,
-      {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"],
-      },
-    ],
-  },
   entry,
   output: {
     filename: "[name].js",

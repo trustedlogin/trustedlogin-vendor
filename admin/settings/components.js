@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+
 export const Notice = ({ heading, link, description, type }) => (
   <div className={`notice notice-success`}>
     <h2>{heading}</h2>
