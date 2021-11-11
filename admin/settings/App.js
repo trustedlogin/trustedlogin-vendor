@@ -25,7 +25,7 @@ const addEmptyTeam = (teams) => {
   ];
 };
 
-export default function App({ getSettings, updateSettings }) {
+export default function App({ getSettings, updateSettings,roles }) {
   const [settings, setSettings] = useState(() => {
     return defaultSettings;
   });

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { __ } from "@wordpress/i18n";
 import { FormTable, Input, Select } from "./components";
+import RoleMultiSelect from "./RoleMultiSelect";
 
 /**
  * Settings for one single team
@@ -9,7 +10,8 @@ const TeamSettings = ({ team, setTeam }) => {
   const teamId = useMemo(() => {
     return team.id;
   }, [team]);
-  const rolesOptions = [];
+
+
   const helpDeskOptions = [
     {
       label: __("Helpscout"),
@@ -51,14 +53,13 @@ const TeamSettings = ({ team, setTeam }) => {
           })
         }
       />
-      <Select
+      <RoleMultiSelect
         label={__("What user roles provide support?")}
         help={__(
           "Which users should be able to log into customers’ sites if they have an Access Key?"
         )}
         name={`team-${teamId}[approved_roles]`}
-        value={team.approved_roles}
-        options={rolesOptions}
+        approvedRoles={team.approved_roles}
         onChange={(value) =>
           setTeam({
             ...team,

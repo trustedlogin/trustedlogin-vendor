@@ -45,16 +45,7 @@ export const Select = ({ name, label, value, options, help, onChange }) => {
     }
   }, [name, label, value, help]);
   return (
-    <tr>
-      <th scope="row">
-        <label htmlFor={name}>{label}</label>
-        {help ? (
-          <span id={`${name}-description`} className="description">
-            {help}
-          </span>
-        ) : null}
-      </th>
-      <td data-children-count="1">
+      <FieldTr name={name} label={label} help={help}>
         <select {...attrs} onChange={(e) => onChange(e.target.value)}>
           {options.map(({ value, label }) => (
             <option className="level-0" value={value} key={value}>
@@ -62,28 +53,42 @@ export const Select = ({ name, label, value, options, help, onChange }) => {
             </option>
           ))}
         </select>
-      </td>
-    </tr>
+      </FieldTr>
+
   );
 };
 
+export const FieldTr = ({ children, name, label,help }) => {
+	return (
+		<tr>
+		  <th scope="row">
+			<label htmlFor={name}>{label}</label>
+				{help ? (
+					<span id={`${name}-description`} className="description">
+						{help}
+					</span>
+				) : null}
+			</th>
+			<td>
+				{children}
+			</td>
+		</tr>
+	  );
+}
+
 export const Input = ({ name, label, value, type, onChange }) => {
   return (
-    <tr>
-      <th scope="row">
-        <label htmlFor={name}>{label}</label>
-      </th>
-      <td>
-        <input
-          name={name}
-          type={type ? type : "text"}
-          id={name}
-          value={value}
-          className="regular-text ltr"
-          onChange={(e) => onChange(e.target.value)}
-        />
-      </td>
-    </tr>
+	  <FieldTr name={name} label={label}>
+			<input
+				name={name}
+				type={type ? type : "text"}
+				id={name}
+				value={value}
+				className="regular-text ltr"
+				onChange={(e) => onChange(e.target.value)}
+			/>
+	  </FieldTr>
+
   );
 };
 

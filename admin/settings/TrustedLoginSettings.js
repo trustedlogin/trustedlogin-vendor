@@ -6,7 +6,7 @@ import { useMemo } from "react";
 /**
  * Trusted Login Settings Form
  */
-export default function ({ onSave, settings, canSave, setTeam, setSettings }) {
+export default function ({ onSave, settings, canSave, setTeam, setSettings, }) {
   const helpscout = useMemo(() => {
     let defaults = {
       secret: "",

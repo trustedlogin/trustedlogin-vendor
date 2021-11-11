@@ -36,15 +36,24 @@ add_action('admin_menu', function () {
         'manage_options',
         'settings',
         function () {
+			//Get roles and print them as global JS variable.
+			$roles  = get_editable_roles();
+			unset( $roles['subscriber'] );
+			foreach ($roles as $key => $role) {
+				$roles[$key] = $role['name'];
+			}
+			printf( '<script>window.tlVendor = { roles: %s };</script>', json_encode($roles));
+			//Echo UI
 			echo '<div id="tl-vendor-settings">';
-			printf( '<img src="%s" alt="%s" width="400" />',
-				esc_url(
-					plugins_url( 'assets/trustedlogin-logo.png', TRUSTEDLOGIN_PLUGIN_FILE )
-				),
-				esc_attr( __( 'TrustedLogin Logo' ) )
-			);
-			//React root
-            echo '<div id="tl-vendor-settings-app"></div>';
+				//Logo/Header
+				printf( '<img src="%s" alt="%s" width="400" />',
+					esc_url(
+						plugins_url( 'assets/trustedlogin-logo.png', TRUSTEDLOGIN_PLUGIN_FILE )
+					),
+					esc_attr( __( 'TrustedLogin Logo' ) )
+				);
+				//React root
+				echo '<div id="tl-vendor-settings-app"></div>';
 			echo '</div><!-- /#tl-vendor-settings-->';
         }
     );
