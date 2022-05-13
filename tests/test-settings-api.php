@@ -211,16 +211,38 @@ class SettingsApiTest extends WP_UnitTestCase {
 
 	}
 
+	/**
+     * @covers SettingsApi::get_helpscout_data()
+	 * @covers SettingsApi::set_helpscout_data()
+	 */
+	public function test_get_helpscout_data(){
+
+		$settings = new SettingsApi([], []);
+		$this->assertArrayHasKey('secret', $settings->get_helpscout_data());
+		$this->assertArrayHasKey('callback', $settings->get_helpscout_data());
+		$helpscout_data = [
+			'secret' => '42',
+			'callback' => 'https://walk.dog'
+		];
+		$settings->set_helpscout_data(($helpscout_data));
+		$this->assertSame(
+			$helpscout_data,
+			$settings->get_helpscout_data()
+		);
+	}
 
 	/**
 	 *
 	 * @covers SettingsApi::from_saved()
 	 * @covers SettingsApi::save()
 	 * @covers SettingsApi::update_by_account_id()
+     * @covers SettingsApi::get_helpscout_data()
 	 * @covers TeamSettings::get()
 	 */
 	public function test_settings_save(){
-		update_option( SettingsApi::SETTING_NAME, false );
+		update_option( SettingsApi::TEAM_SETTING_NAME, false );
+		update_option( SettingsApi::HELPSCOUT_SETTING_NAME, false );
+
 		$data = [
 			[
 				'account_id'       => 'a216',
@@ -233,7 +255,11 @@ class SettingsApiTest extends WP_UnitTestCase {
 				'api_key'       	=> 'b228',
 			]
 		];
-		$settings = new SettingsApi($data);
+		$helpscout_data = [
+			'secret' => '42',
+			'callback' => 'https://walk.dog'
+		];
+		$settings = new SettingsApi($data, $helpscout_data);
 
 		$settings->save();
 
@@ -244,6 +270,14 @@ class SettingsApiTest extends WP_UnitTestCase {
 			$settings->get_by_account_id('b26')
 				->get( 'private_key')
 		);
+
+		$this->assertSame(
+			$helpscout_data,
+			$settings->get_helpscout_data()
+		);
+
+		update_option( SettingsApi::TEAM_SETTING_NAME, false );
+		update_option( SettingsApi::HELPSCOUT_SETTING_NAME, false );
 
 	}
 
@@ -357,11 +391,16 @@ class SettingsApiTest extends WP_UnitTestCase {
 		$r = $api->get_settings();
 		$this->assertSame(
 			'12216',
-			$r->get_data()[0]['account_id']
+			$r->get_data()['teams'][0]['account_id']
 		);
 		$this->assertSame(
 			'1226',
-			$r->get_data()[1]['account_id']
+			$r->get_data()['teams'][1]['account_id']
+		);
+
+		$this->assertSame(
+			$settings->get_helpscout_data(),
+			$r->get_data()['helpscout']
 		);
 	}
 

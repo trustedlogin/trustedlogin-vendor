@@ -19,7 +19,7 @@ class API_Handler {
 	/**
 	 * @var string The url for the API being queried.
 	 */
-	private $api_url = 'https://app.trustedlogin.com/api/v1/';
+	private $api_url;
 
 	/**
 	 * @var string The API private key for authenticating API calls
@@ -60,6 +60,7 @@ class API_Handler {
 		    'api_key'  => null,
 		    'debug_mode'  => false,
 		    'type'        => 'saas',
+			'api_url' => TRUSTEDLOGIN_API_URL
 	    );
 
 		$atts = wp_parse_args( $data, $defaults );
@@ -71,6 +72,8 @@ class API_Handler {
 	    $this->api_key = $atts['api_key'];
 
 		$this->debug_mode = (bool) $atts['debug_mode'];
+
+		$this->api_url = $atts['api_url'];
 
     }
 
@@ -392,6 +395,7 @@ class API_Handler {
 			'blocking'    => true,
 			'headers'     => $headers,
 			'cookies'     => array(),
+			'sslverify'	  => defined('DOING_TL_VENDOR_TESTS')
 		);
 
 		if ( $data ) {

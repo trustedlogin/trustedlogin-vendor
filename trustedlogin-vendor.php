@@ -13,7 +13,6 @@
  * Copyright: © 2020 Katz Web Services, Inc.
  */
 namespace TrustedLogin\Vendor;
-
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -21,6 +20,10 @@ if (!defined('ABSPATH')) {
 
 define( 'TRUSTEDLOGIN_PLUGIN_VERSION', '0.10.0' );
 define( 'TRUSTEDLOGIN_PLUGIN_FILE', __FILE__ );
+if( ! defined( 'TRUSTEDLOGIN_API_URL')){
+	define( 'TRUSTEDLOGIN_API_URL', 'https://app.trustedlogin.com/api/v1/' );
+}
+
 
 /** @define "$path" "./" */
 $path = plugin_dir_path(__FILE__);
@@ -28,8 +31,9 @@ $path = plugin_dir_path(__FILE__);
 require_once $path . 'includes/trait-debug-logging.php';
 require_once $path . 'includes/trait-licensing.php';
 require_once $path . 'includes/class-trustedlogin-team-settings.php';
-require_once $path . 'includes/class-trustedlogin-settings-api.php';
 require_once $path . 'includes/class-trustedlogin-settings.php';
+require_once $path . 'includes/class-trustedlogin-settings-api.php';
+require_once $path . 'admin/settings/init.php';
 require_once $path . 'includes/class-trustedlogin-sitekey-login.php';
 require_once $path . 'includes/class-trustedlogin-endpoint.php';
 require_once $path . 'includes/class-tl-api-handler.php';

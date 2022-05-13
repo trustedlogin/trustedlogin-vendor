@@ -1,0 +1,485 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TeamSettings renders 1`] = `
+<div>
+  <h2
+    class="title"
+  >
+    Team
+  </h2>
+  <table
+    class="form-table"
+    role="presentation"
+  >
+    <tbody>
+      <tr>
+        <th
+          scope="row"
+        >
+          <label
+            for="team-0[account_id]"
+          >
+            TrustedLogin Account ID
+          </label>
+        </th>
+        <td>
+          <input
+            class="regular-text ltr"
+            id="team-0[account_id]"
+            name="team-0[account_id]"
+            type="text"
+            value="7"
+          />
+        </td>
+      </tr>
+      <tr>
+        <th
+          scope="row"
+        >
+          <label
+            for="team-0[api_key]"
+          >
+            TrustedLogin API Key
+          </label>
+        </th>
+        <td>
+          <input
+            class="regular-text ltr"
+            id="team-0[api_key]"
+            name="team-0[api_key]"
+            type="text"
+            value="ak_1"
+          />
+        </td>
+      </tr>
+      <tr>
+        <th
+          scope="row"
+        >
+          <label
+            for="team-0[private_key]"
+          >
+            TrustedLogin Private Key
+          </label>
+        </th>
+        <td>
+          <input
+            class="regular-text ltr"
+            id="team-0[private_key]"
+            name="team-0[private_key]"
+            type="text"
+            value="pk_1"
+          />
+        </td>
+      </tr>
+      <tr>
+        <th
+          scope="row"
+        >
+          <label
+            for="team-0[approved_roles]"
+          >
+            What user roles provide support?
+          </label>
+          <span
+            class="description"
+            id="team-0[approved_roles]-description"
+          >
+            Which users should be able to log into customers’ sites if they have an Access Key?
+          </span>
+        </th>
+        <td
+          data-children-count="1"
+        >
+          <select />
+        </td>
+      </tr>
+      <tr>
+        <th
+          scope="row"
+        >
+          <label
+            for="team-0[helpdesk]"
+          >
+            Which helpdesk software are you using?
+          </label>
+        </th>
+        <td
+          data-children-count="1"
+        >
+          <select>
+            <option
+              class="level-0"
+              value="helpscout"
+            >
+              Helpscout
+            </option>
+          </select>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`TrustedLoginSettings renders with save disabled 1`] = `
+<div>
+  <form>
+    <h2
+      class="title"
+    >
+      Team
+    </h2>
+    <table
+      class="form-table"
+      role="presentation"
+    >
+      <tbody>
+        <tr>
+          <th
+            scope="row"
+          >
+            <label
+              for="team-0[account_id]"
+            >
+              TrustedLogin Account ID
+            </label>
+          </th>
+          <td>
+            <input
+              class="regular-text ltr"
+              id="team-0[account_id]"
+              name="team-0[account_id]"
+              type="text"
+              value="7"
+            />
+          </td>
+        </tr>
+        <tr>
+          <th
+            scope="row"
+          >
+            <label
+              for="team-0[api_key]"
+            >
+              TrustedLogin API Key
+            </label>
+          </th>
+          <td>
+            <input
+              class="regular-text ltr"
+              id="team-0[api_key]"
+              name="team-0[api_key]"
+              type="text"
+              value="ak_1"
+            />
+          </td>
+        </tr>
+        <tr>
+          <th
+            scope="row"
+          >
+            <label
+              for="team-0[private_key]"
+            >
+              TrustedLogin Private Key
+            </label>
+          </th>
+          <td>
+            <input
+              class="regular-text ltr"
+              id="team-0[private_key]"
+              name="team-0[private_key]"
+              type="text"
+              value="pk_1"
+            />
+          </td>
+        </tr>
+        <tr>
+          <th
+            scope="row"
+          >
+            <label
+              for="team-0[approved_roles]"
+            >
+              What user roles provide support?
+            </label>
+            <span
+              class="description"
+              id="team-0[approved_roles]-description"
+            >
+              Which users should be able to log into customers’ sites if they have an Access Key?
+            </span>
+          </th>
+          <td
+            data-children-count="1"
+          >
+            <select />
+          </td>
+        </tr>
+        <tr>
+          <th
+            scope="row"
+          >
+            <label
+              for="team-0[helpdesk]"
+            >
+              Which helpdesk software are you using?
+            </label>
+          </th>
+          <td
+            data-children-count="1"
+          >
+            <select>
+              <option
+                class="level-0"
+                value="helpscout"
+              >
+                Helpscout
+              </option>
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <table
+      class="form-table"
+      role="presentation"
+    >
+      <tbody>
+        <tr>
+          <th
+            scope="row"
+          >
+            <label
+              for="helpscout[secret]"
+            >
+              Help Scout Secret Key
+            </label>
+          </th>
+          <td>
+            <input
+              class="regular-text ltr"
+              id="helpscout[secret]"
+              name="helpscout[secret]"
+              type="text"
+              value=""
+            />
+          </td>
+        </tr>
+        <tr>
+          <th
+            scope="row"
+          >
+            <label
+              for="helpscout[callback]"
+            >
+              Help Scout Callback URL	
+            </label>
+          </th>
+          <td>
+            <input
+              class="regular-text ltr"
+              id="helpscout[callback]"
+              name="helpscout[callback]"
+              type="url"
+              value=""
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p
+      class="submit"
+    >
+      <input
+        class="button button-secondary button-hero"
+        disabled=""
+        type="submit"
+        value="Save"
+      />
+    </p>
+  </form>
+</div>
+`;
+
+exports[`TrustedLoginSettings renders with save enabled 1`] = `
+<div>
+  <form>
+    <h2
+      class="title"
+    >
+      Team
+    </h2>
+    <table
+      class="form-table"
+      role="presentation"
+    >
+      <tbody>
+        <tr>
+          <th
+            scope="row"
+          >
+            <label
+              for="team-0[account_id]"
+            >
+              TrustedLogin Account ID
+            </label>
+          </th>
+          <td>
+            <input
+              class="regular-text ltr"
+              id="team-0[account_id]"
+              name="team-0[account_id]"
+              type="text"
+              value="7"
+            />
+          </td>
+        </tr>
+        <tr>
+          <th
+            scope="row"
+          >
+            <label
+              for="team-0[api_key]"
+            >
+              TrustedLogin API Key
+            </label>
+          </th>
+          <td>
+            <input
+              class="regular-text ltr"
+              id="team-0[api_key]"
+              name="team-0[api_key]"
+              type="text"
+              value="ak_1"
+            />
+          </td>
+        </tr>
+        <tr>
+          <th
+            scope="row"
+          >
+            <label
+              for="team-0[private_key]"
+            >
+              TrustedLogin Private Key
+            </label>
+          </th>
+          <td>
+            <input
+              class="regular-text ltr"
+              id="team-0[private_key]"
+              name="team-0[private_key]"
+              type="text"
+              value="pk_1"
+            />
+          </td>
+        </tr>
+        <tr>
+          <th
+            scope="row"
+          >
+            <label
+              for="team-0[approved_roles]"
+            >
+              What user roles provide support?
+            </label>
+            <span
+              class="description"
+              id="team-0[approved_roles]-description"
+            >
+              Which users should be able to log into customers’ sites if they have an Access Key?
+            </span>
+          </th>
+          <td
+            data-children-count="1"
+          >
+            <select />
+          </td>
+        </tr>
+        <tr>
+          <th
+            scope="row"
+          >
+            <label
+              for="team-0[helpdesk]"
+            >
+              Which helpdesk software are you using?
+            </label>
+          </th>
+          <td
+            data-children-count="1"
+          >
+            <select>
+              <option
+                class="level-0"
+                value="helpscout"
+              >
+                Helpscout
+              </option>
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <table
+      class="form-table"
+      role="presentation"
+    >
+      <tbody>
+        <tr>
+          <th
+            scope="row"
+          >
+            <label
+              for="helpscout[secret]"
+            >
+              Help Scout Secret Key
+            </label>
+          </th>
+          <td>
+            <input
+              class="regular-text ltr"
+              id="helpscout[secret]"
+              name="helpscout[secret]"
+              type="text"
+              value=""
+            />
+          </td>
+        </tr>
+        <tr>
+          <th
+            scope="row"
+          >
+            <label
+              for="helpscout[callback]"
+            >
+              Help Scout Callback URL	
+            </label>
+          </th>
+          <td>
+            <input
+              class="regular-text ltr"
+              id="helpscout[callback]"
+              name="helpscout[callback]"
+              type="url"
+              value=""
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p
+      class="submit"
+    >
+      <input
+        class="button button-secondary button-hero"
+        disabled=""
+        type="submit"
+        value="Save"
+      />
+    </p>
+  </form>
+</div>
+`;

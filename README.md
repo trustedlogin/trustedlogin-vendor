@@ -28,7 +28,16 @@ A [docker-compose](https://docs.docker.com/samples/wordpress/)-based local devel
 	- `docker-compose run wpcli wp db reset`
 
 
-In the local development container, the constant `DOING_TL_VENDOR_TESTS` is set to true, as is `WP_DEBUG`.
+In the local development container, some constants are set:
+
+- `DOING_TL_VENDOR_TESTS`
+	- true
+- `WP_DEBUG`
+	- true
+- `TRUSTEDLOGIN_API_URL`
+	- http://web:80/api/v1/
+
+You can edit these variables in docker-compose.yml. You must rebuild containers after editting.
 
 ### Running PHPUnit In Docker
 
@@ -38,7 +47,16 @@ There is a special phpunit container for running WordPress tests, with WordPress
     - `docker-compose run phpunit`
 - Test
     - `phpunit`
+## Admin Settings Page
 
+- Install
+	- `yarn`
+- Build
+	- `yarn build`
+- Run watcher
+	- `yarn watch`
+- Run JavaScript Test
+	- `yarn test`
 ### Server To Server HTTP Requests
 If the ecommerce app is also running in docker-compose, this WordPress and the "web" service of app should be in "tl-dev" network. This allows you to make an HTTP request to the eCommerce app like this:
 

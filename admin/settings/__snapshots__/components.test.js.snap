@@ -1,0 +1,190 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BigButton renders 1`] = `
+<div>
+  <p
+    class="big-button"
+  >
+    <button
+      class="button button-secondary button-hero"
+    >
+      Text
+    </button>
+  </p>
+</div>
+`;
+
+exports[`Form renders 1`] = `
+<div>
+  <form>
+    <p
+      class="submit"
+    >
+      <input
+        class="button button-secondary button-hero"
+        id="s"
+        name="s"
+        type="submit"
+        value="Save"
+      />
+    </p>
+  </form>
+</div>
+`;
+
+exports[`Form renders with title 1`] = `
+<div>
+  <form
+    title="Spaces"
+  >
+    <h2
+      class="title"
+    >
+      Spaces
+    </h2>
+    <p
+      class="submit"
+    >
+      <input
+        class="button button-secondary button-hero"
+        id="s"
+        name="s"
+        type="submit"
+        value="Save"
+      />
+    </p>
+  </form>
+</div>
+`;
+
+exports[`FormTable renders 1`] = `
+<div>
+  <form>
+    <table
+      class="form-table"
+      role="presentation"
+    >
+      <tbody>
+        <tr>
+          <td>
+            1
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+</div>
+`;
+
+exports[`FormTable renders with title 1`] = `
+<div>
+  <form>
+    <h2
+      class="title"
+    >
+      One
+    </h2>
+    <table
+      class="form-table"
+      role="presentation"
+    >
+      <tbody>
+        <tr>
+          <td>
+            1
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+</div>
+`;
+
+exports[`Input renders 1`] = `
+<div>
+  <table
+    class="form-table"
+    role="presentation"
+  >
+    <tbody>
+      <tr>
+        <th
+          scope="row"
+        >
+          <label
+            for="name"
+          >
+            Label
+          </label>
+        </th>
+        <td>
+          <input
+            class="regular-text ltr"
+            id="name"
+            name="name"
+            type="text"
+            value="value"
+          />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`Select renders 1`] = `
+<div>
+  <table
+    class="form-table"
+    role="presentation"
+  >
+    <tbody>
+      <tr>
+        <th
+          scope="row"
+        >
+          <label
+            for="name"
+          >
+            Label
+          </label>
+        </th>
+        <td
+          data-children-count="1"
+        >
+          <select>
+            <option
+              class="level-0"
+              value="one"
+            >
+              One
+            </option>
+            <option
+              class="level-0"
+              value="two"
+            >
+              Two
+            </option>
+          </select>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+
+exports[`Submit renders 1`] = `
+<div>
+  <p
+    class="submit"
+  >
+    <input
+      class="button button-secondary button-hero"
+      id="r"
+      name="r"
+      type="submit"
+      value="Save"
+    />
+  </p>
+</div>
+`;
